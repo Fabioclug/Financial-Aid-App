@@ -23,14 +23,15 @@ public class TransactionDao {
 
     public TransactionDao(Context context) {
         mDbHandler = new DatabaseHandler(context);
-//        Transaction t1 = new Transaction("Aniversário da Audrey ahsuhaushasasasasasasas", 74.90, "debt", Calendar.getInstance().getTime());
-//        Transaction t2 = new Transaction("Salário Motorola", 1776.94, "credit", new Date(1134839678));
-//        save(t1);
-//        save(t2);
+        Transaction t1 = new Transaction(false, "Aniversário e um monte de palavra pra ficar um nome bem longo", 674.90, "debt", Calendar.getInstance().getTime());
+        Transaction t2 = new Transaction(true, "Salário", 1776.94, "credit", new Date(1134839678));
+        save(t1);
+        save(t2);
     }
 
     public boolean save(Transaction transaction) {
         ContentValues contentValues = new ContentValues();
+        contentValues.put("credit", transaction.isCredit()? 1:0);
         contentValues.put("category", transaction.getCategory());
         contentValues.put("value", transaction.getValue());
         contentValues.put("description", transaction.getDescription());
@@ -42,7 +43,7 @@ public class TransactionDao {
 
     private Transaction build(Cursor cursor) {
         int tId = cursor.getInt(cursor.getColumnIndex("id"));
-        boolean tDebt = cursor.getInt(cursor.getColumnIndex("debt")) == 1;
+        boolean tDebt = cursor.getInt(cursor.getColumnIndex("credit")) == 1;
         String tCategory = cursor.getString(cursor.getColumnIndex("category"));
         float tValue = cursor.getFloat(cursor.getColumnIndex("value"));
         String tDescription = cursor.getString(cursor.getColumnIndex("description"));
@@ -53,8 +54,7 @@ public class TransactionDao {
             e.printStackTrace();
         }
 
-        Transaction transaction = new Transaction(tId, tDebt, tDescription, tValue, tCategory, tDate);
-        return transaction;
+        return new Transaction(tId, tDebt, tDescription, tValue, tCategory, tDate);
     }
 
     public List<Transaction> findAll() {

@@ -65,7 +65,7 @@
                 android:layout_toEndOf="@id/balance_title"
                 android:textSize="30sp"
                 android:textStyle="bold"
-                android:textColor="@android:color/holo_green_dark"/>
+                android:textColor="@color/transaction_type_credit"/>
 
         </RelativeLayout>
 

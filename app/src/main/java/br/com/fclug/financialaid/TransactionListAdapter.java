@@ -27,6 +27,7 @@ public class TransactionListAdapter extends BaseAdapter {
         TextView transactionDate;
         TextView transactionDescription;
         TextView transactionValue;
+        TextView transactionType;
     }
 
     TransactionListAdapter(Context context) {
@@ -68,6 +69,7 @@ public class TransactionListAdapter extends BaseAdapter {
             viewHolderTransactionItem.transactionDate = (TextView) convertView.findViewById(R.id.transaction_item_date);
             viewHolderTransactionItem.transactionDescription = (TextView) convertView.findViewById(R.id.transaction_item_description);
             viewHolderTransactionItem.transactionValue = (TextView) convertView.findViewById(R.id.transaction_item_value);
+            viewHolderTransactionItem.transactionType = (TextView) convertView.findViewById(R.id.transaction_item_type);
 
             convertView.setTag(viewHolderTransactionItem);
         } else {
@@ -79,6 +81,14 @@ public class TransactionListAdapter extends BaseAdapter {
             viewHolderTransactionItem.transactionDescription.setText(transactionItem.getDescription());
             viewHolderTransactionItem.transactionDescription.setSelected(true);
             viewHolderTransactionItem.transactionValue.setText(String.format("%.2f", transactionItem.getValue()));
+            if(transactionItem.isCredit()) {
+                viewHolderTransactionItem.transactionType.setText("");
+                viewHolderTransactionItem.transactionValue.setTextColor(mContext.getResources().getColor(R.color.transaction_type_credit, null));
+            } else {
+                viewHolderTransactionItem.transactionType.setText("-");
+                viewHolderTransactionItem.transactionType.setTextColor(mContext.getResources().getColor(R.color.transaction_type_debt, null));
+                viewHolderTransactionItem.transactionValue.setTextColor(mContext.getResources().getColor(R.color.transaction_type_debt, null));
+            }
         }
 
         return convertView;

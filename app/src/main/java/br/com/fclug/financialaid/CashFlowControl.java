@@ -92,7 +92,7 @@ public class CashFlowControl extends Fragment {
             } catch (ParseException e) {
                 e.printStackTrace();
             }
-            Transaction newTransaction = new Transaction(transactionDescription.getText().toString(),
+            Transaction newTransaction = new Transaction(true, transactionDescription.getText().toString(),
                     Double.parseDouble(transactionValue.getText().toString()),
                     transactionCategory.getText().toString(), date);
             TransactionDao tdao= new TransactionDao(getContext());

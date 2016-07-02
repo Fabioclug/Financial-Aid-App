@@ -16,8 +16,8 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //            "email text unique not null, senha text not null, latitude real, longitude real)";
 
     private static final String CREATE_TRANSACTION = "create table cash_transaction(id integer not null primary key, " +
-            "debt integer not null check (debt in (0,1)) not null, account integer, description text not null, " +
-            "register_date date not null, value real not null, foreign key(account) references account(id))";
+            "category text not null, credit integer not null check (credit in (0,1)) not null, account integer, " +
+            "description text not null, register_date date not null, value real not null, foreign key(account) references account(id))";
 
     private static final String CREATE_ACCOUNT = "create table account(id integer primary key," +
             "name text not null, type integer not null)";

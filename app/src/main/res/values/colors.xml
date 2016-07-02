@@ -4,4 +4,6 @@
     <color name="colorPrimaryDark">#90A4AE</color>
     <color name="colorAccent">#607D8B</color>
     <color name="colorStartBar">#B0BEC5</color>
+    <color name="transaction_type_credit">#8BC34A</color>
+    <color name="transaction_type_debt">#E53935</color>
 </resources>

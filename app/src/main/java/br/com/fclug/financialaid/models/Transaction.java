@@ -38,6 +38,14 @@ public class Transaction {
         this.id = id;
     }
 
+    public boolean isCredit() {
+        return credit;
+    }
+
+    public void setCredit(boolean credit) {
+        this.credit = credit;
+    }
+
     public String getDescription() {
         return description;
     }
