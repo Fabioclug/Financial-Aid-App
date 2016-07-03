@@ -32,7 +32,7 @@
                 android:textSize="20sp"/>
         </RelativeLayout>
 
-        <ListView
+        <com.baoyz.swipemenulistview.SwipeMenuListView
             android:id="@+id/control_entries_list"
             android:layout_width="match_parent"
             android:layout_height="390dp"

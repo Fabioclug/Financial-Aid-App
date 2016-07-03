@@ -23,10 +23,10 @@ public class TransactionDao {
 
     public TransactionDao(Context context) {
         mDbHandler = new DatabaseHandler(context);
-        Transaction t1 = new Transaction(false, "Aniversário e um monte de palavra pra ficar um nome bem longo", 674.90, "debt", Calendar.getInstance().getTime());
-        Transaction t2 = new Transaction(true, "Salário", 1776.94, "credit", new Date(1134839678));
-        save(t1);
-        save(t2);
+        //Transaction t1 = new Transaction(false, "Aniversário e um monte de palavra pra ficar um nome bem longo", 674.90, "debt", Calendar.getInstance().getTime());
+        //Transaction t2 = new Transaction(true, "Salário", 1776.94, "credit", new Date(1134839678));
+        //save(t1);
+        //save(t2);
     }
 
     public boolean save(Transaction transaction) {
@@ -68,6 +68,14 @@ public class TransactionDao {
             }
         }
         return transactions;
+    }
+
+    public boolean delete(Transaction transaction) {
+        long id = transaction.getId();
+        String whereClause = "id = ?";
+        String[] whereArgs = new String[] { String.valueOf(id) };
+        int result = mDbHandler.getWritableDatabase().delete("cash_transaction", whereClause, whereArgs);
+        return result > 0;
     }
 
 }

@@ -37,6 +37,7 @@ public class TransactionListAdapter extends BaseAdapter {
     public void updateListItems() {
         TransactionDao transactionDao = new TransactionDao(mContext);
         mTransactions = transactionDao.findAll();
+        this.notifyDataSetChanged();
     }
 
     @Override
