@@ -1,11 +1,8 @@
 package br.com.fclug.financialaid;
 
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
-import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -21,6 +18,8 @@ import java.util.List;
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
+    SessionManager mSession;
+
     protected FrameLayout mFrameLayout;
     private DrawerLayout mDrawerLayout;
     private List<Fragment> mFragments;
@@ -29,19 +28,14 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
+
+        mSession = new SessionManager(getApplicationContext());
+        mSession.checkLogin();
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         mFrameLayout = (FrameLayout)findViewById(R.id.content_frame);
-
-//        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-//        fab.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-//                        .setAction("Action", null).show();
-//            }
-//        });
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -53,9 +47,10 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_camera);
 
-        Fragment fragment = (Fragment) new CashFlowControl();
+        Fragment fragment = new AccountsFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+        setTitle(R.string.drawer_cash_control);
     }
 
     @Override
@@ -95,17 +90,20 @@ public class MainActivity extends AppCompatActivity
         // Handle navigation view item clicks here.
         Fragment fragment = null;
 
-        Class fragmentClass;
+        Class fragmentClass = null;
         switch(item.getItemId()) {
 
             case R.id.nav_camera:
-                fragmentClass = CashFlowControl.class;
+                fragmentClass = AccountsFragment.class;
                 break;
             case R.id.nav_gallery:
                 fragmentClass = GroupPayments.class;
                 break;
+            case R.id.nav_send:
+                mSession.logoutUser();
+                break;
             default:
-                fragmentClass = CashFlowControl.class;
+                fragmentClass = AccountsFragment.class;
 //            } else if (id == R.id.nav_gallery) {
 //
 //            } else if (id == R.id.nav_slideshow) {
@@ -118,22 +116,23 @@ public class MainActivity extends AppCompatActivity
 //
 //            }
         }
+        if(fragmentClass != null) {
+            try {
+                fragment = (Fragment) fragmentClass.newInstance();
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
 
-        try {
-            fragment = (Fragment) fragmentClass.newInstance();
-        } catch (Exception e) {
-            e.printStackTrace();
+            // Insert the fragment by replacing the content frame
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
+
+            // Highlight the selected item has been done by NavigationView
+            //item.setChecked(true);
+            // Set action bar title
+            setTitle(item.getTitle());
+            mDrawerLayout.closeDrawer(GravityCompat.START);
         }
-
-        // Insert the fragment by replacing the content frame
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-
-        // Highlight the selected item has been done by NavigationView
-        //item.setChecked(true);
-        // Set action bar title
-        setTitle(item.getTitle());
-        mDrawerLayout.closeDrawer(GravityCompat.START);
         return true;
     }
 }

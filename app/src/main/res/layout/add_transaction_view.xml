@@ -1,39 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical" android:layout_width="300dp"
-    android:layout_height="300dp">
+    android:layout_height="450dp"
+    android:background="@color/dialog_bg">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="60dp"
+        android:background="@color/colorStartBar">
+
+        <TextView
+            android:id="@+id/transaction_dialog_title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_transaction"
+            android:layout_gravity="center"
+            android:textSize="30sp"
+            android:textColor="@color/color_black"
+            android:textAlignment="center"/>
+
+    </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="10dp">
+        android:layout_margin="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_padding"
+        android:paddingEnd="@dimen/dialog_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Value:"
+            android:text="@string/add_transaction_value"
             android:textSize="20sp"
+            android:textColor="@color/color_black"
             android:layout_weight="0.2"/>
 
         <EditText
             android:id="@+id/add_transaction_value"
             android:layout_width="10dp"
             android:layout_height="40dp"
-            android:hint="100.0"
-            android:layout_weight="0.15"/>
+            android:layout_weight="0.2"
+            android:inputType="numberDecimal"/>
 
-        <TextView
+        <ImageButton
+            android:id="@+id/add_transaction_credit"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="Account:"
-            android:textSize="20sp"
-            android:layout_weight="0.3"
-            android:paddingStart="15dp"/>
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_plus"
+            android:layout_weight="0.1"/>
 
-        <Spinner
-            android:layout_width="20dp"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:id="@+id/add_transaction_debt"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:src="@drawable/ic_minus"
             android:layout_weight="0.1"/>
 
     </LinearLayout>
@@ -41,41 +62,69 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="10dp">
+        android:layout_margin="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_padding"
+        android:paddingEnd="@dimen/dialog_padding">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@string/add_transaction_account"
+            android:textSize="20sp"
+            android:textColor="@android:color/black"
+            android:layout_weight="0.3"/>
+
+        <Spinner
+            android:id="@+id/add_transaction_account"
+            android:layout_width="20dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="0.3"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_padding"
+        android:paddingEnd="@dimen/dialog_padding">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Description:"
+            android:text="@string/add_transaction_description"
             android:textSize="20sp"
+            android:textColor="@android:color/black"
             android:layout_weight="0.1"/>
 
         <EditText
             android:id="@+id/add_transaction_description"
             android:layout_width="30dp"
             android:layout_height="40dp"
-            android:layout_weight="0.9"/>
+            android:layout_weight="0.6"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_margin="10dp">
+        android:layout_margin="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_padding"
+        android:paddingEnd="@dimen/dialog_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Category:"
+            android:text="@string/add_transaction_category"
             android:textSize="20sp"
-            android:layout_weight="0.35"/>
+            android:textColor="@android:color/black"
+            android:layout_weight="0.1"/>
 
         <EditText
             android:id="@+id/add_transaction_category"
             android:layout_width="30dp"
             android:layout_height="40dp"
-            android:layout_weight="0.35"/>
+            android:layout_weight="0.1"/>
 
     </LinearLayout>
 
@@ -83,13 +132,16 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_margin="10dp">
+        android:layout_margin="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_padding"
+        android:paddingEnd="@dimen/dialog_padding">
 
         <TextView
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Date:"
+            android:text="@string/add_transaction_date"
             android:textSize="20sp"
+            android:textColor="@android:color/black"
             android:layout_weight="0.35"/>
 
         <EditText

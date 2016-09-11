@@ -6,4 +6,13 @@
     <color name="colorStartBar">#B0BEC5</color>
     <color name="transaction_type_credit">#8BC34A</color>
     <color name="transaction_type_debt">#E53935</color>
+    <color name="account_image_bg">#29B6F6</color>
+    <color name="color_black">#000000</color>
+    <color name="dialog_bg">#F5F5F5</color>
+    
+    <!-- Account possible colors-->
+    <color name="checking_account">#FFEE58</color>
+    <color name="savings_account">#039BE5</color>
+    <color name="credit_account">#EF5350</color>
+    <color name="cash_account">#81C784</color>
 </resources>

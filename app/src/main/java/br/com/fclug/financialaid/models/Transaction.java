@@ -12,22 +12,25 @@ public class Transaction {
     private double value;
     private String category;
     private Date date;
+    private long accountId;
 
-    public Transaction(long id, boolean credit, String description, double value, String category, Date date) {
+    public Transaction(long id, boolean credit, String description, double value, String category, Date date, long accountId) {
         this.id = id;
         this.credit = credit;
         this.description = description;
         this.value = value;
         this.category = category;
         this.date = date;
+        this.accountId = accountId;
     }
 
-    public Transaction(boolean credit, String description, double value, String category, Date date) {
+    public Transaction(boolean credit, String description, double value, String category, Date date, long accountId) {
         this.credit = credit;
         this.description = description;
         this.value = value;
         this.category = category;
         this.date = date;
+        this.accountId = accountId;
     }
 
     public long getId() {
@@ -76,5 +79,13 @@ public class Transaction {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public long getAccountId() {
+        return accountId;
+    }
+
+    public void setAccountId(long accountId) {
+        this.accountId = accountId;
     }
 }

@@ -15,15 +15,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 //            "PrimNome text not null, SobreNome text not null,cidade text not null," +
 //            "email text unique not null, senha text not null, latitude real, longitude real)";
 
-    private static final String CREATE_TRANSACTION = "create table cash_transaction(id integer not null primary key, " +
+    public static final String ACCOUNT_TABLE = "account";
+    public static final String TRANSACTION_TABLE = "cash_transaction";
+
+    private static final String CREATE_ACCOUNT = "create table " + ACCOUNT_TABLE + "(id integer primary key," +
+            "name text not null, balance real not null, type text not null)";
+
+    private static final String CREATE_TRANSACTION = "create table " + TRANSACTION_TABLE + "(id integer not null primary key, " +
             "category text not null, credit integer not null check (credit in (0,1)) not null, account integer, " +
             "description text not null, register_date date not null, value real not null, foreign key(account) references account(id))";
 
-    private static final String CREATE_ACCOUNT = "create table account(id integer primary key," +
-            "name text not null, type integer not null)";
-
-
-    protected SQLiteDatabase database;
 
     public DatabaseHandler(Context context) {
         super(context, DB_NAME, null, DB_VERSION);

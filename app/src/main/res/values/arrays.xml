@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!-- Account possible types -->
+    <string-array name="account_types">
+        <item>Checking</item>
+        <item>Savings</item>
+        <item>Credit Card</item>
+        <item>Cash</item>
+    </string-array>
+
+    <!-- Account colors, according to the types -->
+    <array name="account_colors">
+        <item>@color/checking_account</item>
+        <item>@color/savings_account</item>
+        <item>@color/credit_account</item>
+        <item>@color/cash_account</item>
+    </array>
+
+    <!-- Account icons, according to the types -->
+    <integer-array name="account_icons">
+        <item>@drawable/ic_bank</item>
+        <item>@drawable/ic_safe</item>
+        <item>@drawable/ic_credit_card</item>
+        <item>@drawable/ic_cash</item>
+    </integer-array>
+</resources>
