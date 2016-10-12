@@ -26,7 +26,6 @@ public class AccountGridAdapter extends BaseAdapter {
     private List<Account> mAccounts;
     private Context mContext;
     private Account mAccountItem;
-    private String[] mAccountTypes;
     private int[] mAccountColors;
     private TypedArray mAccountIcons;
 
@@ -39,7 +38,6 @@ public class AccountGridAdapter extends BaseAdapter {
     AccountGridAdapter(Context context) {
         mContext = context;
         Resources res = mContext.getResources();
-        mAccountTypes = res.getStringArray(R.array.account_types);
         mAccountColors = res.getIntArray(R.array.account_colors);
         mAccountIcons = res.obtainTypedArray(R.array.account_icons);
     }
@@ -48,17 +46,6 @@ public class AccountGridAdapter extends BaseAdapter {
         AccountDao transactionDao = new AccountDao(mContext);
         mAccounts = transactionDao.findAll();
         this.notifyDataSetChanged();
-    }
-
-    private int findType(String type) {
-        int result = -1;
-        for(int i = 0; i < mAccountTypes.length; i++) {
-            if(mAccountTypes[i].equals(type)) {
-                result = i;
-                break;
-            }
-        }
-        return result;
     }
 
     @Override
@@ -98,7 +85,7 @@ public class AccountGridAdapter extends BaseAdapter {
         @DrawableRes int accountIcon = R.drawable.ic_cash;
         GradientDrawable gd = (GradientDrawable) viewHolderAccountItem.accountImage.getBackground();
         gd.setColor(ContextCompat.getColor(mContext, R.color.account_image_bg));
-        int typeIndex = findType(mAccountItem.getType());
+        int typeIndex = AppUtils.getAccountTypeIndex(mContext, mAccountItem.getType());
         if (typeIndex != -1) {
             gd.setColor(mAccountColors[typeIndex]);
             accountIcon = mAccountIcons.getResourceId(typeIndex, R.drawable.ic_cash);
@@ -109,14 +96,12 @@ public class AccountGridAdapter extends BaseAdapter {
             viewHolderAccountItem.accountName.setText(mAccountItem.getName());
             viewHolderAccountItem.accountBalance.setText(String.valueOf(mAccountItem.getBalance()));
 
-            String signal = "";
             if(mAccountItem.getBalance() >= 0) {
                 viewHolderAccountItem.accountBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
             } else {
-                signal = "-";
                 viewHolderAccountItem.accountBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
             }
-            viewHolderAccountItem.accountBalance.setText(signal + mAccountItem.getBalance());
+            viewHolderAccountItem.accountBalance.setText(String.valueOf(mAccountItem.getBalance()));
         }
 
         return convertView;

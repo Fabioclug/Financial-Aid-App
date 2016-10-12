@@ -6,6 +6,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -35,6 +36,11 @@ public class MainActivity extends AppCompatActivity
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
+        ActionBar actionBar = getSupportActionBar();
+        if(actionBar != null) {
+            actionBar.setDisplayShowTitleEnabled(false);
+        }
+
         mFrameLayout = (FrameLayout)findViewById(R.id.content_frame);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity
         mDrawerLayout.setDrawerListener(toggle);
         toggle.syncState();
 
+
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
         navigationView.setCheckedItem(R.id.nav_camera);
@@ -50,7 +57,7 @@ public class MainActivity extends AppCompatActivity
         Fragment fragment = new AccountsFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
         fragmentManager.beginTransaction().replace(R.id.content_frame, fragment).commit();
-        setTitle(R.string.drawer_cash_control);
+        //setTitle(R.string.drawer_cash_control);
     }
 
     @Override
@@ -97,7 +104,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentClass = AccountsFragment.class;
                 break;
             case R.id.nav_gallery:
-                fragmentClass = GroupPayments.class;
+                fragmentClass = GroupsFragment.class;
                 break;
             case R.id.nav_send:
                 mSession.logoutUser();
@@ -130,7 +137,7 @@ public class MainActivity extends AppCompatActivity
             // Highlight the selected item has been done by NavigationView
             //item.setChecked(true);
             // Set action bar title
-            setTitle(item.getTitle());
+            //setTitle(item.getTitle());
             mDrawerLayout.closeDrawer(GravityCompat.START);
         }
         return true;

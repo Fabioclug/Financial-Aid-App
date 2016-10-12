@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              xmlns:app="http://schemas.android.com/apk/res-auto"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="80dp"
+              android:paddingStart="20dp"
+              android:paddingEnd="20dp"
+              xmlns:tools="http://schemas.android.com/tools">
+
+    <TextView
+        android:id="@+id/member_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Name"
+        android:layout_marginEnd="10dp"
+        android:textSize="20sp"
+        android:textColor="@color/color_black"
+        android:textStyle="bold"
+        android:layout_alignParentStart="true"
+        android:layout_centerInParent="true"
+        />
+
+    <TextView
+        android:id="@+id/member_username"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="(username)"
+        android:textSize="20sp"
+        android:textColor="@color/color_black"
+        android:layout_toEndOf="@id/member_name"
+        android:layout_centerInParent="true"
+        />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/member_delete"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:src="@drawable/ic_delete"
+        app:backgroundTint="@color/credit_account"
+        android:layout_alignParentEnd="true"
+        android:layout_centerInParent="true"
+        android:visibility="gone"
+        tools:visibility="visible"
+        app:elevation="0dp"/>
+
+
+</RelativeLayout>

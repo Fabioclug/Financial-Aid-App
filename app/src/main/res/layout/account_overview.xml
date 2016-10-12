@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/account_overview_image"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_bank"
+        android:background="@drawable/account_grid_item_bg"
+        android:layout_margin="10dp"
+        android:padding="15dp"
+        android:tint="@android:color/white"
+        android:elevation="5dp"/>
+
+    <TextView
+        android:id="@+id/account_overview_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="15dp"
+        android:layout_marginTop="15dp"
+        android:textColor="@color/color_black"
+        android:textSize="20sp"
+        android:text="Account name"
+        android:layout_toEndOf="@id/account_overview_image"/>
+
+    <TextView
+        android:id="@+id/account_overview_type"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="25dp"
+        android:layout_marginTop="10dp"
+        android:text="account type"
+        android:layout_below="@id/account_overview_name"
+        android:layout_toEndOf="@id/account_overview_image"/>
+
+</RelativeLayout>

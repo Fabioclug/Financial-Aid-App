@@ -20,9 +20,6 @@ import br.com.fclug.financialaid.server.ServerUtils;
 
 public class LoginActivity extends AppCompatActivity {
 
-    private static int LOGIN_INTENT = 1;
-    private static int REGISTER_INTENT = 2;
-
     private SessionManager mSession;
 
     private EditText mUsername;
@@ -30,9 +27,9 @@ public class LoginActivity extends AppCompatActivity {
     private Button mSignIn;
     private Button mSignUp;
 
-    private int mIntent;
     private String usernameString;
     private String passwordString;
+    private JSONObject requestArgs;
 
     private ProgressDialog mProgressDialog;
     private AlertDialog mAlertDialog;
@@ -45,9 +42,9 @@ public class LoginActivity extends AppCompatActivity {
 
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
-            usernameString = mUsername.getText().toString().trim();
-            passwordString = mPassword.getText().toString().trim();
-            mSignIn.setEnabled(!usernameString.isEmpty() && !passwordString.isEmpty());
+            usernameString = mUsername.getText().toString();
+            passwordString = mPassword.getText().toString();
+            mSignIn.setEnabled(!usernameString.trim().isEmpty() && !passwordString.trim().isEmpty());
         }
 
         @Override
@@ -68,36 +65,20 @@ public class LoginActivity extends AppCompatActivity {
                 }
             }
             mProgressDialog.dismiss();
-            if (token != null && !token.equals("")){
-                // Creating user login session
-                mSession.createLoginSession(usernameString, passwordString, token);
+            // Creating user login session
+            mSession.createLoginSession(usernameString, passwordString, token);
 
-                // Start MainActivity
-                Intent i = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(i);
-                finish();
-
-            } else{
-                mAlertDialog.setMessage("Username/password doesn't match");
-                mAlertDialog.show();
-            }
+            // Start MainActivity
+            Intent i = new Intent(getApplicationContext(), MainActivity.class);
+            startActivity(i);
+            finish();
         }
 
         @Override
-        public void onFailure() {
-
-        }
-    };
-
-    ApiRequest.RequestCallback mRegisterCallback = new ApiRequest.RequestCallback() {
-        @Override
-        public void onSuccess(JSONObject response) {
-
-        }
-
-        @Override
-        public void onFailure() {
-
+        public void onFailure(int code) {
+            mProgressDialog.dismiss();
+            mAlertDialog.setMessage("Username/password doesn't match");
+            mAlertDialog.show();
         }
     };
 
@@ -117,7 +98,6 @@ public class LoginActivity extends AppCompatActivity {
         mPassword.addTextChangedListener(mWatcher);
         mSignIn.setEnabled(false);
 
-        mIntent = LOGIN_INTENT;
 
         mProgressDialog = new ProgressDialog(LoginActivity.this);
         mAlertDialog = new AlertDialog.Builder(LoginActivity.this).create();
@@ -135,22 +115,18 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
 
                 mProgressDialog.setTitle("Loading");
-                mProgressDialog.setMessage("Wait while loading...");
+                mProgressDialog.setMessage("Authenticating...");
                 mProgressDialog.show();
 
-                JSONObject args = new JSONObject();
+                requestArgs = new JSONObject();
                 try {
-                    args.put("username", usernameString);
-                    args.put("password", passwordString);
+                    requestArgs.put("username", usernameString);
+                    requestArgs.put("password", passwordString);
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
 
-                if(mIntent == REGISTER_INTENT) {
-                    new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_REGISTER_USER, args, mRegisterCallback).execute();
-                }
-
-                new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_LOGIN, args, mLoginCallback).execute();
+                new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_LOGIN, requestArgs, mLoginCallback).execute();
 
             }
         });
@@ -158,22 +134,10 @@ public class LoginActivity extends AppCompatActivity {
         mSignUp.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mIntent = REGISTER_INTENT;
-                mSignUp.setVisibility(View.GONE);
-                mSignIn.setText(R.string.user_register);
+                Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+                startActivity(intent);
             }
         });
 
-    }
-
-    @Override
-    public void onBackPressed() {
-        if(mIntent == LOGIN_INTENT) {
-            super.onBackPressed();
-        } else {
-            mIntent = LOGIN_INTENT;
-            mSignIn.setText(R.string.login_signin);
-            mSignUp.setVisibility(View.VISIBLE);
-        }
     }
 }

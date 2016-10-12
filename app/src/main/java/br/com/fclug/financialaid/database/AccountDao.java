@@ -3,10 +3,12 @@ package br.com.fclug.financialaid.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.fclug.financialaid.AppUtils;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
 
@@ -32,6 +34,18 @@ public class AccountDao {
         contentValues.put("type", account.getType());
         long result = mDbHandler.getWritableDatabase().insert("account", null, contentValues);
         account.setId(result);
+        return result > 0;
+    }
+
+    public boolean update(Account account) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put("name", account.getName());
+        contentValues.put("balance", account.getBalance());
+        contentValues.put("type", account.getType());
+        String whereClause = "id = ?";
+        String[] whereArgs = new String[] {String.valueOf(account.getId())};
+
+        long result = mDbHandler.getWritableDatabase().update(DatabaseHandler.ACCOUNT_TABLE, contentValues, whereClause, whereArgs);
         return result > 0;
     }
 
@@ -70,9 +84,21 @@ public class AccountDao {
     }
 
     public boolean updateBalance(Account account, Transaction transaction) {
-        boolean credit = transaction.isCredit();
-        double value = transaction.getValue();
-        account.setBalance(account.getBalance() + (credit? value : (value * -1)));
+        double balance = AppUtils.roundValue(account.getBalance() + transaction.getSignedValue());
+        Log.d("dao", "balance: " + balance);
+        account.setBalance(balance);
+        ContentValues values = new ContentValues();
+        values.put("balance", account.getBalance());
+        String whereClause = "id = ?";
+        String[] whereArgs = new String[] {String.valueOf(account.getId())};
+        int result = mDbHandler.getWritableDatabase().update("account", values, whereClause, whereArgs);
+        return result > 0;
+    }
+
+    public boolean updateBalance(Account account, double difference) {
+        double balance = AppUtils.roundValue(account.getBalance() + difference);
+        Log.d("dao", "balance: " + balance);
+        account.setBalance(balance);
         ContentValues values = new ContentValues();
         values.put("balance", account.getBalance());
         String whereClause = "id = ?";

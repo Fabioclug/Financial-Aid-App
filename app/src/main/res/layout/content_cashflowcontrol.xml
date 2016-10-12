@@ -5,21 +5,20 @@
     android:layout_height="match_parent"
     tools:context=".AccountsFragment">
 
-    <RelativeLayout
+    <GridView
+        android:id="@+id/account_gridview"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <GridView
-            android:id="@+id/account_gridview"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:numColumns="3"
-            android:layout_margin="15dp"
-            android:horizontalSpacing="10dp"
-            android:verticalSpacing="15dp"
-            tools:listitem="@layout/account_grid_item"/>
-
-    </RelativeLayout>
+        android:layout_height="match_parent"
+        android:numColumns="3"
+        android:paddingLeft="15dp"
+        android:paddingRight="15dp"
+        android:paddingTop="20dp"
+        android:paddingBottom="20dp"
+        android:clipToPadding="false"
+        android:horizontalSpacing="10dp"
+        android:verticalSpacing="15dp"
+        android:scrollbarStyle="outsideInset"
+        tools:listitem="@layout/account_grid_item"/>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_control_entry"

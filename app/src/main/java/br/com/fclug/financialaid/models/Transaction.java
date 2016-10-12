@@ -14,6 +14,10 @@ public class Transaction {
     private Date date;
     private long accountId;
 
+    public Transaction() {
+
+    }
+
     public Transaction(long id, boolean credit, String description, double value, String category, Date date, long accountId) {
         this.id = id;
         this.credit = credit;
@@ -87,5 +91,13 @@ public class Transaction {
 
     public void setAccountId(long accountId) {
         this.accountId = accountId;
+    }
+
+    public double getSignedValue() {
+        if(isCredit()) {
+            return value;
+        } else {
+            return value * -1;
+        }
     }
 }

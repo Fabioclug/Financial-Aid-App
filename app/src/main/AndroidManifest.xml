@@ -12,7 +12,8 @@
         android:theme="@style/AppTheme">
         <activity
             android:name=".MainActivity"
-            android:label="@string/app_name">
+            android:label="@string/app_name"
+            android:screenOrientation="sensorPortrait">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
 
@@ -21,8 +22,16 @@
 
             <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
         </activity>
-        <activity android:name=".CashFlowControlActivity"/>
-        <activity android:name=".LoginActivity">
+        <activity
+            android:name=".CashFlowControlActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity
+            android:name=".LoginActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity
+            android:name=".RegisterActivity"
+            android:screenOrientation="sensorPortrait"/>
+        <activity android:name=".CreateGroupActivity">
         </activity>
     </application>
 

@@ -17,7 +17,7 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
 
     public interface RequestCallback {
         void onSuccess(JSONObject response);
-        void onFailure();
+        void onFailure(int code);
     }
 
     private static final String TAG = "ApiRequest";
@@ -54,6 +54,7 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
     @Override
     protected void onPostExecute(JSONObject response) {
         super.onPostExecute(response);
+        Log.d(TAG, response.toString());
         int statusCode = -1;
         try {
             statusCode = response.getInt("status_code");
@@ -66,7 +67,7 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
                 break;
             case HttpURLConnection.HTTP_NOT_FOUND:
             case HttpURLConnection.HTTP_INTERNAL_ERROR:
-                mCallback.onFailure();
+                mCallback.onFailure(statusCode);
                 break;
             default:
                 break;

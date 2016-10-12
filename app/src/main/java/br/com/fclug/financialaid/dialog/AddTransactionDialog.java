@@ -5,7 +5,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -23,6 +25,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.fclug.financialaid.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.TransactionDao;
@@ -79,6 +82,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.add_transaction_view);
 
         mAccountDao = new AccountDao(mContext);
@@ -162,22 +166,29 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
         long accountId = mSelectedAccount.getId();
         TransactionDao transactionDao = new TransactionDao(mContext);
+        double value = Double.parseDouble(transactionValue.getText().toString());
+        value = AppUtils.roundValue(value);
+        Log.d("dialog", "value: " + value);
         if (mUpdateTransaction == null) {
             Transaction newTransaction = new Transaction(mTransactionCredit, transactionDescription.getText().toString(),
-                    Double.parseDouble(transactionValue.getText().toString()),
-                    transactionCategory.getText().toString(), date, accountId);
+                    value, transactionCategory.getText().toString(), date, accountId);
 
             // save the new transaction
             transactionDao.save(newTransaction);
             // update account balance
             mAccountDao.updateBalance(mSelectedAccount, newTransaction);
         } else {
-            mUpdateTransaction.setDescription(transactionDescription.getText().toString());
-            mUpdateTransaction.setValue(Double.parseDouble(transactionValue.getText().toString()));
-            mUpdateTransaction.setCategory(transactionCategory.getText().toString());
-            mUpdateTransaction.setDate(date);
-            mUpdateTransaction.setAccountId(accountId);
-            transactionDao.update(mUpdateTransaction);
+            Transaction updatedTransaction = new Transaction();
+            updatedTransaction.setId(mUpdateTransaction.getId());
+            updatedTransaction.setDescription(transactionDescription.getText().toString());
+            updatedTransaction.setValue(value);
+            updatedTransaction.setCategory(transactionCategory.getText().toString());
+            updatedTransaction.setDate(date);
+            updatedTransaction.setAccountId(accountId);
+            updatedTransaction.setCredit(mTransactionCredit);
+            transactionDao.update(updatedTransaction);
+            double valueDifference = updatedTransaction.getSignedValue() - mUpdateTransaction.getSignedValue();
+            mAccountDao.updateBalance(mSelectedAccount, valueDifference);
         }
 
         // close dialog

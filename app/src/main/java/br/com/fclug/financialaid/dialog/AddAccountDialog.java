@@ -4,10 +4,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.View;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.TextView;
 
+import java.util.Arrays;
 import java.util.Date;
 
 import br.com.fclug.financialaid.R;
@@ -21,14 +24,39 @@ import br.com.fclug.financialaid.models.Transaction;
  */
 public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
+    private Account mUpdateAccount;
+    private EditText mAccountName;
+    private EditText mAccountBalance;
+    private Spinner mAccountType;
+
     public AddAccountDialog(Context context) {
         super(context);
+    }
+
+    public AddAccountDialog(Context context, Account account) {
+        super(context);
+        mUpdateAccount = account;
     }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.add_account_layout);
+
+        mAccountName = (EditText) findViewById(R.id.add_account_name);
+        mAccountBalance = (EditText) findViewById(R.id.add_account_balance);
+        mAccountType = (Spinner) findViewById(R.id.add_account_category);
+
+        if (mUpdateAccount != null) {
+            mAccountName.setText(mUpdateAccount.getName());
+            TextView balanceLabel = (TextView) findViewById(R.id.add_account_balance_label);
+            balanceLabel.setVisibility(View.GONE);
+            mAccountBalance.setVisibility(View.GONE);
+            mAccountBalance.setText(String.valueOf(mUpdateAccount.getBalance()));
+            String[] accountTypes = getContext().getResources().getStringArray(R.array.account_types);
+            mAccountType.setSelection(Arrays.asList(accountTypes).indexOf(mUpdateAccount.getType()));
+        }
 
         Button addAccountButton = (Button) findViewById(R.id.add_account_button);
         addAccountButton.setOnClickListener(this);
@@ -36,23 +64,32 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
     @Override
     public void onClick(View v) {
-        EditText accountName = (EditText) findViewById(R.id.add_account_name);
-        EditText accountBalance = (EditText) findViewById(R.id.add_account_balance);
-        Spinner accountType = (Spinner) findViewById(R.id.add_account_category);
-
-        Account newAccount = new Account(accountName.getText().toString(),
-                Double.parseDouble(accountBalance.getText().toString()), String.valueOf(accountType.getSelectedItem()));
         AccountDao accountDao = new AccountDao(getContext());
 
-        // save the new transaction
-        accountDao.save(newAccount);
+        String accountName = mAccountName.getText().toString();
+        String accountType = String.valueOf(mAccountType.getSelectedItem());
 
-        double balance = newAccount.getBalance();
-        boolean credit = balance >= 0;
-        if(balance != 0) {
-            Transaction initialTransaction = new Transaction(credit, "Initial Balance", balance, "", new Date(),
-                    newAccount.getId());
-            new TransactionDao(getContext()).save(initialTransaction);
+        if (mUpdateAccount == null) {
+            double accountBalance = Double.parseDouble(mAccountBalance.getText().toString());
+            Account newAccount = new Account(accountName, accountBalance, accountType);
+
+            // save the new transaction
+            accountDao.save(newAccount);
+
+            double balance = newAccount.getBalance();
+            boolean credit = balance >= 0;
+            if (balance != 0) {
+                Transaction initialTransaction = new Transaction(credit, "Initial Balance", balance, "", new Date(),
+                        newAccount.getId());
+                new TransactionDao(getContext()).save(initialTransaction);
+            }
+        } else {
+            TextView title = (TextView) findViewById(R.id.account_dialog_title);
+            title.setText(R.string.edit_account);
+            mUpdateAccount.setName(accountName);
+            //mUpdateAccount.setBalance(accountBalance);
+            mUpdateAccount.setType(accountType);
+            accountDao.update(mUpdateAccount);
         }
 
         // close dialog

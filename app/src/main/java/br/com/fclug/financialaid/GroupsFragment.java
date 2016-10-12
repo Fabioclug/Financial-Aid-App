@@ -1,24 +1,20 @@
 package br.com.fclug.financialaid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 
+public class GroupsFragment extends Fragment {
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link GroupPayments.OnFragmentInteractionListener} interface
- * to handle interaction events.
- * Use the {@link GroupPayments#newInstance} factory method to
- * create an instance of this fragment.
- */
-public class GroupPayments extends Fragment {
+    private ListView mGroupsListView;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -27,8 +23,20 @@ public class GroupPayments extends Fragment {
         if (container == null)
             return null;
         View view = inflater.inflate(R.layout.fragment_group_payments, container, false);
+        mGroupsListView = (ListView) view.findViewById(R.id.groups_list);
+        GroupsListAdapter listAdapter = new GroupsListAdapter(getContext());
+        mGroupsListView.setAdapter(listAdapter);
+        listAdapter.updateListItems();
 
-        // Load layout for the Cash Flow Content
+        FloatingActionButton createGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
+        createGroupButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getContext(), CreateGroupActivity.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 

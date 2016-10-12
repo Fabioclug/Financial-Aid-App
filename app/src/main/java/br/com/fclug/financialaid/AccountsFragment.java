@@ -6,7 +6,10 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
+import android.view.ContextMenu;
+import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -15,6 +18,7 @@ import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 
 import br.com.fclug.financialaid.dialog.AddAccountDialog;
+import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
 import br.com.fclug.financialaid.models.Account;
 
 
@@ -24,17 +28,19 @@ public class AccountsFragment extends Fragment {
     private AccountGridAdapter mGridAdapter;
     private FloatingActionButton mAddAccountFab;
 
+    private DialogInterface.OnDismissListener mDismissListener = new DialogInterface.OnDismissListener() {
+        @Override
+        public void onDismiss(DialogInterface dialog) {
+            // refresh list
+            mGridAdapter.updateListItems();
+        }
+    };
+
     private OnClickListener mAddAccountFabClickListener = new OnClickListener() {
         @Override
         public void onClick(View v) {
             AddAccountDialog addAccountDialog = new AddAccountDialog(getContext());
-            addAccountDialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
-                @Override
-                public void onDismiss(DialogInterface dialog) {
-                    // refresh list
-                    mGridAdapter.updateListItems();
-                }
-            });
+            addAccountDialog.setOnDismissListener(mDismissListener);
             // show the dialog
             addAccountDialog.show();
         }
@@ -47,6 +53,18 @@ public class AccountsFragment extends Fragment {
             Intent intent = new Intent(getContext(), CashFlowControlActivity.class);
             intent.putExtra("account", clickedAccount.getId());
             getContext().startActivity(intent);
+        }
+    };
+
+    private AdapterView.OnItemLongClickListener mAccountLongClickListener = new AdapterView.OnItemLongClickListener() {
+        @Override
+        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            Account clickedAccount = (Account) mGridAdapter.getItem(position);
+            OptionsMenuDialog dialog = new OptionsMenuDialog(getContext(), clickedAccount);
+            dialog.setOnDismissListener(mDismissListener);
+            dialog.show();
+            return true;
         }
     };
 
@@ -66,11 +84,19 @@ public class AccountsFragment extends Fragment {
         mGridAdapter.updateListItems();
         mAccountsGrid.setAdapter(mGridAdapter);
         mAccountsGrid.setOnItemClickListener(mAccountClickListener);
+        mAccountsGrid.setOnItemLongClickListener(mAccountLongClickListener);
+        registerForContextMenu(mAccountsGrid);
 
         mAddAccountFab = (FloatingActionButton) view.findViewById(R.id.add_control_entry);
         mAddAccountFab.setOnClickListener(mAddAccountFabClickListener);
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mGridAdapter.updateListItems();
     }
 
     /**

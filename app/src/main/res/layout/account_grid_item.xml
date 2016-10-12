@@ -8,9 +8,11 @@
         android:id="@+id/account_grid_item_image"
         android:layout_width="96dp"
         android:layout_height="96dp"
-        android:padding="10dp"
+        android:padding="20dp"
         android:src="@drawable/ic_cash"
-        android:background="@drawable/account_grid_item_bg"/>
+        android:background="@drawable/account_grid_item_bg"
+        android:tint="@android:color/white"
+        android:elevation="5dp"/>
 
     <TextView
         android:id="@+id/account_grid_item_name"

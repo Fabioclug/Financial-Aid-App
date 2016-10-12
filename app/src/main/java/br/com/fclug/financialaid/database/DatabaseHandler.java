@@ -11,19 +11,16 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private static final String DB_NAME = "financial-app";
     private static final int DB_VERSION = 1;
-//    private static final String CREATE_USER = "CREATE TABLE usuario (id integer not null primary key, " +
-//            "PrimNome text not null, SobreNome text not null,cidade text not null," +
-//            "email text unique not null, senha text not null, latitude real, longitude real)";
 
     public static final String ACCOUNT_TABLE = "account";
     public static final String TRANSACTION_TABLE = "cash_transaction";
 
-    private static final String CREATE_ACCOUNT = "create table " + ACCOUNT_TABLE + "(id integer primary key," +
-            "name text not null, balance real not null, type text not null)";
+    private static final String CREATE_ACCOUNT = "CREATE TABLE " + ACCOUNT_TABLE + "(id INTEGER PRIMARY KEY," +
+            "name TEXT NOT NULL, balance REAL NOT NULL, type TEXT NOT NULL)";
 
-    private static final String CREATE_TRANSACTION = "create table " + TRANSACTION_TABLE + "(id integer not null primary key, " +
-            "category text not null, credit integer not null check (credit in (0,1)) not null, account integer, " +
-            "description text not null, register_date date not null, value real not null, foreign key(account) references account(id))";
+    private static final String CREATE_TRANSACTION = "CREATE TABLE " + TRANSACTION_TABLE + "(id INTEGER NOT NULL PRIMARY KEY, " +
+            "category TEXT NOT NULL, credit INTEGER NOT NULL CHECK (credit IN (0,1)) NOT NULL, account INTEGER, " +
+            "description TEXT NOT NULL, register_date INTEGER NOT NULL, value REAL NOT NULL, FOREIGN KEY(account) REFERENCES account(id))";
 
 
     public DatabaseHandler(Context context) {
@@ -34,7 +31,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public void onCreate(SQLiteDatabase db) {
         db.execSQL(CREATE_TRANSACTION);
         db.execSQL(CREATE_ACCOUNT);
-        //db.execSQL(CREATE_USER);
     }
 
     @Override

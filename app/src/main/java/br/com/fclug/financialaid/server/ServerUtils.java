@@ -1,5 +1,6 @@
 package br.com.fclug.financialaid.server;
 
+import android.os.Build;
 import android.util.Log;
 
 import org.json.JSONException;
@@ -20,7 +21,8 @@ import java.util.concurrent.TimeoutException;
  */
 public class ServerUtils {
     private static final String TAG = "ServerUtils";
-    private static final String SERVER_URL = "http://10.0.2.2:8080/api";
+    private static String EMULATOR_SERVER_URL = "http://10.0.2.2:8080/api";
+    private static String SERVER_URL = "http://192.168.1.40:8080/api";
 
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
@@ -28,7 +30,9 @@ public class ServerUtils {
     public static final String ROUTE_TEST = "/";
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_REGISTER_USER = "/register";
-    public static final String ROUTE_GET_USER = "/user";
+    public static final String ROUTE_CREATE_GROUP = "/createGroup";
+    public static final String ROUTE_GET_GROUPS = "/getGroups";
+    public static final String ROUTE_GET_USERS = "/getUsers";
 
     public static final int TIMEOUT = 15000;
 
@@ -68,6 +72,9 @@ public class ServerUtils {
 
     public static JSONObject doPostRequest(String route, JSONObject args) throws IOException, JSONException {
 
+        if (isEmulator()) {
+            SERVER_URL = EMULATOR_SERVER_URL;
+        }
         // set up the connection
         String requestURL = SERVER_URL + route;
         URL url = new URL(requestURL);
@@ -110,5 +117,16 @@ public class ServerUtils {
             Log.d(TAG, "JSON problem: " + e.toString());
         }
         return result;
+    }
+
+    public static boolean isEmulator() {
+        return Build.FINGERPRINT.startsWith("generic")
+                || Build.FINGERPRINT.startsWith("unknown")
+                || Build.MODEL.contains("google_sdk")
+                || Build.MODEL.contains("Emulator")
+                || Build.MODEL.contains("Android SDK built for x86")
+                || Build.MANUFACTURER.contains("Genymotion")
+                || (Build.BRAND.startsWith("generic") && Build.DEVICE.startsWith("generic"))
+                || "google_sdk".equals(Build.PRODUCT);
     }
 }

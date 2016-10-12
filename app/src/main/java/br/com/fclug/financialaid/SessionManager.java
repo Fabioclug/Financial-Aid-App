@@ -27,6 +27,7 @@ public class SessionManager {
 
     // All Shared Preferences Keys
     private static final String IS_LOGGED = "logged";
+    private static final String SKIPPED = "skipped";
     public static final String KEY_NAME = "username";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_TOKEN = "token";
@@ -65,8 +66,6 @@ public class SessionManager {
         }
     }
 
-
-
     /**
      * Get stored session data
      * */
@@ -74,7 +73,7 @@ public class SessionManager {
         HashMap<String, String> user = new HashMap<String, String>();
 
         user.put(KEY_NAME, preferences.getString(KEY_NAME, null));
-        user.put(KEY_PASSWORD, preferences.getString(KEY_PASSWORD, null));
+        user.put(KEY_TOKEN, preferences.getString(KEY_TOKEN, null));
 
         return user;
     }
@@ -105,5 +104,13 @@ public class SessionManager {
     // Get Login State
     public boolean isLoggedIn(){
         return preferences.getBoolean(IS_LOGGED, false);
+    }
+
+    /**
+     * Check if the user has skipped login before
+     * @return
+     */
+    public boolean hasSkipped() {
+        return preferences.getBoolean(SKIPPED, false);
     }
 }
