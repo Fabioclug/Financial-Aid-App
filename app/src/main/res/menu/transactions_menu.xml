@@ -8,4 +8,10 @@
         android:title="Change period"
         app:showAsAction="always"/>
 
+    <item
+        android:id="@+id/action_change_view"
+        android:icon="@drawable/ic_calendar_day"
+        android:title="Change view"
+        app:showAsAction="always"/>
+
 </menu>

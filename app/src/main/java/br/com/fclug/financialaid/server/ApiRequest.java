@@ -40,7 +40,6 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
         try {
             if(mHttpMethod.equals(ServerUtils.METHOD_POST)) {
                 response = ServerUtils.doPostRequest(mRoute, mArgs);
-                Log.d(TAG, response.toString());
             } else {
                 response = ServerUtils.doGetRequest(mRoute);
             }
@@ -54,12 +53,13 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
     @Override
     protected void onPostExecute(JSONObject response) {
         super.onPostExecute(response);
-        Log.d(TAG, response.toString());
         int statusCode = -1;
         try {
+            Log.d(TAG, response.toString());
             statusCode = response.getInt("status_code");
-        } catch (JSONException e) {
+        } catch (Exception e) {
             e.printStackTrace();
+            Log.d("ApiRequest", mArgs.toString());
         }
         switch (statusCode) {
             case HttpURLConnection.HTTP_OK:

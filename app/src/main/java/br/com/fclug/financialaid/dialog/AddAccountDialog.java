@@ -3,6 +3,8 @@ package br.com.fclug.financialaid.dialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.View;
 import android.view.Window;
 import android.widget.Button;
@@ -13,6 +15,7 @@ import android.widget.TextView;
 import java.util.Arrays;
 import java.util.Date;
 
+import br.com.fclug.financialaid.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.TransactionDao;
@@ -47,6 +50,25 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
         mAccountName = (EditText) findViewById(R.id.add_account_name);
         mAccountBalance = (EditText) findViewById(R.id.add_account_balance);
         mAccountType = (Spinner) findViewById(R.id.add_account_category);
+        mAccountBalance.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString().trim();
+                if (!text.isEmpty()) {
+                    AppUtils.handleValueInput(mAccountBalance);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
 
         if (mUpdateAccount != null) {
             mAccountName.setText(mUpdateAccount.getName());

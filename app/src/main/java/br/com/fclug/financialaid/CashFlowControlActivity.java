@@ -97,7 +97,7 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
         @Override
         public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
             view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            Transaction clickedTransaction = (Transaction) mListAdapter.getItem(position);
+            Transaction clickedTransaction = (Transaction) mListAdapter.getItem(position - mTransactionList.getHeaderViewsCount());
             OptionsMenuDialog dialog = new OptionsMenuDialog(mContext, mAccount, clickedTransaction);
             dialog.setOnDismissListener(mDismissListener);
             dialog.show();

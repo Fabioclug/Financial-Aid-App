@@ -28,9 +28,11 @@ public class ServerUtils {
     public static final String METHOD_POST = "POST";
 
     public static final String ROUTE_TEST = "/";
+    public static final String ROUTE_CHECK_USERNAME = "/checkUsername";
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_REGISTER_USER = "/register";
     public static final String ROUTE_CREATE_GROUP = "/createGroup";
+    public static final String ROUTE_CREATE_GROUP_TRANSACTION = "/createGroupTransaction";
     public static final String ROUTE_GET_GROUPS = "/getGroups";
     public static final String ROUTE_GET_USERS = "/getUsers";
 

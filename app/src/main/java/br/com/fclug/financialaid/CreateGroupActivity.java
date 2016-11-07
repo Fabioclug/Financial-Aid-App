@@ -162,6 +162,9 @@ public class CreateGroupActivity extends AppCompatActivity {
                             name.put("username", member.getUsername());
                             memberList.put(name);
                         }
+                        JSONObject creator = new JSONObject();
+                        creator.put("username", mUserData.get(SessionManager.KEY_NAME));
+                        memberList.put(creator);
                         args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
                         args.put("name", mGroupName.getText().toString());
                         args.put("members", memberList);

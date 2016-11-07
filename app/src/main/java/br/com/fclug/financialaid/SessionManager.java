@@ -78,6 +78,10 @@ public class SessionManager {
         return user;
     }
 
+    public String getToken() {
+        return preferences.getString(KEY_TOKEN, null);
+    }
+
     /**
      * Clear session details
      * */

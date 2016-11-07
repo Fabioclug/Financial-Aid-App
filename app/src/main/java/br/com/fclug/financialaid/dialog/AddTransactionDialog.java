@@ -5,6 +5,9 @@ import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -77,6 +80,25 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         mTransactionDate = (EditText) findViewById(R.id.add_transaction_date);
         mCreditButton = (ImageButton) findViewById(R.id.add_transaction_credit);
         mDebtButton = (ImageButton) findViewById(R.id.add_transaction_debt);
+        mTransactionValue.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String text = s.toString().trim();
+                if (!text.isEmpty()) {
+                    AppUtils.handleValueInput(mTransactionValue);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
     }
 
     @Override
@@ -89,9 +111,6 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
         Button addTransactionButton = (Button) findViewById(R.id.add_transaction_button);
         addTransactionButton.setOnClickListener(this);
-
-        final Calendar myCalendar = Calendar.getInstance();
-        mTransactionDate.setFocusable(false);
 
         List<String> accountNames = getAccountList();
 
@@ -118,31 +137,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             }
         });
 
-        // build the calendar to pick a date
-        final DatePickerDialog.OnDateSetListener date = new DatePickerDialog.OnDateSetListener() {
-
-            @Override
-            public void onDateSet(DatePicker view, int year, int monthOfYear,
-                                  int dayOfMonth) {
-                myCalendar.set(Calendar.YEAR, year);
-                myCalendar.set(Calendar.MONTH, monthOfYear);
-                myCalendar.set(Calendar.DAY_OF_MONTH, dayOfMonth);
-
-                mTransactionDate.setText(mDateFormatter.format(myCalendar.getTime()));
-
-            }
-
-        };
-
-        // show the calendar when the field is clicked
-        mTransactionDate.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                new DatePickerDialog(mContext, date, myCalendar
-                        .get(Calendar.YEAR), myCalendar.get(Calendar.MONTH),
-                        myCalendar.get(Calendar.DAY_OF_MONTH)).show();
-            }
-        });
+        AppUtils.attachCalendarToEditText(mContext, mTransactionDate, mDateFormatter);
 
         if (mUpdateTransaction != null) {
             TextView title = (TextView) findViewById(R.id.transaction_dialog_title);
@@ -153,25 +148,21 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
     @Override
     public void onClick(View v) {
-        EditText transactionDescription = (EditText) findViewById(R.id.add_transaction_description);
-        EditText transactionCategory = (EditText) findViewById(R.id.add_transaction_category);
-        EditText transactionValue = (EditText) findViewById(R.id.add_transaction_value);
-        EditText transactionDate = (EditText) findViewById(R.id.add_transaction_date);
         Date date = null;
         try {
-            date = mDateFormatter.parse(transactionDate.getText().toString());
+            date = mDateFormatter.parse(mTransactionDate.getText().toString());
         } catch (ParseException e) {
             e.printStackTrace();
         }
 
         long accountId = mSelectedAccount.getId();
         TransactionDao transactionDao = new TransactionDao(mContext);
-        double value = Double.parseDouble(transactionValue.getText().toString());
+        double value = Double.parseDouble(mTransactionValue.getText().toString());
         value = AppUtils.roundValue(value);
         Log.d("dialog", "value: " + value);
         if (mUpdateTransaction == null) {
-            Transaction newTransaction = new Transaction(mTransactionCredit, transactionDescription.getText().toString(),
-                    value, transactionCategory.getText().toString(), date, accountId);
+            Transaction newTransaction = new Transaction(mTransactionCredit, mTransactionDescription.getText().toString(),
+                    value, mTransactionCategory.getText().toString(), date, accountId);
 
             // save the new transaction
             transactionDao.save(newTransaction);
@@ -180,9 +171,9 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         } else {
             Transaction updatedTransaction = new Transaction();
             updatedTransaction.setId(mUpdateTransaction.getId());
-            updatedTransaction.setDescription(transactionDescription.getText().toString());
+            updatedTransaction.setDescription(mTransactionDescription.getText().toString());
             updatedTransaction.setValue(value);
-            updatedTransaction.setCategory(transactionCategory.getText().toString());
+            updatedTransaction.setCategory(mTransactionCategory.getText().toString());
             updatedTransaction.setDate(date);
             updatedTransaction.setAccountId(accountId);
             updatedTransaction.setCredit(mTransactionCredit);

@@ -31,16 +31,33 @@
         android:hint="@string/register_name"
         android:background="@drawable/edit_text_bg"/>
 
-    <EditText
-        android:id="@+id/register_username"
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="50dp"
+        android:layout_height="wrap_content"
         android:layout_marginBottom="30dp"
         android:layout_marginStart="40dp"
         android:layout_marginEnd="40dp"
-        android:paddingStart="15dp"
-        android:hint="@string/register_username"
-        android:background="@drawable/edit_text_bg"/>
+        android:background="@drawable/edit_text_bg">
+
+        <EditText
+            android:id="@+id/register_username"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="50dp"
+            android:paddingStart="15dp"
+            android:hint="@string/register_username"
+            android:background="@drawable/edit_text_bg"/>
+
+        <ImageView
+            android:id="@+id/register_feedback"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:layout_margin="10dp"
+            android:src="@android:drawable/ic_delete"
+            android:visibility="gone"/>
+
+    </LinearLayout>
+
 
     <EditText
         android:id="@+id/register_password"

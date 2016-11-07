@@ -17,6 +17,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
 
@@ -41,6 +42,7 @@ public class GroupsListAdapter extends BaseAdapter {
     public void updateListItems() {
         SessionManager s = new SessionManager(mContext);
         HashMap<String, String> user = s.getUserDetails();
+        mGroups = new ArrayList<>();
         ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
             @Override
             public void onSuccess(JSONObject response) {
@@ -48,7 +50,14 @@ public class GroupsListAdapter extends BaseAdapter {
                     JSONArray groups = response.getJSONArray("result");
                     for (int i = 0; i < groups.length(); i++) {
                         JSONObject group = groups.getJSONObject(i);
-                        mGroups.add(new Group(group.getLong("group_id"), group.getString("name"), group.getInt("members")));
+
+                        JSONArray members = group.getJSONArray("members");
+                        List<User> memberList = new ArrayList<>();
+                        for(int j = 0; j < members.length(); j++) {
+                            JSONObject member = members.getJSONObject(j);
+                            memberList.add(new User(member.getString("username"), member.getString("name")));
+                        }
+                        mGroups.add(new Group(group.getLong("group_id"), group.getString("name"), memberList));
                     }
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -77,7 +86,7 @@ public class GroupsListAdapter extends BaseAdapter {
     }
 
     @Override
-    public Object getItem(int position) {
+    public Group getItem(int position) {
         return mGroups.get(position);
     }
 

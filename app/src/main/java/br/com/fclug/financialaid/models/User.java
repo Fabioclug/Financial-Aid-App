@@ -1,9 +1,11 @@
 package br.com.fclug.financialaid.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Fabioclug on 2016-09-06.
  */
-public class User {
+public class User implements Serializable {
 
     private String username;
     private String name;

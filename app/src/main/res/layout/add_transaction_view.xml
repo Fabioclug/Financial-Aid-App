@@ -41,6 +41,8 @@
             android:layout_width="10dp"
             android:layout_height="40dp"
             android:layout_weight="0.2"
+            android:textAlignment="viewEnd"
+            android:paddingEnd="15dp"
             android:inputType="numberDecimal"/>
 
         <ImageButton

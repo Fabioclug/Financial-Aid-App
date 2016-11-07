@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="vertical"
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="30dp"
+        android:layout_marginEnd="30dp"
+        android:background="@drawable/edit_text_bg">
+
+        <TextView
+            android:id="@+id/create_payment_member_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textSize="20sp"
+            android:layout_margin="10dp"
+            android:textColor="@color/color_black"
+            android:text="Member Name"/>
+
+        <EditText
+            android:id="@+id/create_payment_member_split"
+            android:layout_width="100dp"
+            android:layout_height="wrap_content"
+            android:hint="Split"
+            android:inputType="numberDecimal"
+            android:layout_marginEnd="25dp"
+            android:layout_alignParentEnd="true"/>
+
+    </RelativeLayout>
+
+</LinearLayout>

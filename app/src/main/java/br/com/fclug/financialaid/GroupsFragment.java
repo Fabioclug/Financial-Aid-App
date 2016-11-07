@@ -9,12 +9,16 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.FrameLayout;
 import android.widget.ListView;
+
+import br.com.fclug.financialaid.models.Group;
 
 public class GroupsFragment extends Fragment {
 
     private ListView mGroupsListView;
+    private GroupsListAdapter mListAdapter;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -24,9 +28,18 @@ public class GroupsFragment extends Fragment {
             return null;
         View view = inflater.inflate(R.layout.fragment_group_payments, container, false);
         mGroupsListView = (ListView) view.findViewById(R.id.groups_list);
-        GroupsListAdapter listAdapter = new GroupsListAdapter(getContext());
-        mGroupsListView.setAdapter(listAdapter);
-        listAdapter.updateListItems();
+        mListAdapter = new GroupsListAdapter(getContext());
+        mGroupsListView.setAdapter(mListAdapter);
+
+        mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Group group = mListAdapter.getItem(position);
+                Intent intent = new Intent(getContext(), GroupSummaryActivity.class);
+                intent.putExtra("group", group);
+                startActivity(intent);
+            }
+        });
 
         FloatingActionButton createGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
         createGroupButton.setOnClickListener(new View.OnClickListener() {
@@ -38,6 +51,12 @@ public class GroupsFragment extends Fragment {
         });
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        mListAdapter.updateListItems();
     }
 
     /**
