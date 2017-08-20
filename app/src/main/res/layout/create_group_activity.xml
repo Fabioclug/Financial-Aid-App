@@ -31,12 +31,28 @@
                 android:hint="Group Name"
                 android:layout_marginBottom="15dp"/>
 
-            <AutoCompleteTextView
-                android:id="@+id/create_group_username"
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="Insert members names"
-                android:layout_marginBottom="15dp"/>
+                android:orientation="horizontal">
+
+                <AutoCompleteTextView
+                    android:id="@+id/create_group_username"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.8"
+                    android:hint="Insert members names"
+                    android:layout_marginBottom="15dp"/>
+
+                <Button
+                    android:id="@+id/create_group_add_member"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="0.2"
+                    android:visibility="gone"
+                    android:text="OK"/>
+
+            </LinearLayout>
 
             <ListView
                 android:id="@+id/create_group_member_list"

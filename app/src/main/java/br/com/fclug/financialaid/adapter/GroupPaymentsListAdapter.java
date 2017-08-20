@@ -8,13 +8,25 @@ import android.widget.BaseExpandableListAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 
 import br.com.fclug.financialaid.R;
+import br.com.fclug.financialaid.SessionManager;
+import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupTransaction;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
+import br.com.fclug.financialaid.server.ApiRequest;
+import br.com.fclug.financialaid.server.ServerUtils;
 
 /**
  * Created by Fabioclug on 2016-10-30.
@@ -24,21 +36,73 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
 
     private Context mContext;
     private List<GroupTransaction> mGroupTransactions;
+    private Group mGroup;
+    private SimpleDateFormat mDateBuilder = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd", Locale.US);
 
-    public GroupPaymentsListAdapter(Context context) {
+    public GroupPaymentsListAdapter(Context context, Group group) {
         this.mContext = context;
         mGroupTransactions = new ArrayList<>();
-        User fabio = new User("fclug", "Fabio Clug");
-        User audrey = new User("adey", "Audrey Clug");
-        GroupTransaction tr1 = new GroupTransaction(1, "Compra na padaria", fabio, 50);
-        GroupTransaction tr2 = new GroupTransaction(1, "Mercado", audrey, 80);
-        TransactionSplit sp1 = new TransactionSplit(fabio, 25);
-        TransactionSplit sp2 = new TransactionSplit(audrey, 25);
-        tr1.addSplit(sp1);
-        tr1.addSplit(sp2);
-        tr2.addSplit(sp2);
-        mGroupTransactions.add(tr1);
-        mGroupTransactions.add(tr2);
+        mGroup = group;
+//        User fabio = new User("fclug", "Fabio Clug");
+//        User audrey = new User("adey", "Audrey Clug");
+//        GroupTransaction tr1 = new GroupTransaction(1, "Compra na padaria", fabio, 50);
+//        GroupTransaction tr2 = new GroupTransaction(1, "Mercado", audrey, 80);
+//        TransactionSplit sp1 = new TransactionSplit(fabio, 25);
+//        TransactionSplit sp2 = new TransactionSplit(audrey, 25);
+//        tr1.addSplit(sp1);
+//        tr1.addSplit(sp2);
+//        tr2.addSplit(sp2);
+//        mGroupTransactions.add(tr1);
+//        mGroupTransactions.add(tr2);
+    }
+
+    public void updateListItems(final HashMap<String, User> members) {
+        SessionManager session = new SessionManager(mContext);
+
+        JSONObject args = new JSONObject();
+        try {
+            args.put("token", session.getToken());
+            args.put("group_id", mGroup.getId());
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        ApiRequest.RequestCallback callback =  new ApiRequest.RequestCallback() {
+            @Override
+            public void onSuccess(JSONObject response) throws JSONException {
+                mGroupTransactions.clear();
+                try {
+                    JSONArray result = response.getJSONArray("result");
+                    for (int i = 0; i < result.length(); i++) {
+                        JSONObject transactionJson = result.getJSONObject(i);
+                        User payer = members.get(transactionJson.getString("creditor"));
+                        GroupTransaction transaction = new GroupTransaction(transactionJson.getLong("id"),
+                                transactionJson.getString("name"), payer, transactionJson.getDouble("value"),
+                                mDateBuilder.parse(transactionJson.getString("moment")));
+                        JSONArray transactionSplits = transactionJson.getJSONArray("splits");
+                        for (int j = 0; j < transactionSplits.length(); j++) {
+                            JSONObject splitJson = transactionSplits.getJSONObject(j);
+                            User debtor = members.get(splitJson.getString("debtor_id"));
+                            TransactionSplit split = new TransactionSplit(debtor, splitJson.getDouble("value"));
+                            transaction.addSplit(split);
+                        }
+                        mGroupTransactions.add(transaction);
+                    }
+
+                    notifyDataSetChanged();
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+            }
+
+            @Override
+            public void onFailure(int code) {
+
+            }
+        };
+
+        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_TRANSACTIONS, args, callback).execute();
     }
 
     @Override
@@ -85,11 +149,13 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
             convertView = layoutInflater.inflate(R.layout.group_payment_list_row, null);
         }
         TextView transactionName = (TextView) convertView.findViewById(R.id.group_transaction_name);
+        TextView transactionDate = (TextView) convertView.findViewById(R.id.group_transaction_date);
         TextView transactionValue = (TextView) convertView.findViewById(R.id.group_transaction_value);
         TextView transactionPayer = (TextView) convertView.findViewById(R.id.group_transaction_payer);
         ImageView transactionExpand = (ImageView) convertView.findViewById(R.id.group_transaction_expand);
 
         transactionName.setText(item.getDescription());
+        transactionDate.setText(mDateFormatter.format(item.getDate()));
         transactionValue.setText(String.valueOf(item.getValue()));
         transactionPayer.setText(item.getPayer().getName());
 

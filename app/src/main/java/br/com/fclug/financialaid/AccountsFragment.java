@@ -6,10 +6,8 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
-import android.view.ContextMenu;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
-import android.view.MenuInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
@@ -17,10 +15,10 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.GridView;
 
+import br.com.fclug.financialaid.adapter.AccountGridAdapter;
 import br.com.fclug.financialaid.dialog.AddAccountDialog;
 import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
 import br.com.fclug.financialaid.models.Account;
-
 
 public class AccountsFragment extends Fragment {
 
@@ -50,7 +48,7 @@ public class AccountsFragment extends Fragment {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Account clickedAccount = (Account) mGridAdapter.getItem(position);
-            Intent intent = new Intent(getContext(), CashFlowControlActivity.class);
+            Intent intent = new Intent(getContext(), TransactionsActivity.class);
             intent.putExtra("account", clickedAccount.getId());
             getContext().startActivity(intent);
         }
@@ -73,12 +71,11 @@ public class AccountsFragment extends Fragment {
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+    public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         if (container == null)
             return null;
-        View view = inflater.inflate(R.layout.content_cashflowcontrol, container, false);
+        View view = inflater.inflate(R.layout.accounts_fragment, container, false);
         mAccountsGrid = (GridView) view.findViewById(R.id.account_gridview);
         mGridAdapter = new AccountGridAdapter(getContext());
         mGridAdapter.updateListItems();

@@ -28,6 +28,7 @@
             android:textStyle="bold"/>
 
         <TextView
+            android:id="@+id/group_summary_overview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
@@ -52,8 +53,11 @@
         android:id="@+id/add_group_transaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="@dimen/fab_margin"
+        android:layout_gravity="top|end"
+        android:layout_marginTop="70dp"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        android:layout_marginBottom="16dp"
         android:src="@drawable/ic_plus"
         android:tint="@android:color/white"/>
 

@@ -24,7 +24,7 @@
             android:layout_height="wrap_content"
             android:paddingTop="10dp"
             android:paddingBottom="10dp"
-            android:paddingEnd="30dp"
+            android:paddingEnd="70dp"
             android:layout_alignParentEnd="true"
             android:text="$200"
             android:textSize="17sp"
@@ -38,7 +38,7 @@
         android:id="@+id/transaction_split_divider"
         android:layout_width="match_parent"
         android:layout_height="1dp"
-        android:background="?android:attr/listDivider"
+        android:background="@color/divider_color"
         android:visibility="gone"/>
 
 </LinearLayout>

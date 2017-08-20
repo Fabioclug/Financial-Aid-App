@@ -16,6 +16,8 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
+import br.com.fclug.financialaid.fragments.StatisticsFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 
@@ -106,14 +108,14 @@ public class MainActivity extends AppCompatActivity
             case R.id.nav_gallery:
                 fragmentClass = GroupsFragment.class;
                 break;
+            case R.id.nav_slideshow:
+                fragmentClass = StatisticsFragment.class;
+                break;
             case R.id.nav_send:
                 mSession.logoutUser();
                 break;
             default:
                 fragmentClass = AccountsFragment.class;
-//            } else if (id == R.id.nav_gallery) {
-//
-//            } else if (id == R.id.nav_slideshow) {
 //
 //            } else if (id == R.id.nav_manage) {
 //

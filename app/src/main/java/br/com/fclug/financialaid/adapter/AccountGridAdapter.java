@@ -1,4 +1,4 @@
-package br.com.fclug.financialaid;
+package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
 import android.content.res.Resources;
@@ -15,6 +15,8 @@ import android.widget.TextView;
 
 import java.util.List;
 
+import br.com.fclug.financialaid.AppUtils;
+import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.models.Account;
 
@@ -35,7 +37,7 @@ public class AccountGridAdapter extends BaseAdapter {
         TextView accountBalance;
     }
 
-    AccountGridAdapter(Context context) {
+    public AccountGridAdapter(Context context) {
         mContext = context;
         Resources res = mContext.getResources();
         mAccountColors = res.getIntArray(R.array.account_colors);

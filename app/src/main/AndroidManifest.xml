@@ -23,15 +23,19 @@
             <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
         </activity>
         <activity
-            android:name=".CashFlowControlActivity"
+            android:name=".TransactionsActivity"
             android:screenOrientation="sensorPortrait"/>
         <activity
             android:name=".LoginActivity"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="sensorPortrait"/>
         <activity
             android:name=".RegisterActivity"
+            android:windowSoftInputMode="adjustResize"
             android:screenOrientation="sensorPortrait"/>
         <activity android:name=".CreateGroupActivity">
+        </activity>
+        <activity android:name=".CreateLocalGroupActivity">
         </activity>
         <activity android:name=".CreateGroupPaymentActivity">
         </activity>

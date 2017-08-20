@@ -28,8 +28,6 @@ public class TransactionListAdapter extends BaseAdapter {
     private List<Transaction> mTransactions;
     private Context mContext;
     private Account mAccount;
-    private Date mPeriodStart;
-    private Date mPeriodEnd;
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd", Locale.US);
     private final TransactionDao mTransactionDao;
 
@@ -38,6 +36,7 @@ public class TransactionListAdapter extends BaseAdapter {
         TextView transactionDescription;
         TextView transactionValue;
         TextView transactionType;
+        View transactionCategory;
     }
 
     TransactionListAdapter(Context context, Account account) {
@@ -46,17 +45,9 @@ public class TransactionListAdapter extends BaseAdapter {
         mTransactionDao = new TransactionDao(mContext);
     }
 
-    public void updateListItems() {
-        mTransactions = mTransactionDao.findByAccount(mAccount, mPeriodStart, mPeriodEnd);
+    public void updateListItems(Date startPeriod, Date endPeriod) {
+        mTransactions = mTransactionDao.findByAccount(mAccount, startPeriod, endPeriod);
         this.notifyDataSetChanged();
-    }
-
-    public void setPeriodStart(Date mPeriodStart) {
-        this.mPeriodStart = mPeriodStart;
-    }
-
-    public void setPeriodEnd(Date mPeriodEnd) {
-        this.mPeriodEnd = mPeriodEnd;
     }
 
     @Override
@@ -88,6 +79,7 @@ public class TransactionListAdapter extends BaseAdapter {
             viewHolderTransactionItem.transactionDescription = (TextView) convertView.findViewById(R.id.transaction_item_description);
             viewHolderTransactionItem.transactionValue = (TextView) convertView.findViewById(R.id.transaction_item_value);
             viewHolderTransactionItem.transactionType = (TextView) convertView.findViewById(R.id.transaction_item_type);
+            viewHolderTransactionItem.transactionCategory = convertView.findViewById(R.id.transaction_item_category);
 
             convertView.setTag(viewHolderTransactionItem);
         } else {
@@ -107,6 +99,7 @@ public class TransactionListAdapter extends BaseAdapter {
                 viewHolderTransactionItem.transactionType.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
                 viewHolderTransactionItem.transactionValue.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
             }
+            viewHolderTransactionItem.transactionCategory.setBackgroundColor(transactionItem.getCategory().getColor());
         }
 
         return convertView;

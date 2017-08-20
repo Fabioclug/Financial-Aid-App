@@ -53,20 +53,16 @@ public class RegisterActivity extends AppCompatActivity {
                 try {
                     ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
                         @Override
-                        public void onSuccess(JSONObject response) {
-                            try {
-                                boolean exists = response.getJSONArray("result").getJSONObject(0).getInt("existing") == 1;
-                                if (exists) {
-                                    mFeedbackImage.setImageResource(android.R.drawable.ic_delete);
-                                } else {
-                                    Drawable confirm = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_confirm);
-                                    confirm.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.transaction_type_credit), PorterDuff.Mode.SRC_ATOP);
-                                    mFeedbackImage.setImageDrawable(confirm);
-                                }
-                                mFeedbackImage.setVisibility(View.VISIBLE);
-                            } catch (JSONException e) {
-                                e.printStackTrace();
+                        public void onSuccess(JSONObject response) throws JSONException {
+                            boolean exists = response.getJSONArray("result").getJSONObject(0).getInt("existing") == 1;
+                            if (exists) {
+                                mFeedbackImage.setImageResource(android.R.drawable.ic_delete);
+                            } else {
+                                Drawable confirm = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_confirm);
+                                confirm.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.transaction_type_credit), PorterDuff.Mode.SRC_ATOP);
+                                mFeedbackImage.setImageDrawable(confirm);
                             }
+                            mFeedbackImage.setVisibility(View.VISIBLE);
                         }
 
                         @Override
@@ -152,15 +148,9 @@ public class RegisterActivity extends AppCompatActivity {
                     ApiRequest registerRequest = new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_REGISTER_USER, args,
                             new ApiRequest.RequestCallback() {
                                 @Override
-                                public void onSuccess(JSONObject response) {
+                                public void onSuccess(JSONObject response) throws JSONException {
                                     progressDialog.dismiss();
-                                    String token = null;
-                                    try {
-                                        token = response.getString("token");
-
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
+                                    String token = response.getString("token");
                                     mSession.createLoginSession(username, password, token);
                                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                                     startActivity(i);

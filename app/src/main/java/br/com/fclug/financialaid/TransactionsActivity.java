@@ -3,7 +3,6 @@ package br.com.fclug.financialaid;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.TypedArray;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.DrawableRes;
@@ -13,11 +12,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.view.ContextMenu;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.Menu;
-import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -46,7 +43,7 @@ import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
 
-public class CashFlowControlActivity extends AppCompatActivity implements View.OnClickListener {
+public class TransactionsActivity extends AppCompatActivity implements View.OnClickListener {
 
     private Context mContext;
     private AccountDao mAccountDao;
@@ -55,11 +52,16 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
     private TransactionDao mTransactionDao;
     private TransactionListAdapter mListAdapter;
     private AddTransactionDialog mAddTransactionView;
-    private SimpleDateFormat mDateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
     private Account mAccount;
+
+    private SimpleDateFormat mDateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
+    private Calendar mStartPeriod;
+    private Calendar mEndPeriod;
 
     private ImageButton mPreviousButton;
     private ImageButton mNextButton;
+
+    private boolean mShowMonthly;
 
     private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
 
@@ -67,7 +69,7 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
         public void create(SwipeMenu menu) {
             // create "edit" item
             SwipeMenuItem editItem = new SwipeMenuItem(mContext);
-            editItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext, R.color.colorPrimary)));
+            editItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext, R.color.savings_account)));
             editItem.setWidth(AppUtils.dpToPixels(mContext, 90));
             editItem.setIcon(R.drawable.ic_edit);
 
@@ -89,7 +91,7 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
             mAccount = mAccountDao.findById(mAccount.getId());
             updateBalance();
             // refresh list
-            mListAdapter.updateListItems();
+            mListAdapter.updateListItems(mStartPeriod.getTime(), mEndPeriod.getTime());
         }
     };
 
@@ -114,10 +116,12 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
             endPeriod.set(yearEnd, monthOfYearEnd, dayOfMonthEnd);
             AppUtils.setTime(startPeriod, 0, 0, 0, 0);
             AppUtils.setTime(endPeriod, 23, 59, 59, 59);
+            mStartPeriod = startPeriod;
+            mEndPeriod = endPeriod;
             Date start = startPeriod.getTime();
             Date end = endPeriod.getTime();
             changePeriodLabel(start, end);
-            changePeriodFilter(start, end);
+            mListAdapter.updateListItems(start, end);
             mPreviousButton.setVisibility(View.GONE);
             mNextButton.setVisibility(View.GONE);
         }
@@ -126,7 +130,7 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_cash_flow_control);
+        setContentView(R.layout.transactions_activity);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
@@ -151,16 +155,15 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
 
         mTransactionList = (SwipeMenuListView) findViewById(R.id.control_entries_list);
         mListAdapter = new TransactionListAdapter(mContext, mAccount);
-        mListAdapter.updateListItems();
         registerForContextMenu(mTransactionList);
 
         LayoutInflater inflater = getLayoutInflater();
 
         // set the account overview and the period header as headers for the list
         ViewGroup accountOverview = (ViewGroup) inflater.inflate(R.layout.account_overview, mTransactionList, false);
-        mTransactionList.addHeaderView(accountOverview, null, false);
+        mTransactionList.addHeaderView(accountOverview, null, true);
         ViewGroup periodHeader = (ViewGroup) inflater.inflate(R.layout.period_header, mTransactionList, false);
-        mTransactionList.addHeaderView(periodHeader, null, false);
+        mTransactionList.addHeaderView(periodHeader, null, true);
 
         mPreviousButton = (ImageButton) periodHeader.findViewById(R.id.transactions_previous);
         mNextButton = (ImageButton) periodHeader.findViewById(R.id.transactions_next);
@@ -187,18 +190,11 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
         accountImage.setImageResource(accountIcon);
         accountIcons.recycle();
 
-        // set period title (like "October 2016")
+        mShowMonthly = true;
         mPeriodTitle = (TextView) periodHeader.findViewById(R.id.transactions_period);
-        Calendar startPeriod = Calendar.getInstance();
-        String period = startPeriod.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + startPeriod.get(Calendar.YEAR);
-        mPeriodTitle.setText(period);
 
-        startPeriod.set(Calendar.DAY_OF_MONTH, 1);
-        Calendar endPeriod = Calendar.getInstance();
-        endPeriod.set(Calendar.DAY_OF_MONTH, endPeriod.getActualMaximum(Calendar.DAY_OF_MONTH));
-        AppUtils.setTime(startPeriod, 0, 0, 0, 0);
-        AppUtils.setTime(endPeriod, 23, 59, 59, 59);
-        changePeriodFilter(startPeriod.getTime(), endPeriod.getTime());
+        // set period title (like "October 2016")
+        setViewPeriod();
 
         mTransactionList.setAdapter(mListAdapter);
         mTransactionList.setMenuCreator(mSwipeMenuCreator);
@@ -233,7 +229,7 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
 
                             @Override
                             public void onAnimationEnd(Animation animation) {
-                                mListAdapter.updateListItems();
+                                mListAdapter.updateListItems(mStartPeriod.getTime(), mEndPeriod.getTime());
                             }
                         });
                         //animation.setRepeatCount(1);
@@ -250,6 +246,42 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
         if (mAddTransactionFab != null) {
             mAddTransactionFab.setOnClickListener(this);
         }
+
+        mPreviousButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mShowMonthly) {
+                    mStartPeriod.add(Calendar.MONTH, -1);
+                    mEndPeriod.add(Calendar.MONTH, -1);
+                    String period = mStartPeriod.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+                            + " " + mStartPeriod.get(Calendar.YEAR);
+                    mPeriodTitle.setText(period);
+                } else {
+                    mStartPeriod.add(Calendar.DAY_OF_MONTH, -1);
+                    mEndPeriod.add(Calendar.DAY_OF_MONTH, -1);
+                    changePeriodLabel(mStartPeriod.getTime(), mEndPeriod.getTime());
+                }
+                mListAdapter.updateListItems(mStartPeriod.getTime(), mEndPeriod.getTime());
+            }
+        });
+
+        mNextButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if(mShowMonthly) {
+                    mStartPeriod.add(Calendar.MONTH, 1);
+                    mEndPeriod.add(Calendar.MONTH, 1);
+                    String period = mStartPeriod.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault())
+                            + " " + mStartPeriod.get(Calendar.YEAR);
+                    mPeriodTitle.setText(period);
+                } else {
+                    mStartPeriod.add(Calendar.DAY_OF_MONTH, 1);
+                    mEndPeriod.add(Calendar.DAY_OF_MONTH, 1);
+                    changePeriodLabel(mStartPeriod.getTime(), mEndPeriod.getTime());
+                }
+                mListAdapter.updateListItems(mStartPeriod.getTime(), mEndPeriod.getTime());
+            }
+        });
 
     }
 
@@ -278,6 +310,13 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
                 dpd.setOnDateSetListener(mDateListener);
                 dpd.show(getFragmentManager(), "DatePickerDialog");
                 return true;
+            case R.id.action_change_view:
+                mShowMonthly = !mShowMonthly;
+                item.setIcon(mShowMonthly? R.drawable.ic_calendar_day : R.drawable.ic_calendar_month);
+                setViewPeriod();
+                mPreviousButton.setVisibility(View.VISIBLE);
+                mNextButton.setVisibility(View.VISIBLE);
+                return true;
             default:
                 return super.onOptionsItemSelected(item);
         }
@@ -299,13 +338,30 @@ public class CashFlowControlActivity extends AppCompatActivity implements View.O
     }
 
     private void changePeriodLabel(Date startPeriod, Date endPeriod) {
-        String periodTitle = mDateFormatter.format(startPeriod) + " - " + mDateFormatter.format(endPeriod);
+        String startPeriodString = mDateFormatter.format(startPeriod);
+        String endPeriodString = mDateFormatter.format(endPeriod);
+        String periodTitle = startPeriodString;
+        if (!startPeriodString.equals(endPeriodString)) {
+            periodTitle += " - " + endPeriodString;
+        }
         mPeriodTitle.setText(periodTitle);
     }
 
-    private void changePeriodFilter(Date startPeriod, Date endPeriod) {
-        mListAdapter.setPeriodStart(startPeriod);
-        mListAdapter.setPeriodEnd(endPeriod);
-        mListAdapter.updateListItems();
+    private void setViewPeriod() {
+        Calendar startPeriod = Calendar.getInstance();
+        Calendar endPeriod = Calendar.getInstance();
+        if(mShowMonthly) {
+            String period = startPeriod.getDisplayName(Calendar.MONTH, Calendar.LONG, Locale.getDefault()) + " " + startPeriod.get(Calendar.YEAR);
+            mPeriodTitle.setText(period);
+            startPeriod.set(Calendar.DAY_OF_MONTH, 1);
+            endPeriod.set(Calendar.DAY_OF_MONTH, endPeriod.getActualMaximum(Calendar.DAY_OF_MONTH));
+        } else {
+            changePeriodLabel(startPeriod.getTime(), endPeriod.getTime());
+        }
+        AppUtils.setTime(startPeriod, 0, 0, 0, 0);
+        AppUtils.setTime(endPeriod, 23, 59, 59, 59);
+        mStartPeriod = startPeriod;
+        mEndPeriod = endPeriod;
+        mListAdapter.updateListItems(startPeriod.getTime(), endPeriod.getTime());
     }
 }

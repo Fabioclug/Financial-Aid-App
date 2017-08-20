@@ -14,12 +14,15 @@ import android.widget.TextView;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import br.com.fclug.financialaid.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
+import br.com.fclug.financialaid.database.CategoryDao;
 import br.com.fclug.financialaid.database.TransactionDao;
 import br.com.fclug.financialaid.models.Account;
+import br.com.fclug.financialaid.models.Category;
 import br.com.fclug.financialaid.models.Transaction;
 
 /**
@@ -100,9 +103,12 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
             double balance = newAccount.getBalance();
             boolean credit = balance >= 0;
+
+            List<Category> categories = new CategoryDao(getContext()).findAll();
+
             if (balance != 0) {
-                Transaction initialTransaction = new Transaction(credit, "Initial Balance", balance, "", new Date(),
-                        newAccount.getId());
+                Transaction initialTransaction = new Transaction(credit, "Initial Balance", balance, categories.get(0),
+                        new Date(), newAccount.getId());
                 new TransactionDao(getContext()).save(initialTransaction);
             }
         } else {

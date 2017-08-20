@@ -10,7 +10,7 @@ public class Transaction {
     private boolean credit;
     private String description;
     private double value;
-    private String category;
+    private Category category;
     private Date date;
     private long accountId;
 
@@ -18,7 +18,7 @@ public class Transaction {
 
     }
 
-    public Transaction(long id, boolean credit, String description, double value, String category, Date date, long accountId) {
+    public Transaction(long id, boolean credit, String description, double value, Category category, Date date, long accountId) {
         this.id = id;
         this.credit = credit;
         this.description = description;
@@ -28,7 +28,7 @@ public class Transaction {
         this.accountId = accountId;
     }
 
-    public Transaction(boolean credit, String description, double value, String category, Date date, long accountId) {
+    public Transaction(boolean credit, String description, double value, Category category, Date date, long accountId) {
         this.credit = credit;
         this.description = description;
         this.value = value;
@@ -69,11 +69,11 @@ public class Transaction {
         this.value = value;
     }
 
-    public String getCategory() {
+    public Category getCategory() {
         return category;
     }
 
-    public void setCategory(String category) {
+    public void setCategory(Category category) {
         this.category = category;
     }
 

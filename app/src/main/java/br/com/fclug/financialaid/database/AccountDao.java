@@ -61,12 +61,10 @@ public class AccountDao {
         List<Account> accounts = new ArrayList<>();
         Cursor cursor = mDbHandler.getReadableDatabase().rawQuery("SELECT * FROM account", null);
         if(cursor.moveToFirst()) {
-            int i = 0;
             while(!cursor.isAfterLast()) {
                 Account account = build(cursor);
                 accounts.add(account);
                 cursor.moveToNext();
-                i++;
             }
         }
         return accounts;

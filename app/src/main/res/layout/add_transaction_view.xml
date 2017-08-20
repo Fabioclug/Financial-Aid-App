@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="300dp"
+    android:orientation="vertical"
+    android:layout_width="300dp"
     android:layout_height="450dp"
     android:background="@color/dialog_bg">
 
@@ -24,17 +25,12 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dialog_margin"
-        android:paddingStart="@dimen/dialog_padding"
-        android:paddingEnd="@dimen/dialog_padding">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/add_transaction_value"
-            android:textSize="20sp"
-            android:textColor="@color/color_black"
-            android:layout_weight="0.2"/>
+        android:layout_marginTop="@dimen/dialog_margin"
+        android:layout_marginStart="@dimen/dialog_margin"
+        android:layout_marginEnd="@dimen/dialog_margin"
+        android:layout_marginBottom="@dimen/dialog_spacing"
+        android:paddingStart="@dimen/dialog_margin"
+        android:paddingEnd="@dimen/dialog_margin">
 
         <EditText
             android:id="@+id/add_transaction_value"
@@ -42,8 +38,11 @@
             android:layout_height="40dp"
             android:layout_weight="0.2"
             android:textAlignment="viewEnd"
-            android:paddingEnd="15dp"
-            android:inputType="numberDecimal"/>
+            android:layout_marginEnd="@dimen/dialog_special_margin"
+            android:inputType="numberDecimal"
+            android:hint="@string/add_transaction_value"
+            android:paddingEnd="@dimen/dialog_margin"
+            android:imeOptions="actionNext"/>
 
         <ImageButton
             android:id="@+id/add_transaction_credit"
@@ -64,69 +63,67 @@
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dialog_margin"
-        android:paddingStart="@dimen/dialog_padding"
-        android:paddingEnd="@dimen/dialog_padding">
+        android:layout_marginTop="@dimen/dialog_spacing"
+        android:layout_marginStart="@dimen/dialog_margin"
+        android:layout_marginEnd="@dimen/dialog_margin"
+        android:layout_marginBottom="@dimen/dialog_spacing"
+        android:paddingStart="@dimen/dialog_margin"
+        android:paddingEnd="@dimen/dialog_margin">
 
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/add_transaction_account"
-            android:textSize="20sp"
-            android:textColor="@android:color/black"
-            android:layout_weight="0.3"/>
-
-        <Spinner
-            android:id="@+id/add_transaction_account"
-            android:layout_width="20dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="0.3"/>
+        <EditText
+            android:id="@+id/add_transaction_description"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:paddingStart="@dimen/dialog_margin"
+            android:hint="@string/add_transaction_description"
+            android:imeOptions="actionNext"/>
 
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dialog_margin"
-        android:paddingStart="@dimen/dialog_padding"
-        android:paddingEnd="@dimen/dialog_padding">
+        android:layout_marginTop="@dimen/dialog_spacing"
+        android:layout_marginStart="@dimen/dialog_margin"
+        android:layout_marginEnd="@dimen/dialog_margin"
+        android:layout_marginBottom="@dimen/dialog_spacing"
+        android:paddingStart="@dimen/dialog_special_margin"
+        android:paddingEnd="@dimen/dialog_margin"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="@string/add_transaction_account"/>
+
+        <Spinner
+            android:id="@+id/add_transaction_account"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/dialog_spacing"
+        android:layout_marginStart="@dimen/dialog_margin"
+        android:layout_marginEnd="@dimen/dialog_margin"
+        android:layout_marginBottom="@dimen/dialog_spacing"
+        android:paddingStart="@dimen/dialog_special_margin"
+        android:paddingEnd="@dimen/dialog_margin"
+        android:orientation="vertical">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/add_transaction_description"
-            android:textSize="20sp"
-            android:textColor="@android:color/black"
-            android:layout_weight="0.1"/>
-
-        <EditText
-            android:id="@+id/add_transaction_description"
-            android:layout_width="30dp"
-            android:layout_height="40dp"
-            android:layout_weight="0.6"/>
-
-    </LinearLayout>
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="@dimen/dialog_margin"
-        android:paddingStart="@dimen/dialog_padding"
-        android:paddingEnd="@dimen/dialog_padding">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:text="@string/add_transaction_category"
-            android:textSize="20sp"
-            android:textColor="@android:color/black"
-            android:layout_weight="0.1"/>
+            android:layout_gravity="center_vertical"/>
 
-        <EditText
+        <Spinner
             android:id="@+id/add_transaction_category"
-            android:layout_width="30dp"
-            android:layout_height="40dp"
-            android:layout_weight="0.1"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
 
     </LinearLayout>
 
@@ -134,23 +131,19 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_margin="@dimen/dialog_margin"
-        android:paddingStart="@dimen/dialog_padding"
-        android:paddingEnd="@dimen/dialog_padding">
-
-        <TextView
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:text="@string/add_transaction_date"
-            android:textSize="20sp"
-            android:textColor="@android:color/black"
-            android:layout_weight="0.35"/>
+        android:layout_marginTop="@dimen/dialog_spacing"
+        android:layout_marginStart="@dimen/dialog_margin"
+        android:layout_marginEnd="@dimen/dialog_margin"
+        android:layout_marginBottom="@dimen/dialog_margin"
+        android:paddingStart="@dimen/dialog_margin"
+        android:paddingEnd="@dimen/dialog_margin">
 
         <EditText
             android:id="@+id/add_transaction_date"
-            android:layout_width="30dp"
-            android:layout_height="50dp"
-            android:layout_weight="0.35"/>
+            android:paddingStart="@dimen/dialog_margin"
+            android:layout_width="match_parent"
+            android:layout_height="40dp"
+            android:hint="@string/add_transaction_date"/>
 
     </LinearLayout>
 

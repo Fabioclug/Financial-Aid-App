@@ -12,6 +12,7 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.List;
 
+import br.com.fclug.financialaid.CreateGroupActivity;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.models.User;
 
@@ -59,7 +60,11 @@ public class MemberListAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.member_list_item, parent, false);
         TextView username = (TextView) convertView.findViewById(R.id.member_username);
         TextView name = (TextView) convertView.findViewById(R.id.member_name);
-        username.setText("(" + user.getUsername() + ")");
+        if (mContext instanceof CreateGroupActivity) {
+            username.setText("(" + user.getUsername() + ")");
+        } else {
+            username.setVisibility(View.GONE);
+        }
         name.setText(user.getName());
 
         mDeleteButton = (FloatingActionButton) convertView.findViewById(R.id.member_delete);

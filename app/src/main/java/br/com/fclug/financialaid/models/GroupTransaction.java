@@ -1,6 +1,7 @@
 package br.com.fclug.financialaid.models;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -13,13 +14,15 @@ public class GroupTransaction {
     private String description;
     private User payer;
     private double value;
+    private Date date;
     private List<TransactionSplit> splits;
 
-    public GroupTransaction(long id, String description, User payer, double value) {
+    public GroupTransaction(long id, String description, User payer, double value, Date date) {
         this.id = id;
         this.description = description;
         this.payer = payer;
         this.value = value;
+        this.date = date;
         splits = new ArrayList<>();
     }
 
@@ -61,5 +64,9 @@ public class GroupTransaction {
 
     public double getValue() {
         return value;
+    }
+
+    public Date getDate() {
+        return date;
     }
 }

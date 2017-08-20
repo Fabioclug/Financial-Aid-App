@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 public class ServerUtils {
     private static final String TAG = "ServerUtils";
     private static String EMULATOR_SERVER_URL = "http://10.0.2.2:8080/api";
-    private static String SERVER_URL = "http://192.168.1.40:8080/api";
+    private static String SERVER_URL = "http://192.168.1.33:8080/api";
 
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
@@ -35,6 +35,8 @@ public class ServerUtils {
     public static final String ROUTE_CREATE_GROUP_TRANSACTION = "/createGroupTransaction";
     public static final String ROUTE_GET_GROUPS = "/getGroups";
     public static final String ROUTE_GET_USERS = "/getUsers";
+    public static final String ROUTE_GET_TRANSACTIONS = "/getGroupTransactions";
+    public static final String ROUTE_GET_CREDITS = "/getGroupCredits";
 
     public static final int TIMEOUT = 15000;
 

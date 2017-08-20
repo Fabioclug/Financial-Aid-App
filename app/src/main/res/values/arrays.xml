@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <!-- Account possible types -->
+    <!-- Possible account types -->
     <string-array name="account_types">
         <item>Checking</item>
         <item>Savings</item>
@@ -24,4 +24,21 @@
         <item>@drawable/ic_credit_card</item>
         <item>@drawable/ic_cash</item>
     </integer-array>
+
+    <!-- Category names -->
+    <string-array name="category_names">
+        <item>Incoming</item>
+        <item>Restaurant</item>
+        <item>Groceries</item>
+        <item>Electronics</item>
+    </string-array>
+
+    <!-- Category colors -->
+    <array name="category_colors">
+        <item>@color/transaction_type_credit</item>
+        <item>@color/restaurant_category</item>
+        <item>@color/groceries_category</item>
+        <item>@color/electronics_category</item>
+    </array>
+
 </resources>

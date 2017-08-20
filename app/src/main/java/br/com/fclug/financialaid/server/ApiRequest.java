@@ -16,7 +16,7 @@ import java.net.HttpURLConnection;
 public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
 
     public interface RequestCallback {
-        void onSuccess(JSONObject response);
+        void onSuccess(JSONObject response) throws JSONException;
         void onFailure(int code);
     }
 
@@ -54,16 +54,20 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
     protected void onPostExecute(JSONObject response) {
         super.onPostExecute(response);
         int statusCode = -1;
+        Log.d("ApiRequest", mArgs.toString());
         try {
             Log.d(TAG, response.toString());
             statusCode = response.getInt("status_code");
         } catch (Exception e) {
             e.printStackTrace();
-            Log.d("ApiRequest", mArgs.toString());
         }
         switch (statusCode) {
             case HttpURLConnection.HTTP_OK:
-                mCallback.onSuccess(response);
+                try {
+                    mCallback.onSuccess(response);
+                } catch (JSONException e) {
+                    Log.d(TAG, e.toString());
+                }
                 break;
             case HttpURLConnection.HTTP_NOT_FOUND:
             case HttpURLConnection.HTTP_INTERNAL_ERROR:

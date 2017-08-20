@@ -33,11 +33,30 @@
 
     <!-- Transaction register -->
     <string name="add_transaction">Add Transaction</string>
-    <string name="add_transaction_value">Value:</string>
-    <string name="add_transaction_account">Account:</string>
-    <string name="add_transaction_description">Description:</string>
-    <string name="add_transaction_category">Category:</string>
-    <string name="add_transaction_date">Date:</string>
+    <string name="add_transaction_value">Value</string>
+    <string name="add_transaction_account">Account</string>
+    <string name="add_transaction_description">Description</string>
+    <string name="add_transaction_category">Category</string>
+    <string name="add_transaction_date">Date</string>
     <string name="edit_transaction">Edit Transaction</string>
+
+    <!-- Category register -->
+    <string name="add_category">Add Category</string>
+    <string name="add_category_name">Name</string>
+    <string name="add_category_type">Type</string>
+    <string name="add_category_type_incoming">Incoming</string>
+    <string name="add_category_type_outgoing">Outgoing</string>
+
+
+    <!-- Group summary -->
+    <string name="group_summary_no_debts"> There are no debts in this group yet.</string>
+    <string name="group_summary_debt">%1$s owes %2$.2f to %3$s</string>
+
+    <!-- Create group labels -->
+    <string name="online_group"> Multiple user group</string>
+    <string name="offline_group"> Offline group</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 
 </resources>

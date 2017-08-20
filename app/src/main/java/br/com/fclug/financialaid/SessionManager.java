@@ -13,41 +13,50 @@ import android.content.SharedPreferences.Editor;
 
 public class SessionManager {
 
-    SharedPreferences preferences;
+    private SharedPreferences mSharedPreferences;
+    private Context mContext;
 
-    // Editor for Shared preferences
-    Editor editor;
-    Context context;
-
-    // Shared pref mode
-    int PRIVATE_MODE = 0;
-
-    // Shared pref file name
     private static final String PREF_NAME = "financial_aid";
 
-    // All Shared Preferences Keys
+    // Shared Preferences keys
     private static final String IS_LOGGED = "logged";
     private static final String SKIPPED = "skipped";
     public static final String KEY_NAME = "username";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_TOKEN = "token";
 
-    // Constructor
     public SessionManager(Context context){
-        this.context = context;
-        preferences = context.getSharedPreferences(PREF_NAME, PRIVATE_MODE);
-        editor = preferences.edit();
+        mContext = context;
+        mSharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public static SharedPreferences getSharedPreferences(Context context) {
+        return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
+    }
+
+    public void requestLogin(String username, String password) {
+        //TODO: the API request and call createLoginSession
+    }
+
+    public void requestLogin() {
+        String username = mSharedPreferences.getString(KEY_NAME, null);
+        String password = mSharedPreferences.getString(KEY_PASSWORD, null);
+        if(username != null && password != null) {
+            requestLogin(username, password);
+        }
     }
 
     /**
      * Create login session
      * */
     public void createLoginSession(String name, String password, String token){
-        // Storing login values in shared preferences
+        // Storing login values in shared mSharedPreferences
+        Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_LOGGED, true);
         editor.putString(KEY_NAME, name);
         editor.putString(KEY_PASSWORD, password);
         editor.putString(KEY_TOKEN, token);
+        editor.putBoolean(SKIPPED, false);
         editor.commit();
     }
 
@@ -57,64 +66,75 @@ public class SessionManager {
      * Else won't do anything
      * */
     public void checkLogin(){
-        if(!this.isLoggedIn()) {
-            Intent i = new Intent(context, LoginActivity.class);
+        if(!this.hasSkipped() && !this.isLoggedIn()) {
+            Intent i = new Intent(mContext, LoginActivity.class);
 
             i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(i);
+            mContext.startActivity(i);
         }
     }
 
     /**
      * Get stored session data
-     * */
+     * @return a HashMap with the user information
+     */
     public HashMap<String, String> getUserDetails(){
         HashMap<String, String> user = new HashMap<String, String>();
 
-        user.put(KEY_NAME, preferences.getString(KEY_NAME, null));
-        user.put(KEY_TOKEN, preferences.getString(KEY_TOKEN, null));
+        user.put(KEY_NAME, mSharedPreferences.getString(KEY_NAME, null));
+        user.put(KEY_TOKEN, mSharedPreferences.getString(KEY_TOKEN, null));
 
         return user;
     }
 
     public String getToken() {
-        return preferences.getString(KEY_TOKEN, null);
+        return mSharedPreferences.getString(KEY_TOKEN, null);
     }
 
     /**
      * Clear session details
      * */
     public void logoutUser(){
-        // Clearing all data from Shared Preferences
+        // Clear all data from Shared Preferences
+        Editor editor = mSharedPreferences.edit();
         editor.clear();
         editor.commit();
 
-        // After logout redirect user to Loing Activity
-        Intent i = new Intent(context, LoginActivity.class);
-        // Closing all the Activities
-        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        // Redirect user to Login Activity
+        Intent i = new Intent(mContext, LoginActivity.class);
 
+        // Close all the Activities
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         // Add new Flag to start new Activity
         i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(i);
+    }
 
-        // Staring Login Activity
-        context.startActivity(i);
+    public void skipLogin() {
+        Editor editor = mSharedPreferences.edit();
+        editor.putBoolean(SKIPPED, true);
+        editor.commit();
+        Intent i = new Intent(mContext, MainActivity.class);
+
+        i.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+        i.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        mContext.startActivity(i);
     }
 
     /**
-     * Quick check for login
-     * **/
-    // Get Login State
+     * Check if the user is logged in
+     * @return a flag indicating if the user is logged in
+     */
     public boolean isLoggedIn(){
-        return preferences.getBoolean(IS_LOGGED, false);
+        return mSharedPreferences.getBoolean(IS_LOGGED, false);
     }
 
     /**
      * Check if the user has skipped login before
-     * @return
+     * @return a flag indicating if the user skipped login
      */
     public boolean hasSkipped() {
-        return preferences.getBoolean(SKIPPED, false);
+        return mSharedPreferences.getBoolean(SKIPPED, false);
     }
 }

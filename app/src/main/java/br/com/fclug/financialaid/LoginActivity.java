@@ -11,6 +11,7 @@ import android.text.TextWatcher;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -26,6 +27,7 @@ public class LoginActivity extends AppCompatActivity {
     private EditText mPassword;
     private Button mSignIn;
     private Button mSignUp;
+    private TextView mSkipLogin;
 
     private String usernameString;
     private String passwordString;
@@ -55,14 +57,10 @@ public class LoginActivity extends AppCompatActivity {
 
     private ApiRequest.RequestCallback mLoginCallback = new ApiRequest.RequestCallback() {
         @Override
-        public void onSuccess(JSONObject response) {
+        public void onSuccess(JSONObject response) throws JSONException {
             String token = null;
             if (response != null) {
-                try {
-                    token = response.getString("token");
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                }
+                token = response.getString("token");
             }
             mProgressDialog.dismiss();
             // Creating user login session
@@ -93,6 +91,7 @@ public class LoginActivity extends AppCompatActivity {
         mPassword = (EditText) findViewById(R.id.login_password);
         mSignIn = (Button) findViewById(R.id.login_signin);
         mSignUp = (Button) findViewById(R.id.login_signup);
+        mSkipLogin = (TextView) findViewById(R.id.login_skip);
 
         mUsername.addTextChangedListener(mWatcher);
         mPassword.addTextChangedListener(mWatcher);
@@ -136,6 +135,13 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
                 startActivity(intent);
+            }
+        });
+
+        mSkipLogin.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mSession.skipLogin();
             }
         });
 

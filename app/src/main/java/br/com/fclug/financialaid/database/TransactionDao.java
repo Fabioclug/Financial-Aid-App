@@ -5,14 +5,21 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
+import com.github.mikephil.charting.data.Entry;
+
+import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import br.com.fclug.financialaid.models.Account;
+import br.com.fclug.financialaid.models.Category;
 import br.com.fclug.financialaid.models.Transaction;
 
 /**
@@ -22,21 +29,16 @@ public class TransactionDao {
 
     private Context mContext;
     private DatabaseHandler mDbHandler;
-    private SimpleDateFormat mDateFormatter = new SimpleDateFormat("dd/MM/yyyy");
 
     public TransactionDao(Context context) {
         mContext = context;
         mDbHandler = new DatabaseHandler(context);
-        Transaction t1 = new Transaction(false, "Aniversário e um monte de palavra pra ficar um nome bem longo", 674.90, "debt", Calendar.getInstance().getTime(), 1);
-        Transaction t2 = new Transaction(true, "Salário", 1776.94, "credit", new Date(1134839678), 1);
-        //save(t1);
-        //save(t2);
     }
 
     public long writeOnDb(Transaction transaction, boolean update) {
         ContentValues contentValues = new ContentValues();
         contentValues.put("credit", transaction.isCredit()? 1:0);
-        contentValues.put("category", transaction.getCategory());
+        contentValues.put("category", transaction.getCategory().getName());
         contentValues.put("value", transaction.getValue());
         contentValues.put("description", transaction.getDescription());
         contentValues.put("register_date", transaction.getDate().getTime());
@@ -68,11 +70,14 @@ public class TransactionDao {
     private Transaction build(Cursor cursor) {
         long tId = cursor.getInt(cursor.getColumnIndex("id"));
         boolean tDebt = cursor.getInt(cursor.getColumnIndex("credit")) == 1;
-        String tCategory = cursor.getString(cursor.getColumnIndex("category"));
+        String categoryName = cursor.getString(cursor.getColumnIndex("category"));
         float tValue = cursor.getFloat(cursor.getColumnIndex("value"));
         String tDescription = cursor.getString(cursor.getColumnIndex("description"));
         long aId = cursor.getInt(cursor.getColumnIndex("account"));
         Date tDate = new Date(cursor.getLong(cursor.getColumnIndex("register_date")));
+
+        CategoryDao categoryDao = new CategoryDao(mContext);
+        Category tCategory = categoryDao.findByName(categoryName);
 
         return new Transaction(tId, tDebt, tDescription, tValue, tCategory, tDate, aId);
     }
@@ -107,6 +112,42 @@ public class TransactionDao {
         }
 
         return queryList(whereClause, whereArgs);
+    }
+
+    public List<Map.Entry<String, Float>> findSumOnLastSevenDays() {
+
+        Map<String, Float> totalPerDay = new HashMap<>();
+        String query = "SELECT strftime('%Y-%m-%d', register_date/1000, 'unixepoch') AS entry_day, SUM(value) AS total " +
+                "FROM cash_transaction WHERE entry_day >= date('now', '-6 day') GROUP BY entry_day ORDER BY entry_day";
+        try (Cursor cursor = mDbHandler.getReadableDatabase().rawQuery(query, null)) {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    String entry_day = cursor.getString(cursor.getColumnIndex("entry_day"));
+                    float sum = cursor.getFloat(cursor.getColumnIndex("total"));
+                    totalPerDay.put(entry_day, sum);
+                    cursor.moveToNext();
+                }
+            }
+        }
+
+        // Build list with 7 last days and put the values for days with expenses
+        List<Map.Entry<String, Float>> entries = new ArrayList<>();
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        Calendar cal = Calendar.getInstance();
+        // get starting date
+        cal.add(Calendar.DAY_OF_YEAR, -7);
+        // loop adding one day in each iteration
+        for(int i = 0; i< 7; i++){
+            cal.add(Calendar.DAY_OF_YEAR, 1);
+            String date = dateFormat.format(cal.getTime());
+            if (totalPerDay.keySet().contains(date)) {
+                entries.add(new AbstractMap.SimpleEntry<>(dateFormat.format(cal.getTime()), totalPerDay.get(date)));
+            } else {
+                entries.add(new AbstractMap.SimpleEntry<>(dateFormat.format(cal.getTime()), 0f));
+            }
+        }
+
+        return entries;
     }
 
     public boolean delete(Transaction transaction) {
