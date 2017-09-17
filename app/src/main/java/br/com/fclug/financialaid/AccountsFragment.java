@@ -5,64 +5,87 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.HapticFeedbackConstants;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
-import android.widget.GridView;
 
-import br.com.fclug.financialaid.adapter.AccountGridAdapter;
+import br.com.fclug.financialaid.adapter.AccountListAdapter;
 import br.com.fclug.financialaid.dialog.AddAccountDialog;
 import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
+import br.com.fclug.financialaid.interfaces.OnListClickListener;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
 import br.com.fclug.financialaid.models.Account;
+import br.com.fclug.financialaid.utils.SwipeUtil;
 
-public class AccountsFragment extends Fragment {
+public class AccountsFragment extends Fragment implements OnClickListener {
 
-    private GridView mAccountsGrid;
-    private AccountGridAdapter mGridAdapter;
+    private RecyclerView mAccountsRecyclerView;
+    private AccountListAdapter mListAdapter;
     private FloatingActionButton mAddAccountFab;
 
     private DialogInterface.OnDismissListener mDismissListener = new DialogInterface.OnDismissListener() {
         @Override
         public void onDismiss(DialogInterface dialog) {
             // refresh list
-            mGridAdapter.updateListItems();
+            mListAdapter.setListItems();
         }
     };
 
-    private OnClickListener mAddAccountFabClickListener = new OnClickListener() {
+    private OnListClickListener mListClickListener = new OnListClickListener() {
         @Override
-        public void onClick(View v) {
-            AddAccountDialog addAccountDialog = new AddAccountDialog(getContext());
-            addAccountDialog.setOnDismissListener(mDismissListener);
-            // show the dialog
-            addAccountDialog.show();
-        }
-    };
-
-    private OnItemClickListener mAccountClickListener = new OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-            Account clickedAccount = (Account) mGridAdapter.getItem(position);
+        public void onItemClick(Object account) {
+            Account clickedAccount = (Account) account;
             Intent intent = new Intent(getContext(), TransactionsActivity.class);
             intent.putExtra("account", clickedAccount.getId());
             getContext().startActivity(intent);
         }
+
+        @Override
+        public void onItemLongClick(View view, Object account) {
+            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
+            Account clickedAccount = (Account) account;
+            OptionsMenuDialog dialog = new OptionsMenuDialog(getContext(), clickedAccount);
+            dialog.setOnObjectOperationListener(mAccountOperationListener);
+            dialog.show();
+        }
     };
 
-    private AdapterView.OnItemLongClickListener mAccountLongClickListener = new AdapterView.OnItemLongClickListener() {
+    private OnObjectOperationListener mAccountOperationListener = new OnObjectOperationListener() {
         @Override
-        public boolean onItemLongClick(AdapterView<?> parent, View view, int position, long id) {
-            view.performHapticFeedback(HapticFeedbackConstants.LONG_PRESS);
-            Account clickedAccount = (Account) mGridAdapter.getItem(position);
-            OptionsMenuDialog dialog = new OptionsMenuDialog(getContext(), clickedAccount);
-            dialog.setOnDismissListener(mDismissListener);
-            dialog.show();
-            return true;
+        public void onAdd() {
+            Snackbar.make(mAddAccountFab, "Account created", Snackbar.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onUpdate(Object account) {
+            Account updatedAccount = (Account) account;
+            mListAdapter.updateItemView(updatedAccount);
+            Snackbar.make(mAddAccountFab, "Account edited", Snackbar.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onDelete(Object account) {
+            final Account pendingRemovalAccount = (Account) account;
+            final int position = mListAdapter.setPendingRemoval(pendingRemovalAccount);
+            Snackbar.make(mAddAccountFab, "Account deleted", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("UNDO", new OnClickListener() {
+                        @Override
+                        public void onClick(View view) {
+                            mListAdapter.undoRemoval(pendingRemovalAccount, position);
+                        }
+                    })
+                    .setDuration(AccountListAdapter.PENDING_REMOVAL_TIMEOUT)
+                    .setActionTextColor(ContextCompat.getColor(getContext(), R.color.swipe_background))
+                    .show();
         }
     };
 
@@ -72,20 +95,37 @@ public class AccountsFragment extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-
-        if (container == null)
-            return null;
         View view = inflater.inflate(R.layout.accounts_fragment, container, false);
-        mAccountsGrid = (GridView) view.findViewById(R.id.account_gridview);
-        mGridAdapter = new AccountGridAdapter(getContext());
-        mGridAdapter.updateListItems();
-        mAccountsGrid.setAdapter(mGridAdapter);
-        mAccountsGrid.setOnItemClickListener(mAccountClickListener);
-        mAccountsGrid.setOnItemLongClickListener(mAccountLongClickListener);
-        registerForContextMenu(mAccountsGrid);
+        mAccountsRecyclerView = (RecyclerView) view.findViewById(R.id.account_recyclerview);
 
         mAddAccountFab = (FloatingActionButton) view.findViewById(R.id.add_control_entry);
-        mAddAccountFab.setOnClickListener(mAddAccountFabClickListener);
+        mAddAccountFab.setOnClickListener(this);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mAccountsRecyclerView.setLayoutManager(layoutManager);
+        DividerItemDecoration itemDecorator = new DividerItemDecoration(getActivity(), DividerItemDecoration.VERTICAL);
+        itemDecorator.setDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.account_list_divider));
+        mAccountsRecyclerView.addItemDecoration(itemDecorator);
+
+        mListAdapter = new AccountListAdapter(getContext());
+        mAccountsRecyclerView.setAdapter(mListAdapter);
+        mListAdapter.setListItemClickListener(mListClickListener);
+        mAccountsRecyclerView.getItemAnimator().setChangeDuration(0);
+//        mAccountsRecyclerView.setItemAnimator(new DefaultItemAnimator() {
+//            @Override
+//            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
+//                                         int fromX, int fromY, int toX, int toY) {
+//                if (oldHolder == newHolder) {
+//                    newHolder.itemView.animate()
+//                            .alpha(1f)
+//                            .setDuration(500)
+//                            .setListener(null);
+//                }
+//                return true;
+//            }
+//        });
+        setSwipeForRecyclerView();
 
         return view;
     }
@@ -93,7 +133,57 @@ public class AccountsFragment extends Fragment {
     @Override
     public void onResume() {
         super.onResume();
-        mGridAdapter.updateListItems();
+        mListAdapter.setListItems();
+    }
+
+    private void setSwipeForRecyclerView() {
+
+        SwipeUtil swipeHelper = new SwipeUtil(getActivity()) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.LEFT) {
+                    int swipedPosition = viewHolder.getAdapterPosition();
+                    mListAdapter.setPendingRemoval(swipedPosition, true);
+                }
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int position = viewHolder.getAdapterPosition();
+                if (mListAdapter.isPendingRemoval(position)) {
+                    return 0;
+                }
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+            @Override
+            public void onLeftClick(int position) {
+                Account account = mListAdapter.getItem(position);
+                AddAccountDialog dialog = new AddAccountDialog(getActivity(), account);
+                dialog.setOnDismissListener(mDismissListener);
+                dialog.setOnTransactionOperationListener(mAccountOperationListener);
+                dialog.show();
+            }
+        };
+
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(swipeHelper);
+        mItemTouchHelper.attachToRecyclerView(mAccountsRecyclerView);
+
+        //set swipe label
+        swipeHelper.setLeftSwipeLabel("Delete");
+        //set swipe background-Color
+        swipeHelper.setLeftSwipeColor(ContextCompat.getColor(getActivity(), R.color.swipe_background));
+        swipeHelper.setRightColorCode(ContextCompat.getColor(getActivity(), R.color.electronics_category));
+
+    }
+
+    @Override
+    public void onClick(View view) {
+        AddAccountDialog addAccountDialog = new AddAccountDialog(getContext());
+        addAccountDialog.setOnDismissListener(mDismissListener);
+        addAccountDialog.setOnTransactionOperationListener(mAccountOperationListener);
+        // show the dialog
+        addAccountDialog.show();
     }
 
     /**

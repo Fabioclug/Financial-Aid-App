@@ -1,5 +1,6 @@
 package br.com.fclug.financialaid.fragments;
 
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -9,15 +10,22 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.github.mikephil.charting.charts.LineChart;
+import com.github.mikephil.charting.charts.PieChart;
 import com.github.mikephil.charting.components.AxisBase;
+import com.github.mikephil.charting.components.Legend;
 import com.github.mikephil.charting.components.XAxis;
 import com.github.mikephil.charting.components.YAxis;
 import com.github.mikephil.charting.data.Entry;
 import com.github.mikephil.charting.data.LineData;
 import com.github.mikephil.charting.data.LineDataSet;
+import com.github.mikephil.charting.data.PieData;
+import com.github.mikephil.charting.data.PieDataSet;
+import com.github.mikephil.charting.data.PieEntry;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.utils.ColorTemplate;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -40,6 +48,7 @@ public class StatisticsFragment extends Fragment {
     }
 
     private LineChart chart;
+    private PieChart pieChart;
 
     public StatisticsFragment() {
 
@@ -51,6 +60,7 @@ public class StatisticsFragment extends Fragment {
             return null;
         View view = inflater.inflate(R.layout.statistics_fragment, container, false);
         chart = (LineChart) view.findViewById(R.id.chart);
+        pieChart = (PieChart) view.findViewById(R.id.pie_chart);
         TransactionDao dao = new TransactionDao(getContext());
 
         List<Map.Entry<String, Float>> values = dao.findSumOnLastSevenDays();
@@ -98,6 +108,34 @@ public class StatisticsFragment extends Fragment {
         chart.setDrawBorders(false);
         chart.getLegend().setEnabled(false);
         chart.invalidate();
+
+        //Pie chart
+
+        //HashMap<String, Float> pie_entries = dao.findTransactionsPerAccount();
+        List<PieEntry> pie_values = new ArrayList<>();
+//        for (Map.Entry<String, Float> entry : pie_entries.entrySet()) {
+//            pie_values.add(new PieEntry(entry.getValue(), entry.getKey()));
+//        }
+
+        pie_values.add(new PieEntry(18.5f, "Green"));
+        pie_values.add(new PieEntry(26.7f, "Yellow"));
+        pie_values.add(new PieEntry(24.0f, "Red"));
+        pie_values.add(new PieEntry(30.8f, "Blue"));
+
+        PieDataSet set = new PieDataSet(pie_values, "Expenses per account");
+        set.setColors(ColorTemplate.MATERIAL_COLORS);
+        PieData pieData = new PieData(set);
+        pieData.setValueTextSize(11f);
+        pieData.setValueTextColor(Color.WHITE);
+        pieChart.setData(pieData);
+        Legend legend = pieChart.getLegend();
+        legend.setForm(Legend.LegendForm.CIRCLE);
+        pieChart.setUsePercentValues(true);
+        pieChart.setEntryLabelTextSize(12f);
+        pieChart.invalidate(); // refresh
+
+        pieChart.animateY(2000);
+
 
         return view;
     }

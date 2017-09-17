@@ -13,12 +13,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
-import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
@@ -37,6 +35,7 @@ import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
+import br.com.fclug.financialaid.utils.AppUtils;
 
 public class CreateGroupPaymentActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener{
 

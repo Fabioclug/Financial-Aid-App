@@ -2,7 +2,6 @@ package br.com.fclug.financialaid.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.view.View;
 import android.view.Window;
@@ -11,6 +10,7 @@ import android.widget.LinearLayout;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.TransactionDao;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
 
@@ -23,6 +23,7 @@ public class OptionsMenuDialog extends Dialog implements View.OnClickListener {
     private Account mAccount;
     private Transaction mTransaction;
     private OnDismissListener mDismissListener;
+    private OnObjectOperationListener mOperationListener;
 
     public OptionsMenuDialog(Context context, Account account) {
         super(context);
@@ -55,22 +56,25 @@ public class OptionsMenuDialog extends Dialog implements View.OnClickListener {
             if (v.getId() == R.id.option_edit) {
                 AddAccountDialog dialog = new AddAccountDialog(mContext, mAccount);
                 dialog.setOnDismissListener(mDismissListener);
+                dialog.setOnTransactionOperationListener(mOperationListener);
                 dialog.show();
             } else {
                 super.setOnDismissListener(mDismissListener);
-                accountDao.delete(mAccount);
+                mOperationListener.onDelete(mAccount);
             }
         } else {
             TransactionDao transactionDao = new TransactionDao(mContext);
             if (v.getId() == R.id.option_edit) {
                 AddTransactionDialog dialog = new AddTransactionDialog(mContext, mAccount, mTransaction);
                 dialog.setOnDismissListener(mDismissListener);
+                dialog.setOnTransactionOperationListener(mOperationListener);
                 dialog.show();
             } else {
                 super.setOnDismissListener(mDismissListener);
                 transactionDao.delete(mTransaction);
                 mTransaction.setCredit(!mTransaction.isCredit());
                 accountDao.updateBalance(mAccount, mTransaction);
+                mOperationListener.onDelete(mTransaction);
             }
         }
         dismiss();
@@ -79,5 +83,9 @@ public class OptionsMenuDialog extends Dialog implements View.OnClickListener {
     @Override
     public void setOnDismissListener(OnDismissListener listener) {
         mDismissListener = listener;
+    }
+
+    public void setOnObjectOperationListener(OnObjectOperationListener listener) {
+        mOperationListener = listener;
     }
 }

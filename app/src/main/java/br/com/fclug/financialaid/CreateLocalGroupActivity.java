@@ -1,5 +1,7 @@
 package br.com.fclug.financialaid;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -10,19 +12,22 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.Toast;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.User;
+import br.com.fclug.financialaid.utils.FabScrollBehavior;
 
 /**
  * Created by Fabioclug on 2017-06-25.
  */
 
-public class CreateLocalGroupActivity extends AppCompatActivity implements View.OnClickListener {
+public class CreateLocalGroupActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
 
     private EditText mGroupName;
     private EditText mGroupMember;
@@ -30,6 +35,9 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
     private MemberListAdapter mListAdapter;
     private Button mAddMemberButton;
     private FloatingActionButton mConfirmButton;
+    private List<String> mAddedNames;
+
+    private final static int MINIMUM_NAME_LENGTH = 3;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -57,15 +65,27 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         mAddMemberButton.setVisibility(View.VISIBLE);
 
         mAddMemberButton.setOnClickListener(this);
-        mConfirmButton.setOnClickListener(this);
+        mGroupMembersList.setOnTouchListener(new FabScrollBehavior(mConfirmButton));
+        mGroupMember.setOnFocusChangeListener(this);
+
+        mAddedNames = new ArrayList<>();
     }
 
     private void addMember() {
         String name = mGroupMember.getText().toString();
-        User member = new User(name, name);
-        mListAdapter.addMember(member);
-        mListAdapter.notifyDataSetChanged();
-        mGroupMember.getText().clear();
+        if (name.length() < MINIMUM_NAME_LENGTH) {
+            Toast.makeText(this, "Name should be at least 3 characters long", Toast.LENGTH_SHORT).show();
+        } else {
+            if (!mAddedNames.contains(name)) {
+                mAddedNames.add(name);
+                User member = new User(name, name);
+                mListAdapter.addMember(member);
+                mListAdapter.notifyDataSetChanged();
+                mGroupMember.getText().clear();
+            } else {
+                Toast.makeText(this, "This name is already on your list of members", Toast.LENGTH_SHORT).show();
+            }
+        }
     }
 
     private void createGroup() {
@@ -90,5 +110,12 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
             finish();
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onFocusChange(View view, boolean hasFocus) {
+        if (hasFocus) {
+            mConfirmButton.setVisibility(View.GONE);
+        }
     }
 }

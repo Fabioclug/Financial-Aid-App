@@ -2,6 +2,8 @@ package br.com.fclug.financialaid.models;
 
 import java.util.Date;
 
+import br.com.fclug.financialaid.utils.AppUtils;
+
 /**
  * Created by Fabioclug on 2016-06-09.
  */
@@ -63,6 +65,10 @@ public class Transaction {
 
     public double getValue() {
         return value;
+    }
+
+    public String getFormattedValue() {
+        return AppUtils.formatValue(value);
     }
 
     public void setValue(double value) {

@@ -14,4 +14,13 @@
     <dimen name="fab_first_button_anim">105dp</dimen>
     <dimen name="fab_second_button_anim">55dp</dimen>
     <dimen name="fab_special_margin">22dp</dimen>
+
+    <!-- Dialogs -->
+    <dimen name="dialog_header_text_size">22sp</dimen>
+
+
+    <!-- List Swipe -->
+    <dimen name="swiped_left_text_margin">40dp</dimen>
+    <dimen name="swipe_text_size">16sp</dimen>
+    <dimen name="swipe_right_margin">25dp</dimen>
 </resources>

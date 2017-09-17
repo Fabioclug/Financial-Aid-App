@@ -1,4 +1,4 @@
-package br.com.fclug.financialaid;
+package br.com.fclug.financialaid.utils;
 
 import android.app.Application;
 import android.app.DatePickerDialog;
@@ -15,6 +15,8 @@ import java.text.DecimalFormatSymbols;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
+
+import br.com.fclug.financialaid.R;
 
 /**
  * Created by Fabioclug on 2016-07-29.
@@ -89,6 +91,10 @@ public final class AppUtils extends Application {
             editText.setSelection(cursorAtEnd ? editText.getText().length() : originalCursorPosition + cursorOffset);
         }
         return result;
+    }
+
+    public static String formatValue(double value) {
+        return String.format("%.2f", value);
     }
 
     public static void attachCalendarToEditText(final Context context, final EditText editText, final SimpleDateFormat formatter) {

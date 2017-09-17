@@ -118,7 +118,7 @@ public class TransactionDao {
 
         Map<String, Float> totalPerDay = new HashMap<>();
         String query = "SELECT strftime('%Y-%m-%d', register_date/1000, 'unixepoch') AS entry_day, SUM(value) AS total " +
-                "FROM cash_transaction WHERE entry_day >= date('now', '-6 day') GROUP BY entry_day ORDER BY entry_day";
+                "FROM cash_transaction WHERE entry_day >= date('now', '-7 day') GROUP BY entry_day ORDER BY entry_day";
         try (Cursor cursor = mDbHandler.getReadableDatabase().rawQuery(query, null)) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
@@ -132,22 +132,40 @@ public class TransactionDao {
 
         // Build list with 7 last days and put the values for days with expenses
         List<Map.Entry<String, Float>> entries = new ArrayList<>();
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat dateComparisonFormat = new SimpleDateFormat("yyyy-MM-dd");
+        SimpleDateFormat finalDateFormat = new SimpleDateFormat("MM/dd");
         Calendar cal = Calendar.getInstance();
         // get starting date
         cal.add(Calendar.DAY_OF_YEAR, -7);
         // loop adding one day in each iteration
         for(int i = 0; i< 7; i++){
             cal.add(Calendar.DAY_OF_YEAR, 1);
-            String date = dateFormat.format(cal.getTime());
+            String date = dateComparisonFormat.format(cal.getTime());
             if (totalPerDay.keySet().contains(date)) {
-                entries.add(new AbstractMap.SimpleEntry<>(dateFormat.format(cal.getTime()), totalPerDay.get(date)));
+                entries.add(new AbstractMap.SimpleEntry<>(finalDateFormat.format(cal.getTime()), totalPerDay.get(date)));
             } else {
-                entries.add(new AbstractMap.SimpleEntry<>(dateFormat.format(cal.getTime()), 0f));
+                entries.add(new AbstractMap.SimpleEntry<>(finalDateFormat.format(cal.getTime()), 0f));
             }
         }
 
         return entries;
+    }
+
+    public HashMap<String, Float> findTransactionsPerAccount() {
+        HashMap<String, Float> transactions = new HashMap<>();
+        String query = "SELECT SUM(value) AS total, name FROM " + DatabaseHandler.TRANSACTION_TABLE + " JOIN " +
+                DatabaseHandler.ACCOUNT_TABLE + " ON " + DatabaseHandler.TRANSACTION_TABLE + ".account = " +
+                DatabaseHandler.ACCOUNT_TABLE + ".id GROUP BY name";
+        System.out.println(query);
+        try(Cursor cursor = mDbHandler.getReadableDatabase().rawQuery(query, null)) {
+            if (cursor.moveToFirst()) {
+                while (!cursor.isAfterLast()) {
+                    transactions.put(cursor.getString(cursor.getColumnIndex("name")),
+                            cursor.getFloat(cursor.getColumnIndex("total")));
+                }
+            }
+        }
+        return transactions;
     }
 
     public boolean delete(Transaction transaction) {

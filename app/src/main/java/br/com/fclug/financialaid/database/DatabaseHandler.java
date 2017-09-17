@@ -29,7 +29,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String CREATE_TRANSACTION = "CREATE TABLE " + TRANSACTION_TABLE + "(id INTEGER PRIMARY KEY, " +
             "category TEXT NOT NULL, credit INTEGER NOT NULL CHECK (credit IN (0,1)) NOT NULL, account INTEGER, " +
             "description TEXT NOT NULL, register_date INTEGER NOT NULL, value REAL NOT NULL, FOREIGN KEY(account) " +
-            "REFERENCES account(id), FOREIGN KEY(category) REFERENCES category(name))";
+            "REFERENCES account(id) ON DELETE CASCADE, FOREIGN KEY(category) REFERENCES category(name))";
 
     private static final String CREATE_GROUP = "CREATE TABLE " + GROUP_TABLE + "(id INTEGER PRIMARY KEY, name TEXT " +
             "NOT NULL)";

@@ -8,7 +8,8 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.fclug.financialaid.AppUtils;
+import br.com.fclug.financialaid.models.Account.AccountBuilder;
+import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
 
@@ -21,10 +22,6 @@ public class AccountDao {
 
     public AccountDao(Context context) {
         mDbHandler = new DatabaseHandler(context);
-        //Account a1 = new Account("Checking", 200, "Bank");
-        //Account a2 = new Account("Credit Card", 200, "Card");
-        //save(a1);
-        //save(a2);
     }
 
     public boolean save(Account account) {
@@ -54,7 +51,11 @@ public class AccountDao {
         String aName = cursor.getString(cursor.getColumnIndex("name"));
         double aBalance = cursor.getDouble(cursor.getColumnIndex("balance"));
         String aType = cursor.getString(cursor.getColumnIndex("type"));
-        return new Account(aId, aName, aBalance, aType);
+        return new AccountBuilder().setId(aId)
+                                   .setName(aName)
+                                   .setBalance(aBalance)
+                                   .setType(aType)
+                                   .build();
     }
 
     public List<Account> findAll() {

@@ -16,7 +16,9 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
-import br.com.fclug.financialaid.AppUtils;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
+import br.com.fclug.financialaid.models.Account.AccountBuilder;
+import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.CategoryDao;
@@ -34,6 +36,8 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
     private EditText mAccountName;
     private EditText mAccountBalance;
     private Spinner mAccountType;
+
+    private OnObjectOperationListener mOperationListener;
 
     public AddAccountDialog(Context context) {
         super(context);
@@ -74,6 +78,8 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
         });
 
         if (mUpdateAccount != null) {
+            TextView title = (TextView) findViewById(R.id.account_dialog_title);
+            title.setText(R.string.edit_account);
             mAccountName.setText(mUpdateAccount.getName());
             TextView balanceLabel = (TextView) findViewById(R.id.add_account_balance_label);
             balanceLabel.setVisibility(View.GONE);
@@ -96,7 +102,10 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
         if (mUpdateAccount == null) {
             double accountBalance = Double.parseDouble(mAccountBalance.getText().toString());
-            Account newAccount = new Account(accountName, accountBalance, accountType);
+            Account newAccount = new AccountBuilder().setName(accountName)
+                                                     .setBalance(accountBalance)
+                                                     .setType(accountType)
+                                                     .build();
 
             // save the new transaction
             accountDao.save(newAccount);
@@ -111,16 +120,21 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
                         new Date(), newAccount.getId());
                 new TransactionDao(getContext()).save(initialTransaction);
             }
+            mOperationListener.onAdd();
         } else {
-            TextView title = (TextView) findViewById(R.id.account_dialog_title);
-            title.setText(R.string.edit_account);
+
             mUpdateAccount.setName(accountName);
             //mUpdateAccount.setBalance(accountBalance);
             mUpdateAccount.setType(accountType);
             accountDao.update(mUpdateAccount);
+            mOperationListener.onUpdate(mUpdateAccount);
         }
 
         // close dialog
         dismiss();
+    }
+
+    public void setOnTransactionOperationListener(OnObjectOperationListener listener) {
+        mOperationListener = listener;
     }
 }

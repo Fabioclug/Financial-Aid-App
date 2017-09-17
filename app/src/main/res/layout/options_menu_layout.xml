@@ -14,7 +14,7 @@
             android:layout_height="wrap_content"
             android:text="Options"
             android:layout_gravity="center"
-            android:textSize="30sp"
+            android:textSize="20sp"
             android:textColor="@android:color/white"
             android:textAlignment="center"/>
 
@@ -38,7 +38,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="25dp"
             android:gravity="center"
-            android:textSize="20sp"
+            android:textSize="19sp"
             android:textColor="@color/color_black"
             android:text="Edit"/>
     </LinearLayout>
@@ -61,7 +61,7 @@
             android:layout_height="match_parent"
             android:layout_marginStart="25dp"
             android:gravity="center"
-            android:textSize="20sp"
+            android:textSize="19sp"
             android:textColor="@color/color_black"
             android:text="Delete"/>
     </LinearLayout>

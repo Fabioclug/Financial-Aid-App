@@ -5,25 +5,36 @@
     <color name="colorAccent">#336699</color>
     <color name="colorStartBar">#336699</color>
     <!--color name="colorAccent">#1E98C9</color-->
-    <!--color name="colorStartBar">#1E98C9</color-->
     <color name="transaction_type_credit">#8BC34A</color>
     <color name="transaction_type_debt">#E53935</color>
     <color name="account_image_bg">#29B6F6</color>
     <color name="color_black">#000000</color>
     <color name="dialog_bg">#F5F5F5</color>
     <color name="divider_color">#ECECEC</color>
+    <color name="account_divider_color">#E0E0E0</color>
 
     
     <!-- Account colors -->
-    <color name="checking_account">#F5CD00</color>
+    <!--color name="checking_account">#F5CD00</color>
     <color name="savings_account">#1E98C9</color>
     <color name="credit_account">#cc181e</color>
+    <color name="cash_account">#43A047</color-->
+
+    <color name="checking_account">#f1c40f</color>
+    <color name="savings_account">#3498db</color>
+    <color name="credit_account">#cc181e</color>
     <color name="cash_account">#43A047</color>
+    <!--color name="new_account">#8D6E63 2ecc71 43A047 7CB342</color-->
 
     <!-- Category colors -->
     <color name="restaurant_category">#EF9A9A</color>
     <color name="groceries_category">#C5CAE9</color>
     <color name="electronics_category">#B0BEC5</color>
     <color name="text_default_color">@android:color/tab_indicator_text</color>
+
+    <!-- List swipe -->
+    <color name="swipe_background">#D50000</color>
+
+    <color name="bg_color">#fffafafa</color>
 
 </resources>

@@ -7,6 +7,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.GradientDrawable;
 import android.support.annotation.DrawableRes;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -40,8 +41,10 @@ import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.TransactionDao;
 import br.com.fclug.financialaid.dialog.AddTransactionDialog;
 import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
+import br.com.fclug.financialaid.utils.AppUtils;
 
 public class TransactionsActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -52,6 +55,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
     private TransactionDao mTransactionDao;
     private TransactionListAdapter mListAdapter;
     private AddTransactionDialog mAddTransactionView;
+    private FloatingActionButton mAddTransactionFab;
     private Account mAccount;
 
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("dd/MM/yyyy", Locale.US);
@@ -69,7 +73,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
         public void create(SwipeMenu menu) {
             // create "edit" item
             SwipeMenuItem editItem = new SwipeMenuItem(mContext);
-            editItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext, R.color.savings_account)));
+            editItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext, R.color.electronics_category)));
             editItem.setWidth(AppUtils.dpToPixels(mContext, 90));
             editItem.setIcon(R.drawable.ic_edit);
 
@@ -102,6 +106,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
             Transaction clickedTransaction = (Transaction) mListAdapter.getItem(position - mTransactionList.getHeaderViewsCount());
             OptionsMenuDialog dialog = new OptionsMenuDialog(mContext, mAccount, clickedTransaction);
             dialog.setOnDismissListener(mDismissListener);
+            dialog.setOnObjectOperationListener(mTransactionOperationListener);
             dialog.show();
             return true;
         }
@@ -125,6 +130,23 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
             mPreviousButton.setVisibility(View.GONE);
             mNextButton.setVisibility(View.GONE);
         }
+    };
+
+    private OnObjectOperationListener mTransactionOperationListener = new OnObjectOperationListener() {
+                @Override
+                public void onAdd() {
+                    Snackbar.make(mAddTransactionFab, "Transaction added", Snackbar.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onUpdate(Object transaction) {
+                    Snackbar.make(mAddTransactionFab, "Transaction updated", Snackbar.LENGTH_LONG).show();
+                }
+
+                @Override
+                public void onDelete(Object transaction) {
+                    Snackbar.make(mAddTransactionFab, "Transaction removed", Snackbar.LENGTH_LONG).show();
+                }
     };
 
     @Override
@@ -171,6 +193,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
         // replace the overview with the account info
         TextView accountName = (TextView) accountOverview.findViewById(R.id.account_overview_name);
         TextView accountType = (TextView) accountOverview.findViewById(R.id.account_overview_type);
+        accountOverview.findViewById(R.id.account_overview_balance).setVisibility(View.GONE);
         ImageView accountImage = (ImageView) accountOverview.findViewById(R.id.account_overview_image);
 
         accountName.setText(mAccount.getName());
@@ -210,6 +233,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
                         // edit
                         mAddTransactionView = new AddTransactionDialog(mContext, mAccount, item);
                         mAddTransactionView.setOnDismissListener(mDismissListener);
+                        mAddTransactionView.setOnTransactionOperationListener(mTransactionOperationListener);
                         mAddTransactionView.show();
                         break;
                     case 1:
@@ -234,6 +258,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
                         });
                         //animation.setRepeatCount(1);
                         AppUtils.getViewByPosition(position, mTransactionList, 2).startAnimation(animation);
+                        mTransactionOperationListener.onDelete(item);
                         break;
                 }
                 // close the menu
@@ -242,7 +267,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
         });
         mTransactionList.setOnItemLongClickListener(mTransactionLongClickListener);
 
-        FloatingActionButton mAddTransactionFab = (FloatingActionButton) findViewById(R.id.add_control_entry);
+        mAddTransactionFab = (FloatingActionButton) findViewById(R.id.add_control_entry);
         if (mAddTransactionFab != null) {
             mAddTransactionFab.setOnClickListener(this);
         }
@@ -289,6 +314,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
     public void onClick(View v) {
         mAddTransactionView = new AddTransactionDialog(mContext, mAccount);
         mAddTransactionView.setOnDismissListener(mDismissListener);
+        mAddTransactionView.setOnTransactionOperationListener(mTransactionOperationListener);
         // show the dialog
         mAddTransactionView.show();
     }
@@ -331,7 +357,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private void updateBalance() {
         TextView accountBalance = (TextView) findViewById(R.id.balance_value);
-        String balance = mAccount.getBalance() + "$";
+        String balance = "$" + mAccount.getFormattedBalance();
         if (accountBalance != null) {
             accountBalance.setText(balance);
         }

@@ -1,35 +1,30 @@
 package br.com.fclug.financialaid.dialog;
 
-import android.app.DatePickerDialog;
 import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
-import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import br.com.fclug.financialaid.AppUtils;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
+import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.adapter.CategorySpinnerAdapter;
 import br.com.fclug.financialaid.database.AccountDao;
@@ -61,6 +56,8 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
     private EditText mTransactionDate;
     private ImageButton mCreditButton;
     private ImageButton mDebtButton;
+
+    private OnObjectOperationListener mOperationListener;
 
     private boolean mTransactionCredit;
 
@@ -171,7 +168,6 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         TransactionDao transactionDao = new TransactionDao(mContext);
         double value = Double.parseDouble(mTransactionValue.getText().toString());
         value = AppUtils.roundValue(value);
-        Log.d("dialog", "value: " + value);
         if (mUpdateTransaction == null) {
             Transaction newTransaction = new Transaction(mTransactionCredit, mTransactionDescription.getText().toString(),
                     value, mSelectedCategory, date, accountId);
@@ -180,6 +176,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             transactionDao.save(newTransaction);
             // update account balance
             mAccountDao.updateBalance(mSelectedAccount, newTransaction);
+            mOperationListener.onAdd();
         } else {
             Transaction updatedTransaction = new Transaction();
             updatedTransaction.setId(mUpdateTransaction.getId());
@@ -192,6 +189,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             transactionDao.update(updatedTransaction);
             double valueDifference = updatedTransaction.getSignedValue() - mUpdateTransaction.getSignedValue();
             mAccountDao.updateBalance(mSelectedAccount, valueDifference);
+            mOperationListener.onUpdate(updatedTransaction);
         }
 
         // close dialog
@@ -220,7 +218,9 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
     private void fillToUpdate() {
         mTransactionDescription.setText(mUpdateTransaction.getDescription());
-        mTransactionValue.setText(String.valueOf(mUpdateTransaction.getValue()));
+        mTransactionValue.setText(mUpdateTransaction.getFormattedValue());
+        // place cursor at end of value
+        mTransactionValue.setSelection(mTransactionValue.getText().length());
         //mTransactionCategory.setSelection(????);
         mTransactionDate.setText(mDateFormatter.format(mUpdateTransaction.getDate()));
         if(mUpdateTransaction.isCredit()) {
@@ -252,9 +252,12 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
     }
 
     public void addCategory() {
-        //Toast.makeText(mContext, "clicked", Toast.LENGTH_SHORT).show();
         AddCategoryDialog dialog = new AddCategoryDialog(mContext);
         dialog.show();
+    }
+
+    public void setOnTransactionOperationListener(OnObjectOperationListener listener) {
+        mOperationListener = listener;
     }
 
 }

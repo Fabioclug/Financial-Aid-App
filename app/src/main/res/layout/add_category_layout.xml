@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:text="@string/add_category"
             android:layout_gravity="center"
-            android:textSize="30sp"
+            android:textSize="@dimen/dialog_header_text_size"
             android:textColor="@android:color/white"
             android:textAlignment="center"/>
 

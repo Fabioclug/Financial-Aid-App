@@ -59,4 +59,9 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
 
+    <!-- Statistics strings -->
+    <string name="last_seven_days_graph">Expenses in the last 7 days</string>
+    <string name="transactions_per_account_chart">Transactions per Account</string>
+    <string name="account_balances_graph">Balance per Account</string>
+
 </resources>

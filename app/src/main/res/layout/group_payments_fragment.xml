@@ -12,9 +12,9 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/dialog_bg"
-        android:dividerHeight="20dp"
+        android:dividerHeight="0dp"
         android:paddingTop="20dp"
-        android:paddingBottom="20dp"
+        android:paddingBottom="75dp"
         android:clipToPadding="false"
         tools:listitem="@layout/group_account_list_item"/>
 

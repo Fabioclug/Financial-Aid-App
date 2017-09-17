@@ -16,7 +16,7 @@
             android:layout_height="wrap_content"
             android:text="@string/add_transaction"
             android:layout_gravity="center"
-            android:textSize="30sp"
+            android:textSize="@dimen/dialog_header_text_size"
             android:textColor="@android:color/white"
             android:textAlignment="center"/>
 
@@ -76,7 +76,8 @@
             android:layout_height="40dp"
             android:paddingStart="@dimen/dialog_margin"
             android:hint="@string/add_transaction_description"
-            android:imeOptions="actionNext"/>
+            android:inputType="text"
+            android:imeOptions="actionGo"/>
 
     </LinearLayout>
 
