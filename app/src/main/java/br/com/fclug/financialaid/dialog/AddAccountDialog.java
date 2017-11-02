@@ -111,12 +111,11 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
             accountDao.save(newAccount);
 
             double balance = newAccount.getBalance();
-            boolean credit = balance >= 0;
 
-            List<Category> categories = new CategoryDao(getContext()).findAll();
+            List<Category> categories = new CategoryDao(getContext()).findIncoming();
 
             if (balance != 0) {
-                Transaction initialTransaction = new Transaction(credit, "Initial Balance", balance, categories.get(0),
+                Transaction initialTransaction = new Transaction("Initial Balance", balance, categories.get(0),
                         new Date(), newAccount.getId());
                 new TransactionDao(getContext()).save(initialTransaction);
             }

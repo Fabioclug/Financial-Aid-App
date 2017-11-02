@@ -21,7 +21,8 @@ public class SessionManager {
     // Shared Preferences keys
     private static final String IS_LOGGED = "logged";
     private static final String SKIPPED = "skipped";
-    public static final String KEY_NAME = "username";
+    public static final String KEY_USERNAME = "username";
+    public static final String KEY_NAME = "name";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_TOKEN = "token";
 
@@ -39,7 +40,7 @@ public class SessionManager {
     }
 
     public void requestLogin() {
-        String username = mSharedPreferences.getString(KEY_NAME, null);
+        String username = mSharedPreferences.getString(KEY_USERNAME, null);
         String password = mSharedPreferences.getString(KEY_PASSWORD, null);
         if(username != null && password != null) {
             requestLogin(username, password);
@@ -49,10 +50,11 @@ public class SessionManager {
     /**
      * Create login session
      * */
-    public void createLoginSession(String name, String password, String token){
+    public void createLoginSession(String username, String name, String password, String token){
         // Storing login values in shared mSharedPreferences
         Editor editor = mSharedPreferences.edit();
         editor.putBoolean(IS_LOGGED, true);
+        editor.putString(KEY_USERNAME, username);
         editor.putString(KEY_NAME, name);
         editor.putString(KEY_PASSWORD, password);
         editor.putString(KEY_TOKEN, token);
@@ -82,6 +84,7 @@ public class SessionManager {
     public HashMap<String, String> getUserDetails(){
         HashMap<String, String> user = new HashMap<String, String>();
 
+        user.put(KEY_USERNAME, mSharedPreferences.getString(KEY_USERNAME, null));
         user.put(KEY_NAME, mSharedPreferences.getString(KEY_NAME, null));
         user.put(KEY_TOKEN, mSharedPreferences.getString(KEY_TOKEN, null));
 
@@ -130,11 +133,19 @@ public class SessionManager {
         return mSharedPreferences.getBoolean(IS_LOGGED, false);
     }
 
+    public static boolean isLoggedIn(Context context){
+        return getSharedPreferences(context).getBoolean(IS_LOGGED, false);
+    }
+
     /**
      * Check if the user has skipped login before
      * @return a flag indicating if the user skipped login
      */
     public boolean hasSkipped() {
         return mSharedPreferences.getBoolean(SKIPPED, false);
+    }
+
+    public static boolean hasSkipped(Context context){
+        return getSharedPreferences(context).getBoolean(SKIPPED, false);
     }
 }

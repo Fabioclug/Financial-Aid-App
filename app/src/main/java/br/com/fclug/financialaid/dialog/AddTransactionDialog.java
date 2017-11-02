@@ -2,6 +2,7 @@ package br.com.fclug.financialaid.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.content.ContextCompat;
 import android.text.Editable;
@@ -37,15 +38,17 @@ import br.com.fclug.financialaid.models.Transaction;
 /**
  * Created by Fabioclug on 2016-08-15.
  */
-public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSelectedListener, View.OnClickListener {
+public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSelectedListener, View.OnClickListener, DialogInterface.OnDismissListener{
 
     private Context mContext;
     private AccountDao mAccountDao;
+    private CategoryDao mCategoryDao;
     private List<Account> mAccounts;
-    private List<Category> mCategories;
+    private List<Category> mIncomingCategories;
+    private List<Category> mOutgoingCategories;
     private Account mCurrentAccount;
     private Account mSelectedAccount;
-    private  Category mSelectedCategory;
+    private Category mSelectedCategory;
     private Transaction mUpdateTransaction;
     private int mCurrentIndex;
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd/yy", Locale.US);
@@ -57,6 +60,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
     private ImageButton mCreditButton;
     private ImageButton mDebtButton;
 
+    private CategorySpinnerAdapter mCategoriesAdapter;
     private OnObjectOperationListener mOperationListener;
 
     private boolean mTransactionCredit;
@@ -120,9 +124,11 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         Spinner transactionAccount = (Spinner) findViewById(R.id.add_transaction_account);
         createSpinnerLayout(transactionAccount, accountNames);
 
-        CategoryDao categoryDao = new CategoryDao(mContext);
-        mCategories = categoryDao.findAll();
-        mTransactionCategory.setAdapter(new CategorySpinnerAdapter(mContext, mCategories));
+        mCategoryDao = new CategoryDao(mContext);
+        mIncomingCategories = mCategoryDao.findIncoming();
+        mOutgoingCategories = mCategoryDao.findOutgoing();
+        mCategoriesAdapter = new CategorySpinnerAdapter(mContext, mIncomingCategories);
+        mTransactionCategory.setAdapter(mCategoriesAdapter);
         mTransactionCategory.setOnItemSelectedListener(this);
 
         mCreditButton.setColorFilter(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
@@ -133,6 +139,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             public void onClick(View v) {
                 mCreditButton.setColorFilter(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
                 mDebtButton.setColorFilter(ContextCompat.getColor(mContext, R.color.color_black));
+                mCategoriesAdapter.setCategories(mIncomingCategories);
                 mTransactionCredit = true;
             }
         });
@@ -142,6 +149,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             public void onClick(View v) {
                 mCreditButton.setColorFilter(ContextCompat.getColor(mContext, R.color.color_black));
                 mDebtButton.setColorFilter(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
+                mCategoriesAdapter.setCategories(mOutgoingCategories);
                 mTransactionCredit = false;
             }
         });
@@ -168,9 +176,12 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         TransactionDao transactionDao = new TransactionDao(mContext);
         double value = Double.parseDouble(mTransactionValue.getText().toString());
         value = AppUtils.roundValue(value);
+        if (!mTransactionCredit) {
+            value *= -1;
+        }
         if (mUpdateTransaction == null) {
-            Transaction newTransaction = new Transaction(mTransactionCredit, mTransactionDescription.getText().toString(),
-                    value, mSelectedCategory, date, accountId);
+            Transaction newTransaction = new Transaction(mTransactionDescription.getText().toString(), value,
+                    mSelectedCategory, date, accountId);
 
             // save the new transaction
             transactionDao.save(newTransaction);
@@ -185,9 +196,8 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             updatedTransaction.setCategory(mSelectedCategory);
             updatedTransaction.setDate(date);
             updatedTransaction.setAccountId(accountId);
-            updatedTransaction.setCredit(mTransactionCredit);
             transactionDao.update(updatedTransaction);
-            double valueDifference = updatedTransaction.getSignedValue() - mUpdateTransaction.getSignedValue();
+            double valueDifference = updatedTransaction.getValue() - mUpdateTransaction.getValue();
             mAccountDao.updateBalance(mSelectedAccount, valueDifference);
             mOperationListener.onUpdate(updatedTransaction);
         }
@@ -223,7 +233,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         mTransactionValue.setSelection(mTransactionValue.getText().length());
         //mTransactionCategory.setSelection(????);
         mTransactionDate.setText(mDateFormatter.format(mUpdateTransaction.getDate()));
-        if(mUpdateTransaction.isCredit()) {
+        if(mUpdateTransaction.getValue() >= 0) {
             mCreditButton.callOnClick();
         } else {
             mDebtButton.callOnClick();
@@ -237,8 +247,9 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
                 mSelectedAccount = mAccounts.get(position);
                 break;
             case R.id.add_transaction_category:
-                if (position < mCategories.size()) {
-                    mSelectedCategory = mCategories.get(position);
+                List<Category> categories = mTransactionCredit? mIncomingCategories : mOutgoingCategories;
+                if (position < categories.size()) {
+                    mSelectedCategory = categories.get(position);
                 } else {
                     addCategory();
                 }
@@ -253,6 +264,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
     public void addCategory() {
         AddCategoryDialog dialog = new AddCategoryDialog(mContext);
+        dialog.setOnDismissListener(this);
         dialog.show();
     }
 
@@ -260,4 +272,14 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
         mOperationListener = listener;
     }
 
+    @Override
+    public void onDismiss(DialogInterface dialogInterface) {
+        mIncomingCategories = mCategoryDao.findIncoming();
+        mOutgoingCategories = mCategoryDao.findOutgoing();
+        if (mTransactionCredit) {
+            mCategoriesAdapter.setCategories(mIncomingCategories);
+        } else {
+            mCategoriesAdapter.setCategories(mOutgoingCategories);
+        }
+    }
 }

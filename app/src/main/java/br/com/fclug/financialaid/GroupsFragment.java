@@ -10,18 +10,19 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
+import br.com.fclug.financialaid.adapter.GroupTempListAdapter;
 import br.com.fclug.financialaid.models.Group;
 
 public class GroupsFragment extends Fragment implements View.OnClickListener {
 
-    private ListView mGroupsListView;
-    private GroupsListAdapter mListAdapter;
+    private ExpandableListView mGroupsListView;
+    private GroupTempListAdapter mListAdapter;
     private boolean isFabMenuOpen = false;
 
     private LinearLayout createOnlineGroupLayout;
@@ -36,17 +37,19 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         if (container == null)
             return null;
         View view = inflater.inflate(R.layout.group_payments_fragment, container, false);
-        mGroupsListView = (ListView) view.findViewById(R.id.groups_list);
-        mListAdapter = new GroupsListAdapter(getContext());
+        mGroupsListView = (ExpandableListView) view.findViewById(R.id.groups_list);
+        mListAdapter = new GroupTempListAdapter(getContext());
         mGroupsListView.setAdapter(mListAdapter);
 
-        mGroupsListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mGroupsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
             @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Group group = mListAdapter.getItem(position);
+            public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition,
+                                        int childPosition, long id) {
+                Group group = mListAdapter.getChild(groupPosition, childPosition);
                 Intent intent = new Intent(getContext(), GroupSummaryActivity.class);
                 intent.putExtra("group", group);
                 startActivity(intent);
+                return false;
             }
         });
 
@@ -77,6 +80,9 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         mListAdapter.updateListItems();
+        for (int i = 0; i < mListAdapter.getGroupCount(); i++) {
+            mGroupsListView.expandGroup(i);
+        }
     }
 
     @Override

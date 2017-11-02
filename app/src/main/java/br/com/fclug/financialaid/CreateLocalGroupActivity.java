@@ -1,7 +1,5 @@
 package br.com.fclug.financialaid;
 
-import android.annotation.TargetApi;
-import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -50,7 +48,7 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            setTitle("Create Local Group");
+            setTitle("Create Local GroupTable");
         }
 
 
@@ -68,17 +66,24 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         mGroupMembersList.setOnTouchListener(new FabScrollBehavior(mConfirmButton));
         mGroupMember.setOnFocusChangeListener(this);
 
+        mConfirmButton.setOnClickListener(this);
+
         mAddedNames = new ArrayList<>();
+        addMember("You");
     }
 
     private void addMember() {
         String name = mGroupMember.getText().toString();
+        addMember(name);
+    }
+
+    private void addMember(String name) {
         if (name.length() < MINIMUM_NAME_LENGTH) {
             Toast.makeText(this, "Name should be at least 3 characters long", Toast.LENGTH_SHORT).show();
         } else {
             if (!mAddedNames.contains(name)) {
                 mAddedNames.add(name);
-                User member = new User(name, name);
+                User member = new User(name);
                 mListAdapter.addMember(member);
                 mListAdapter.notifyDataSetChanged();
                 mGroupMember.getText().clear();
@@ -101,6 +106,7 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
             addMember();
         } else {
             createGroup();
+            finish();
         }
     }
 

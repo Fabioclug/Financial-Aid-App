@@ -3,6 +3,7 @@ package br.com.fclug.financialaid.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import java.util.ArrayList;
@@ -12,6 +13,8 @@ import br.com.fclug.financialaid.models.Account.AccountBuilder;
 import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
+import br.com.fclug.financialaid.database.FinancialAppContract.AccountTable;
+
 
 /**
  * Created by Fabioclug on 2016-06-26.
@@ -19,38 +22,40 @@ import br.com.fclug.financialaid.models.Transaction;
 public class AccountDao {
 
     private DatabaseHandler mDbHandler;
+    private SQLiteDatabase mDbReader;
 
     public AccountDao(Context context) {
         mDbHandler = new DatabaseHandler(context);
+        mDbReader = mDbHandler.getReadableDatabase();
     }
 
     public boolean save(Account account) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", account.getName());
-        contentValues.put("balance", account.getBalance());
-        contentValues.put("type", account.getType());
-        long result = mDbHandler.getWritableDatabase().insert("account", null, contentValues);
+        contentValues.put(AccountTable.COLUMN_NAME, account.getName());
+        contentValues.put(AccountTable.COLUMN_BALANCE, account.getBalance());
+        contentValues.put(AccountTable.COLUMN_TYPE, account.getType());
+        long result = mDbHandler.getWritableDatabase().insert(AccountTable.TABLE_NAME, null, contentValues);
         account.setId(result);
         return result > 0;
     }
 
     public boolean update(Account account) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", account.getName());
-        contentValues.put("balance", account.getBalance());
-        contentValues.put("type", account.getType());
-        String whereClause = "id = ?";
+        contentValues.put(AccountTable.COLUMN_NAME, account.getName());
+        contentValues.put(AccountTable.COLUMN_TYPE, account.getType());
+        String whereClause = AccountTable._ID + " = ?";
         String[] whereArgs = new String[] {String.valueOf(account.getId())};
 
-        long result = mDbHandler.getWritableDatabase().update(DatabaseHandler.ACCOUNT_TABLE, contentValues, whereClause, whereArgs);
+        long result = mDbHandler.getWritableDatabase()
+                                .update(AccountTable.TABLE_NAME, contentValues, whereClause, whereArgs);
         return result > 0;
     }
 
     private Account build(Cursor cursor) {
-        long aId = cursor.getLong(cursor.getColumnIndex("id"));
-        String aName = cursor.getString(cursor.getColumnIndex("name"));
-        double aBalance = cursor.getDouble(cursor.getColumnIndex("balance"));
-        String aType = cursor.getString(cursor.getColumnIndex("type"));
+        long aId = cursor.getLong(cursor.getColumnIndex(AccountTable._ID));
+        String aName = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_NAME));
+        double aBalance = cursor.getDouble(cursor.getColumnIndex(AccountTable.COLUMN_BALANCE));
+        String aType = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_TYPE));
         return new AccountBuilder().setId(aId)
                                    .setName(aName)
                                    .setBalance(aBalance)
@@ -60,37 +65,37 @@ public class AccountDao {
 
     public List<Account> findAll() {
         List<Account> accounts = new ArrayList<>();
-        Cursor cursor = mDbHandler.getReadableDatabase().rawQuery("SELECT * FROM account", null);
-        if(cursor.moveToFirst()) {
-            while(!cursor.isAfterLast()) {
+        try (Cursor cursor = mDbReader.query(AccountTable.TABLE_NAME, null, null, null, null, null, null)) {
+            while(cursor.moveToNext()) {
                 Account account = build(cursor);
                 accounts.add(account);
-                cursor.moveToNext();
             }
         }
         return accounts;
     }
 
     public Account findById(long id) {
-        String whereClause = "id = ?";
+        String whereClause = FinancialAppContract.AccountTable._ID + " = ?";
         String[] whereArgs = new String[] {String.valueOf(id)};
-        Cursor cursor = mDbHandler.getReadableDatabase().query("account", null, whereClause, whereArgs, null, null, null);
         Account result = null;
-        if(cursor.moveToFirst()) {
-            result = build(cursor);
+        try (Cursor cursor = mDbReader.query(AccountTable.TABLE_NAME, null, whereClause, whereArgs, null, null, null)) {
+            if (cursor.moveToFirst()) {
+                result = build(cursor);
+            }
         }
         return result;
     }
 
     public boolean updateBalance(Account account, Transaction transaction) {
-        double balance = AppUtils.roundValue(account.getBalance() + transaction.getSignedValue());
+        double balance = AppUtils.roundValue(account.getBalance() + transaction.getValue());
         Log.d("dao", "balance: " + balance);
         account.setBalance(balance);
         ContentValues values = new ContentValues();
-        values.put("balance", account.getBalance());
-        String whereClause = "id = ?";
+        values.put(AccountTable.COLUMN_BALANCE, account.getBalance());
+        String whereClause = AccountTable._ID + " = ?";
         String[] whereArgs = new String[] {String.valueOf(account.getId())};
-        int result = mDbHandler.getWritableDatabase().update("account", values, whereClause, whereArgs);
+        int result = mDbHandler.getWritableDatabase()
+                               .update(AccountTable.TABLE_NAME, values, whereClause, whereArgs);
         return result > 0;
     }
 
@@ -99,18 +104,26 @@ public class AccountDao {
         Log.d("dao", "balance: " + balance);
         account.setBalance(balance);
         ContentValues values = new ContentValues();
-        values.put("balance", account.getBalance());
-        String whereClause = "id = ?";
+        values.put(AccountTable.COLUMN_BALANCE, account.getBalance());
+        String whereClause = AccountTable._ID + " = ?";
         String[] whereArgs = new String[] {String.valueOf(account.getId())};
-        int result = mDbHandler.getWritableDatabase().update("account", values, whereClause, whereArgs);
+        int result = mDbHandler.getWritableDatabase()
+                               .update(AccountTable.TABLE_NAME, values, whereClause, whereArgs);
         return result > 0;
     }
 
     public boolean delete(Account account) {
         long id = account.getId();
-        String whereClause = "id = ?";
+        String whereClause = AccountTable._ID + " = ?";
         String[] whereArgs = new String[] { String.valueOf(id) };
-        int result = mDbHandler.getWritableDatabase().delete("account", whereClause, whereArgs);
+        int result = mDbHandler.getWritableDatabase()
+                               .delete(AccountTable.TABLE_NAME, whereClause, whereArgs);
         return result > 0;
+    }
+
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        mDbReader.close();
     }
 }

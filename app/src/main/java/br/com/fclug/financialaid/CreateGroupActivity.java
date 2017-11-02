@@ -6,7 +6,6 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
+import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
@@ -64,8 +64,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                             for (int i = 0; i < users.length(); i++) {
                                 JSONObject user = users.getJSONObject(i);
                                 String username = user.getString("username");
-                                if(!username.equals(mUserData.get(SessionManager.KEY_NAME))) {
-                                    User suggestion = new User(username, user.getString("name"));
+                                if(!username.equals(mUserData.get(SessionManager.KEY_USERNAME))) {
+                                    User suggestion = new OnlineUser(username, user.getString("name"));
                                     if (!mListAdapter.getMembersList().contains(suggestion)) {
                                         mUsers.add(suggestion);
                                     }
@@ -123,7 +123,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            setTitle("Create Group");
+            setTitle("Create GroupTable");
         }
 
         mUserData = new SessionManager(this).getUserDetails();
@@ -162,9 +162,9 @@ public class CreateGroupActivity extends AppCompatActivity {
                             name.put("username", member.getUsername());
                             memberList.put(name);
                         }
-                        JSONObject creator = new JSONObject();
-                        creator.put("username", mUserData.get(SessionManager.KEY_NAME));
-                        memberList.put(creator);
+//                        JSONObject creator = new JSONObject();
+//                        creator.put("username", mUserData.get(SessionManager.KEY_USERNAME));
+//                        memberList.put(creator);
                         args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
                         args.put("name", mGroupName.getText().toString());
                         args.put("members", memberList);
@@ -175,6 +175,15 @@ public class CreateGroupActivity extends AppCompatActivity {
                 }
             });
         }
+        addCurrentUser();
+    }
+
+    private void addCurrentUser() {
+        SessionManager manager = new SessionManager(this);
+        HashMap<String, String> currentUser = manager.getUserDetails();
+        OnlineUser user = new OnlineUser(currentUser.get(SessionManager.KEY_USERNAME),
+                currentUser.get(SessionManager.KEY_NAME));
+        mListAdapter.addMember(user);
     }
 
     @Override

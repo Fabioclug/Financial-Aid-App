@@ -161,12 +161,12 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
             mSplits[i].addTextChangedListener(mSplitsWatcher);
 
             User member = mMembers.get(i);
-            memberName.setText(member.getName());
+            memberName.setText(member.getExhibitName());
             memberItem.setId(i);
             if (membersLayout != null) {
                 membersLayout.addView(memberItem);
             }
-            memberNames.add(member.getName());
+            memberNames.add(member.getExhibitName());
         }
         ArrayAdapter<String> accountsAdapter = new ArrayAdapter<String>(mContext,
                 R.layout.support_simple_spinner_dropdown_item, memberNames);

@@ -151,7 +151,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 public void onSuccess(JSONObject response) throws JSONException {
                                     progressDialog.dismiss();
                                     String token = response.getString("token");
-                                    mSession.createLoginSession(username, password, token);
+                                    mSession.createLoginSession(username, mName.getText().toString(), password, token);
                                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                                     startActivity(i);
                                     finish();

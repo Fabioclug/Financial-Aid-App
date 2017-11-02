@@ -3,12 +3,7 @@ package br.com.fclug.financialaid.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
-import android.util.Log;
 
-import com.github.mikephil.charting.data.Entry;
-
-import java.text.DateFormat;
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -21,6 +16,8 @@ import java.util.Map;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Category;
 import br.com.fclug.financialaid.models.Transaction;
+import br.com.fclug.financialaid.database.FinancialAppContract.TransactionTable;
+import br.com.fclug.financialaid.database.FinancialAppContract.AccountTable;
 
 /**
  * Created by Fabioclug on 2016-06-09.
@@ -37,19 +34,19 @@ public class TransactionDao {
 
     public long writeOnDb(Transaction transaction, boolean update) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put("credit", transaction.isCredit()? 1:0);
-        contentValues.put("category", transaction.getCategory().getName());
-        contentValues.put("value", transaction.getValue());
-        contentValues.put("description", transaction.getDescription());
-        contentValues.put("register_date", transaction.getDate().getTime());
-        contentValues.put("account", transaction.getAccountId());
+        contentValues.put(TransactionTable.COLUMN_CATEGORY, transaction.getCategory().getName());
+        contentValues.put(TransactionTable.COLUMN_VALUE, transaction.getValue());
+        contentValues.put(TransactionTable.COLUMN_DESCRIPTION, transaction.getDescription());
+        contentValues.put(TransactionTable.COLUMN_DATE, transaction.getDate().getTime());
+        contentValues.put(TransactionTable.COLUMN_ACCOUNT, transaction.getAccountId());
         long result;
         if(update) {
-            String whereClause = "id = ?";
+            String whereClause = TransactionTable._ID + " = ?";
             String[] whereArgs = new String[] {String.valueOf(transaction.getId())};
-            result = mDbHandler.getWritableDatabase().update(DatabaseHandler.TRANSACTION_TABLE, contentValues, whereClause, whereArgs);
+            result = mDbHandler.getWritableDatabase()
+                               .update(TransactionTable.TABLE_NAME, contentValues, whereClause, whereArgs);
         } else {
-            result = mDbHandler.getWritableDatabase().insert(DatabaseHandler.TRANSACTION_TABLE, null, contentValues);
+            result = mDbHandler.getWritableDatabase().insert(TransactionTable.TABLE_NAME, null, contentValues);
         }
         return result;
     }
@@ -68,23 +65,24 @@ public class TransactionDao {
     }
 
     private Transaction build(Cursor cursor) {
-        long tId = cursor.getInt(cursor.getColumnIndex("id"));
-        boolean tDebt = cursor.getInt(cursor.getColumnIndex("credit")) == 1;
-        String categoryName = cursor.getString(cursor.getColumnIndex("category"));
-        float tValue = cursor.getFloat(cursor.getColumnIndex("value"));
-        String tDescription = cursor.getString(cursor.getColumnIndex("description"));
-        long aId = cursor.getInt(cursor.getColumnIndex("account"));
-        Date tDate = new Date(cursor.getLong(cursor.getColumnIndex("register_date")));
+        long tId = cursor.getInt(cursor.getColumnIndex(TransactionTable._ID));
+        String categoryName = cursor.getString(cursor.getColumnIndex(TransactionTable.COLUMN_CATEGORY));
+        float tValue = cursor.getFloat(cursor.getColumnIndex(TransactionTable.COLUMN_VALUE));
+        String tDescription = cursor.getString(cursor.getColumnIndex(TransactionTable.COLUMN_DESCRIPTION));
+        long aId = cursor.getInt(cursor.getColumnIndex(TransactionTable.COLUMN_ACCOUNT));
+        Date tDate = new Date(cursor.getLong(cursor.getColumnIndex(TransactionTable.COLUMN_DATE)));
 
         CategoryDao categoryDao = new CategoryDao(mContext);
         Category tCategory = categoryDao.findByName(categoryName);
 
-        return new Transaction(tId, tDebt, tDescription, tValue, tCategory, tDate, aId);
+        return new Transaction(tId, tDescription, tValue, tCategory, tDate, aId);
     }
 
     private List<Transaction> queryList(String whereClause, String[] whereArgs) {
         List<Transaction> transactions = new ArrayList<>();
-        try (Cursor cursor = mDbHandler.getReadableDatabase().query(DatabaseHandler.TRANSACTION_TABLE, null, whereClause, whereArgs, null, null, null, null)) {
+        try (Cursor cursor = mDbHandler.getReadableDatabase()
+                                       .query(TransactionTable.TABLE_NAME, null, whereClause, whereArgs,
+                                               null, null, null, null)) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
                     Transaction transaction = build(cursor);
@@ -104,10 +102,12 @@ public class TransactionDao {
         String whereClause;
         String[] whereArgs;
         if (from != null && to != null) {
-            whereClause = "account = ? AND register_date >= ? AND register_date <= ?";
-            whereArgs = new String[] {String.valueOf(account.getId()), String.valueOf(from.getTime()), String.valueOf(to.getTime())};
+            whereClause = TransactionTable.COLUMN_ACCOUNT + " = ? AND " + TransactionTable.COLUMN_DATE + " >= ? AND " +
+                    TransactionTable.COLUMN_DATE + " <= ?";
+            whereArgs = new String[] {String.valueOf(account.getId()), String.valueOf(from.getTime()),
+                    String.valueOf(to.getTime())};
         } else {
-            whereClause = "account = ?";
+            whereClause = TransactionTable.COLUMN_ACCOUNT + " = ?";
             whereArgs = new String[] {String.valueOf(account.getId())};
         }
 
@@ -117,8 +117,10 @@ public class TransactionDao {
     public List<Map.Entry<String, Float>> findSumOnLastSevenDays() {
 
         Map<String, Float> totalPerDay = new HashMap<>();
-        String query = "SELECT strftime('%Y-%m-%d', register_date/1000, 'unixepoch') AS entry_day, SUM(value) AS total " +
-                "FROM cash_transaction WHERE entry_day >= date('now', '-7 day') GROUP BY entry_day ORDER BY entry_day";
+        String query = "SELECT strftime('%Y-%m-%d', " + TransactionTable.COLUMN_DATE +"/1000, 'unixepoch') AS " +
+                "entry_day, SUM(" + TransactionTable.COLUMN_VALUE + ") AS total FROM " +
+                TransactionTable.TABLE_NAME + " WHERE entry_day >= date('now', '-7 day') " +
+                "GROUP BY entry_day ORDER BY entry_day";
         try (Cursor cursor = mDbHandler.getReadableDatabase().rawQuery(query, null)) {
             if (cursor.moveToFirst()) {
                 while (!cursor.isAfterLast()) {
@@ -153,9 +155,9 @@ public class TransactionDao {
 
     public HashMap<String, Float> findTransactionsPerAccount() {
         HashMap<String, Float> transactions = new HashMap<>();
-        String query = "SELECT SUM(value) AS total, name FROM " + DatabaseHandler.TRANSACTION_TABLE + " JOIN " +
-                DatabaseHandler.ACCOUNT_TABLE + " ON " + DatabaseHandler.TRANSACTION_TABLE + ".account = " +
-                DatabaseHandler.ACCOUNT_TABLE + ".id GROUP BY name";
+        String query = "SELECT SUM(value) AS total, name FROM " + TransactionTable.TABLE_NAME + " JOIN " +
+                AccountTable.TABLE_NAME + " ON " + TransactionTable.TABLE_NAME + ".account = " +
+                AccountTable.TABLE_NAME + "." + AccountTable._ID + " GROUP BY name";
         System.out.println(query);
         try(Cursor cursor = mDbHandler.getReadableDatabase().rawQuery(query, null)) {
             if (cursor.moveToFirst()) {
@@ -170,9 +172,10 @@ public class TransactionDao {
 
     public boolean delete(Transaction transaction) {
         long id = transaction.getId();
-        String whereClause = "id = ?";
+        String whereClause = TransactionTable._ID + " = ?";
         String[] whereArgs = new String[] { String.valueOf(id) };
-        int result = mDbHandler.getWritableDatabase().delete(DatabaseHandler.TRANSACTION_TABLE, whereClause, whereArgs);
+        int result = mDbHandler.getWritableDatabase().delete(TransactionTable.TABLE_NAME, whereClause,
+                whereArgs);
         return result > 0;
     }
 

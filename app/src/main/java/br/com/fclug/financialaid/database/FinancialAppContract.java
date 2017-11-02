@@ -14,7 +14,7 @@ public final class FinancialAppContract {
 
     private FinancialAppContract() {}
 
-    public static class Account implements BaseColumns {
+    public static class AccountTable implements BaseColumns {
         public static final String TABLE_NAME = "account";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_BALANCE = "balance";
@@ -30,23 +30,25 @@ public final class FinancialAppContract {
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static class Category {
+    public static class CategoryTable {
         public static final String TABLE_NAME = "category";
         public static final String COLUMN_NAME = "name";
         public static final String COLUMN_COLOR = "color";
+        // category type 1 is incoming and 0 is outgoing
+        public static final String COLUMN_TYPE = "type";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 COLUMN_NAME + " TEXT PRIMARY KEY, " +
-                COLUMN_COLOR + " INTEGER " + NOT_NULL + ")";
+                COLUMN_COLOR + " INTEGER " + NOT_NULL + ", " +
+                COLUMN_TYPE + " BOOLEAN " + NOT_NULL + ")";
 
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static class Transaction implements BaseColumns {
+    public static class TransactionTable implements BaseColumns {
         public static final String TABLE_NAME = "app_transaction";
         public static final String COLUMN_CATEGORY = "category";
-        public static final String COLUMN_CREDIT = "credit";
         public static final String COLUMN_ACCOUNT = "account";
         public static final String COLUMN_DESCRIPTION = "description";
         public static final String COLUMN_DATE = "register_date";
@@ -54,34 +56,33 @@ public final class FinancialAppContract {
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
-                _ID + "INTEGER " + PRIMARY_KEY + ", " +
+                _ID + " INTEGER " + PRIMARY_KEY + ", " +
                 COLUMN_CATEGORY + " TEXT, " +
-                COLUMN_CREDIT + " INTEGER " + NOT_NULL + " CHECK (" + COLUMN_CREDIT + " IN (0,1)), " +
                 COLUMN_ACCOUNT + " INTEGER, " +
                 COLUMN_DESCRIPTION + " TEXT " + NOT_NULL + ", " +
-                COLUMN_DATE + " TEXT " + NOT_NULL + ", " +
+                COLUMN_DATE + " INTEGER " + NOT_NULL + ", " +
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
-                FOREIGN_KEY + "(" + COLUMN_ACCOUNT + ") REFERENCES " + Account.TABLE_NAME + "(" + Account._ID + ") " +
+                FOREIGN_KEY + "(" + COLUMN_ACCOUNT + ") REFERENCES " + AccountTable.TABLE_NAME + "(" + AccountTable._ID + ") " +
                     "ON DELETE CASCADE, " +
                 FOREIGN_KEY + "(" + COLUMN_CATEGORY + ") REFERENCES " +
-                    Category.TABLE_NAME + "(" + Category.COLUMN_NAME + "))";
+                    CategoryTable.TABLE_NAME + "(" + CategoryTable.COLUMN_NAME + "))";
 
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static class Group implements BaseColumns {
+    public static class GroupTable implements BaseColumns {
         public static final String TABLE_NAME = "expense_group";
         public static final String COLUMN_NAME = "name";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
-                _ID + "INTEGER " + PRIMARY_KEY + ", " +
-                COLUMN_NAME + "TEXT " + NOT_NULL + ")";
+                _ID + " INTEGER " + PRIMARY_KEY + ", " +
+                COLUMN_NAME + " TEXT " + NOT_NULL + ")";
 
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
     }
 
-    public static class GroupMember {
+    public static class GroupMemberTable {
         public static final String TABLE_NAME = "group_member";
         public static final String COLUMN_USER = "user";
         public static final String COLUMN_GROUP = "group_id";
@@ -91,12 +92,12 @@ public final class FinancialAppContract {
                 TABLE_NAME + " (" +
                 COLUMN_USER + " TEXT " + NOT_NULL + ", " +
                 COLUMN_GROUP + " INTEGER, " +
-                COLUMN_VALUE + "REAL " + NOT_NULL + ", " +
-                PRIMARY_KEY + "(" + COLUMN_USER + ", " + COLUMN_GROUP + ", " +
-                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + Group.TABLE_NAME + "(" + Group._ID + "))";
+                COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                PRIMARY_KEY + "(" + COLUMN_USER + ", " + COLUMN_GROUP + "), " +
+                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID + "))";
     }
 
-    public static class GroupTransaction implements BaseColumns{
+    public static class GroupTransactionTable implements BaseColumns{
         public static final String TABLE_NAME = "group_transaction";
         public static final String COLUMN_GROUP = "group_id";
         public static final String COLUMN_DESCRIPTION = "description";
@@ -112,12 +113,12 @@ public final class FinancialAppContract {
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
                 COLUMN_DATE + " TEXT " + NOT_NULL + ", " +
                 COLUMN_CREDITOR + " TEXT " + NOT_NULL + ", " +
-                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + Group.TABLE_NAME + "(" + Group._ID + "), " +
+                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID + "), " +
                 FOREIGN_KEY + "(" + COLUMN_CREDITOR + ") REFERENCES " +
-                    GroupMember.TABLE_NAME + "(" + GroupMember.COLUMN_USER + "))";
+                    GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
     }
 
-    public static class TransactionSplit {
+    public static class TransactionSplitTable {
         public static final String TABLE_NAME = "transaction_split";
         public static final String COLUMN_TRANSACTION = "transaction_id";
         public static final String COLUMN_DEBTOR = "debtor";
@@ -129,8 +130,8 @@ public final class FinancialAppContract {
                 COLUMN_DEBTOR + " TEXT, " +
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
                 FOREIGN_KEY + "(" + COLUMN_TRANSACTION + ") REFERENCES " +
-                    GroupTransaction.TABLE_NAME + "(" + GroupTransaction._ID + "), " +
+                    GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + "), " +
                 FOREIGN_KEY + "(" + COLUMN_DEBTOR + ") REFERENCES " +
-                    GroupMember.TABLE_NAME + "(" + GroupMember.COLUMN_USER + "))";
+                    GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
     }
 }

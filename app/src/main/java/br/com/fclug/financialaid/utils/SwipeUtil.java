@@ -99,9 +99,9 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
                 init();
             }
 
-            if (dX < 0) {
+            int itemHeight = itemView.getBottom() - itemView.getTop();
 
-                int itemHeight = itemView.getBottom() - itemView.getTop();
+            if (dX < 0) {
 
                 //Setting Swipe Background
                 ((ColorDrawable) background).setColor(mLeftColorCode);
@@ -125,7 +125,6 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
                 c.drawText(getLeftSwipeLabel(), xMarkLeft - 140, itemView.getTop() + itemHeight / 2 - (mRemoveText.descent() + mRemoveText.ascent()) / 2, mRemoveText);
 
             } else if (dX > 0) {
-                dX = (float) (dX / 4.5);
                 ((ColorDrawable) background).setColor(mRightColorCode);
                 background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
                 mLeftButtonArea = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
@@ -142,7 +141,9 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
                 editIcon.setBounds(xMarkLeft, xMarkTop, xMarkRight, xMarkBottom);
                 editIcon.draw(c);
 
-                setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
+                c.drawText("Edit", xMarkLeft + intrinsicWidth + 100, itemView.getTop() + itemHeight / 2 - (mRemoveText.descent() + mRemoveText.ascent()) / 2, mRemoveText);
+
+                //setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         }
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);

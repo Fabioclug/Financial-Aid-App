@@ -2,6 +2,7 @@ package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -14,6 +15,7 @@ import java.util.List;
 
 import br.com.fclug.financialaid.CreateGroupActivity;
 import br.com.fclug.financialaid.R;
+import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;
 
 /**
@@ -28,6 +30,11 @@ public class MemberListAdapter extends BaseAdapter {
     public MemberListAdapter(Context context) {
         mContext = context;
         mUsers = new ArrayList<>();
+    }
+
+    private void insertCurrentUser() {
+        User currentUser = new User("You");
+        mUsers.add(currentUser);
     }
 
     public void addMember(User user) {
@@ -60,15 +67,14 @@ public class MemberListAdapter extends BaseAdapter {
         convertView = inflater.inflate(R.layout.member_list_item, parent, false);
         TextView username = (TextView) convertView.findViewById(R.id.member_username);
         TextView name = (TextView) convertView.findViewById(R.id.member_name);
-        if (mContext instanceof CreateGroupActivity) {
+        if (user instanceof OnlineUser) {
             username.setText("(" + user.getUsername() + ")");
         } else {
             username.setVisibility(View.GONE);
         }
-        name.setText(user.getName());
+        name.setText(user.getExhibitName());
 
         mDeleteButton = (FloatingActionButton) convertView.findViewById(R.id.member_delete);
-        mDeleteButton.setVisibility(View.VISIBLE);
         mDeleteButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -76,6 +82,11 @@ public class MemberListAdapter extends BaseAdapter {
                 notifyDataSetChanged();
             }
         });
+
+        if (position == 0) {
+            convertView.setBackgroundColor(ContextCompat.getColor(mContext, R.color.divider_color));
+            mDeleteButton.setVisibility(View.GONE);
+        }
         return convertView;
     }
 }

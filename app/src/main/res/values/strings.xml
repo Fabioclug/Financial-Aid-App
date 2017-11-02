@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">FinancialAid</string>
+    <string name="app_name">Financial Aid App</string>
 
     <!--Login-->
     <string name="login_username">Username</string>
@@ -24,6 +24,8 @@
 
     <string name="drawer_cash_control">Cash Flow Control</string>
 
+    <string name="transactions_balance">Balance</string>
+
     <!-- Account register -->
     <string name="add_account">Add Account</string>
     <string name="add_account_name">Name:</string>
@@ -47,6 +49,20 @@
     <string name="add_category_type_incoming">Incoming</string>
     <string name="add_category_type_outgoing">Outgoing</string>
 
+    <!-- Snackbar feedback text -->
+    <string name="undo">UNDO</string>
+
+    <string name="account_created">Account created</string>
+    <string name="account_updated">Account updated</string>
+    <string name="account_removed">Account removed</string>
+
+    <string name="transaction_created">Transaction created</string>
+    <string name="transaction_updated">Transaction updated</string>
+    <string name="transaction_removed">Transaction removed</string>
+
+    <!-- Groups List Section Headers -->
+    <string name="groups_header_online">Online groups</string>
+    <string name="groups_header_offline">Local groups</string>
 
     <!-- Group summary -->
     <string name="group_summary_no_debts"> There are no debts in this group yet.</string>
@@ -55,9 +71,6 @@
     <!-- Create group labels -->
     <string name="online_group"> Multiple user group</string>
     <string name="offline_group"> Offline group</string>
-
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
 
     <!-- Statistics strings -->
     <string name="last_seven_days_graph">Expenses in the last 7 days</string>

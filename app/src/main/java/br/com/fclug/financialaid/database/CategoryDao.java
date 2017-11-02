@@ -11,6 +11,7 @@ import java.util.List;
 
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.models.Category;
+import br.com.fclug.financialaid.database.FinancialAppContract.CategoryTable;
 
 /**
  * Created by Fabioclug on 2017-01-08.
@@ -28,37 +29,54 @@ public class CategoryDao {
 
     public boolean save(Category category) {
         ContentValues contentValues = new ContentValues();
-        contentValues.put("name", category.getName());
-        contentValues.put("color", category.getColor());
-        long result = mDbHandler.getWritableDatabase().insert(DatabaseHandler.CATEGORY_TABLE, null, contentValues);
+        contentValues.put(CategoryTable.COLUMN_NAME, category.getName());
+        contentValues.put(CategoryTable.COLUMN_COLOR, category.getColor());
+        contentValues.put(CategoryTable.COLUMN_TYPE, category.isIncoming());
+        long result = mDbHandler.getWritableDatabase()
+                                .insert(CategoryTable.TABLE_NAME, null, contentValues);
+        return result > 0;
+    }
+
+    private static boolean save(SQLiteDatabase db, Category category) {
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(CategoryTable.COLUMN_NAME, category.getName());
+        contentValues.put(CategoryTable.COLUMN_COLOR, category.getColor());
+        contentValues.put(CategoryTable.COLUMN_TYPE, category.isIncoming());
+        long result = db.insert(CategoryTable.TABLE_NAME, null, contentValues);
         return result > 0;
     }
 
     public static boolean insertDefaultValues(Context context, SQLiteDatabase db) {
         boolean result = true;
         Resources res = context.getResources();
-        String[] categoryNames = res.getStringArray(R.array.category_names);
-        int[] categoryColors = res.getIntArray(R.array.category_colors);
+        String[] incomingCategoryNames = res.getStringArray(R.array.incoming_category_names);
+        int[] incomingCategoryColors = res.getIntArray(R.array.incoming_category_colors);
+        String[] outgoingCategoryNames = res.getStringArray(R.array.outgoing_category_names);
+        int[] outgoingCategoryColors = res.getIntArray(R.array.outgoing_category_colors);
 
-        for(int i = 0; i < categoryNames.length; i++) {
-            Category category = new Category(categoryNames[i], categoryColors[i]);
-            ContentValues contentValues = new ContentValues();
-            contentValues.put("name", category.getName());
-            contentValues.put("color", category.getColor());
-            long returnCode = db.insert(DatabaseHandler.CATEGORY_TABLE, null, contentValues);
-            result &= (returnCode > 0);
+        for(int i = 0; i < incomingCategoryNames.length; i++) {
+            Category category = new Category(incomingCategoryNames[i], incomingCategoryColors[i], true);
+            result &= save(db, category);
+        }
+
+        for(int i = 0; i < outgoingCategoryNames.length; i++) {
+            Category category = new Category(outgoingCategoryNames[i], outgoingCategoryColors[i], false);
+            result &= save(db, category);
         }
         return result;
     }
 
-    public List<Category> findAll() {
+    public List<Category> find(boolean incoming) {
         List<Category> categories = new ArrayList<>();
-        Cursor cursor = mDbHandler.getReadableDatabase().rawQuery("SELECT * FROM " + DatabaseHandler.CATEGORY_TABLE, null);
+        String whereClause = CategoryTable.COLUMN_TYPE + " = ?";
+        String[] whereArgs = new String[] {incoming? "1" : "0"};
+        Cursor cursor = mDbHandler.getReadableDatabase()
+                .query(CategoryTable.TABLE_NAME, null, whereClause, whereArgs, null, null, null);
         if(cursor.moveToFirst()) {
             while(!cursor.isAfterLast()) {
-                String name = cursor.getString(cursor.getColumnIndex("name"));
-                int color = cursor.getInt(cursor.getColumnIndex("color"));
-                Category category = new Category(name, color);
+                String name = cursor.getString(cursor.getColumnIndex(CategoryTable.COLUMN_NAME));
+                int color = cursor.getInt(cursor.getColumnIndex(CategoryTable.COLUMN_COLOR));
+                Category category = new Category(name, color, incoming);
                 categories.add(category);
                 cursor.moveToNext();
             }
@@ -67,24 +85,34 @@ public class CategoryDao {
         return categories;
     }
 
+    public List<Category> findIncoming() {
+        return find(true);
+    }
+
+    public List<Category> findOutgoing() {
+        return find(false);
+    }
+
     public Category findByName(String name) {
-        String whereClause = "name = ?";
+        String whereClause = CategoryTable.COLUMN_NAME + " = ?";
         String[] whereArgs = new String[] {name};
 
         Category category = null;
-        Cursor cursor = mDbHandler.getReadableDatabase().query(DatabaseHandler.CATEGORY_TABLE, null, whereClause, whereArgs, null, null, null);
+        Cursor cursor = mDbHandler.getReadableDatabase()
+                                  .query(CategoryTable.TABLE_NAME, null, whereClause, whereArgs, null, null, null);
         if(cursor.moveToFirst()) {
-            int color = cursor.getInt(cursor.getColumnIndex("color"));
-            category = new Category(name, color);
+            int color = cursor.getInt(cursor.getColumnIndex(FinancialAppContract.CategoryTable.COLUMN_COLOR));
+            boolean incoming = cursor.getInt(cursor.getColumnIndex(FinancialAppContract.CategoryTable.COLUMN_TYPE)) > 0;
+            category = new Category(name, color, incoming);
         }
         return category;
     }
 
     public boolean delete(Category category) {
         String id = category.getName();
-        String whereClause = "name = ?";
+        String whereClause = CategoryTable.COLUMN_NAME + " = ?";
         String[] whereArgs = new String[] { String.valueOf(id) };
-        int result = mDbHandler.getWritableDatabase().delete(DatabaseHandler.CATEGORY_TABLE, whereClause, whereArgs);
+        int result = mDbHandler.getWritableDatabase().delete(CategoryTable.TABLE_NAME, whereClause, whereArgs);
         return result > 0;
     }
 }

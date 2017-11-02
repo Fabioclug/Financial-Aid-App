@@ -7,9 +7,8 @@ import br.com.fclug.financialaid.utils.AppUtils;
 /**
  * Created by Fabioclug on 2016-06-09.
  */
-public class Transaction {
+public class Transaction implements UniqueObject {
     private long id;
-    private boolean credit;
     private String description;
     private double value;
     private Category category;
@@ -20,9 +19,8 @@ public class Transaction {
 
     }
 
-    public Transaction(long id, boolean credit, String description, double value, Category category, Date date, long accountId) {
+    public Transaction(long id, String description, double value, Category category, Date date, long accountId) {
         this.id = id;
-        this.credit = credit;
         this.description = description;
         this.value = value;
         this.category = category;
@@ -30,8 +28,7 @@ public class Transaction {
         this.accountId = accountId;
     }
 
-    public Transaction(boolean credit, String description, double value, Category category, Date date, long accountId) {
-        this.credit = credit;
+    public Transaction(String description, double value, Category category, Date date, long accountId) {
         this.description = description;
         this.value = value;
         this.category = category;
@@ -47,14 +44,6 @@ public class Transaction {
         this.id = id;
     }
 
-    public boolean isCredit() {
-        return credit;
-    }
-
-    public void setCredit(boolean credit) {
-        this.credit = credit;
-    }
-
     public String getDescription() {
         return description;
     }
@@ -68,7 +57,7 @@ public class Transaction {
     }
 
     public String getFormattedValue() {
-        return AppUtils.formatValue(value);
+        return AppUtils.formatCurrencyValue(value);
     }
 
     public void setValue(double value) {
@@ -99,11 +88,4 @@ public class Transaction {
         this.accountId = accountId;
     }
 
-    public double getSignedValue() {
-        if(isCredit()) {
-            return value;
-        } else {
-            return value * -1;
-        }
-    }
 }

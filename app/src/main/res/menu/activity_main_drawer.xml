@@ -4,11 +4,11 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_camera"
-            android:icon="@android:drawable/ic_dialog_dialer"
+            android:icon="@drawable/ic_cash"
             android:title="@string/drawer_cash_control" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@android:drawable/ic_menu_mapmode"
+            android:icon="@drawable/ic_account"
             android:title="Group Payments" />
         <item
             android:id="@+id/nav_slideshow"

@@ -37,6 +37,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import br.com.fclug.financialaid.adapter.TransactionListAdapter;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.TransactionDao;
 import br.com.fclug.financialaid.dialog.AddTransactionDialog;
@@ -114,7 +115,8 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private DatePickerDialog.OnDateSetListener mDateListener = new DatePickerDialog.OnDateSetListener() {
         @Override
-        public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd, int monthOfYearEnd, int dayOfMonthEnd) {
+        public void onDateSet(DatePickerDialog view, int year, int monthOfYear, int dayOfMonth, int yearEnd,
+                              int monthOfYearEnd, int dayOfMonthEnd) {
             Calendar startPeriod = Calendar.getInstance();
             startPeriod.set(year, monthOfYear, dayOfMonth);
             Calendar endPeriod = Calendar.getInstance();
@@ -135,17 +137,17 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
     private OnObjectOperationListener mTransactionOperationListener = new OnObjectOperationListener() {
                 @Override
                 public void onAdd() {
-                    Snackbar.make(mAddTransactionFab, "Transaction added", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mAddTransactionFab, R.string.transaction_created, Snackbar.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onUpdate(Object transaction) {
-                    Snackbar.make(mAddTransactionFab, "Transaction updated", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mAddTransactionFab, R.string.transaction_updated, Snackbar.LENGTH_LONG).show();
                 }
 
                 @Override
                 public void onDelete(Object transaction) {
-                    Snackbar.make(mAddTransactionFab, "Transaction removed", Snackbar.LENGTH_LONG).show();
+                    Snackbar.make(mAddTransactionFab, R.string.transaction_removed, Snackbar.LENGTH_LONG).show();
                 }
     };
 
@@ -238,8 +240,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
                         break;
                     case 1:
                         mTransactionDao.delete(item);
-                        item.setCredit(!item.isCredit());
-                        mAccountDao.updateBalance(mAccount, item);
+                        mAccountDao.updateBalance(mAccount, item.getValue() * -1);
                         updateBalance();
                         Animation animation = AnimationUtils.loadAnimation(mContext, R.anim.slide_out);
                         animation.setAnimationListener(new Animation.AnimationListener() {
@@ -357,9 +358,12 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private void updateBalance() {
         TextView accountBalance = (TextView) findViewById(R.id.balance_value);
-        String balance = "$" + mAccount.getFormattedBalance();
-        if (accountBalance != null) {
-            accountBalance.setText(balance);
+        String balance = /*"$" +*/ mAccount.getFormattedBalance();
+        accountBalance.setText(balance);
+        if (mAccount.getBalance() < 0) {
+            accountBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
+        } else {
+            accountBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
         }
     }
 

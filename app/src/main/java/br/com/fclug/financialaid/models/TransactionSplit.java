@@ -1,10 +1,12 @@
 package br.com.fclug.financialaid.models;
 
+import java.io.Serializable;
+
 /**
  * Created by Fabioclug on 2016-10-17.
  */
 
-public class TransactionSplit {
+public class TransactionSplit implements Serializable {
 
     private User debtor;
     private double value;

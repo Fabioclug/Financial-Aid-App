@@ -18,9 +18,11 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.GroupPaymentsListAdapter;
+import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupDebt;
 import br.com.fclug.financialaid.models.TransactionSplit;
@@ -84,9 +86,12 @@ public class GroupSummaryActivity extends AppCompatActivity {
         }
 
         mGroupOverview = (TextView) findViewById(R.id.group_summary_overview);
-        //String overviewText = String.format(getResources().getString(R.string.group_summary_debt), "Fulano", 30.0, "Ciclano");
-        //mGroupOverview.setText(overviewText);
-        getGroupDebts();
+
+        if (mGroup.isOnline()) {
+            getOnlineGroupDebts();
+        } else {
+            getOfflineGroupDebts();
+        }
 
         final ExpandableListView groupTransactionsList = (ExpandableListView) findViewById(R.id.group_transactions_list);
         GroupPaymentsListAdapter adapter = new GroupPaymentsListAdapter(this, mGroup);
@@ -208,6 +213,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             }
         }
 
+        updateGroupOverview();
     }
 
     private void updateGroupOverview() {
@@ -217,7 +223,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             GroupDebt debt = (GroupDebt) obj;
             if (debt.getValue() != 0) {
                 overview += String.format(getResources().getString(R.string.group_summary_debt),
-                        debt.getDebtor().getName(), debt.getValue(), debt.getCreditor().getName()) + "\n";
+                        debt.getDebtor().getExhibitName(), debt.getValue(), debt.getCreditor().getExhibitName()) + "\n";
             }
         }
 
@@ -228,7 +234,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
         mGroupOverview.setText(overview);
     }
 
-    private void getGroupDebts() {
+    private void getOnlineGroupDebts() {
         SessionManager session = new SessionManager(this);
         JSONObject args = new JSONObject();
         try {
@@ -258,7 +264,6 @@ public class GroupSummaryActivity extends AppCompatActivity {
                     }
                 }
                 calculateGroupDebts();
-                updateGroupOverview();
             }
 
             @Override
@@ -268,5 +273,21 @@ public class GroupSummaryActivity extends AppCompatActivity {
         };
 
         new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_CREDITS, args, callback).execute();
+    }
+
+    private void getOfflineGroupDebts() {
+        GroupDao dao = new GroupDao(this);
+        mGroupCredits = dao.getGroupCredits(mGroup, mGroupMembers);
+
+        for (Iterator<TransactionSplit> iterator = mGroupCredits.iterator(); iterator.hasNext(); ) {
+            TransactionSplit entry = iterator.next();
+            if (entry.getValue() < 0) {
+                entry.setValue(entry.getValue() * -1);
+                mGroupDebits.add(entry);
+                iterator.remove();
+            }
+        }
+        calculateGroupDebts();
+
     }
 }

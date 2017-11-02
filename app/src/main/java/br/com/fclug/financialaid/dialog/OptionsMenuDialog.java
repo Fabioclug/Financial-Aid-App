@@ -72,8 +72,7 @@ public class OptionsMenuDialog extends Dialog implements View.OnClickListener {
             } else {
                 super.setOnDismissListener(mDismissListener);
                 transactionDao.delete(mTransaction);
-                mTransaction.setCredit(!mTransaction.isCredit());
-                accountDao.updateBalance(mAccount, mTransaction);
+                accountDao.updateBalance(mAccount, mTransaction.getValue() * -1);
                 mOperationListener.onDelete(mTransaction);
             }
         }

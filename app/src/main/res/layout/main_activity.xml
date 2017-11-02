@@ -44,7 +44,10 @@
             android:fitsSystemWindows="false"
             android:layout_marginTop="?attr/actionBarSize"
             app:headerLayout="@layout/nav_header_main"
-            app:menu="@menu/activity_main_drawer" />
+            app:menu="@menu/activity_main_drawer"
+            app:itemTextColor="@color/drawer_item_color"
+            app:itemIconTint="@color/drawer_item_color"
+            app:itemBackground="@android:color/transparent"/>
 
     </android.support.v4.widget.DrawerLayout>
 

@@ -39,8 +39,6 @@
         app:backgroundTint="@color/credit_account"
         android:layout_alignParentEnd="true"
         android:layout_centerInParent="true"
-        android:visibility="gone"
-        tools:visibility="visible"
         app:elevation="0dp"/>
 
 

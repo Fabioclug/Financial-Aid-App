@@ -46,10 +46,10 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         mGroup = group;
 //        User fabio = new User("fclug", "Fabio Clug");
 //        User audrey = new User("adey", "Audrey Clug");
-//        GroupTransaction tr1 = new GroupTransaction(1, "Compra na padaria", fabio, 50);
-//        GroupTransaction tr2 = new GroupTransaction(1, "Mercado", audrey, 80);
-//        TransactionSplit sp1 = new TransactionSplit(fabio, 25);
-//        TransactionSplit sp2 = new TransactionSplit(audrey, 25);
+//        GroupTransactionTable tr1 = new GroupTransactionTable(1, "Compra na padaria", fabio, 50);
+//        GroupTransactionTable tr2 = new GroupTransactionTable(1, "Mercado", audrey, 80);
+//        TransactionSplitTable sp1 = new TransactionSplitTable(fabio, 25);
+//        TransactionSplitTable sp2 = new TransactionSplitTable(audrey, 25);
 //        tr1.addSplit(sp1);
 //        tr1.addSplit(sp2);
 //        tr2.addSplit(sp2);
@@ -57,7 +57,13 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
 //        mGroupTransactions.add(tr2);
     }
 
-    public void updateListItems(final HashMap<String, User> members) {
+    public void updateListItems(HashMap<String, User> members) {
+        if (mGroup.isOnline()) {
+            getOnlineTransactions(members);
+        }
+    }
+
+    private void getOnlineTransactions(final HashMap<String, User> members) {
         SessionManager session = new SessionManager(mContext);
 
         JSONObject args = new JSONObject();
@@ -141,7 +147,7 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
     }
 
     @Override
-    public View getGroupView(final int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
+    public View getGroupView(int groupPosition, boolean isExpanded, View convertView, ViewGroup parent) {
         GroupTransaction item = (GroupTransaction) getGroup(groupPosition);
 
         if (convertView == null) {
@@ -157,7 +163,7 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         transactionName.setText(item.getDescription());
         transactionDate.setText(mDateFormatter.format(item.getDate()));
         transactionValue.setText(String.valueOf(item.getValue()));
-        transactionPayer.setText(item.getPayer().getName());
+        transactionPayer.setText(item.getPayer().getExhibitName());
 
         int transactionExpandedImage = isExpanded ? R.drawable.ic_collapse : R.drawable.ic_expand;
         transactionExpand.setImageResource(transactionExpandedImage);
@@ -174,7 +180,7 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         }
         TextView transactionSplitDebtor = (TextView) convertView.findViewById(R.id.transaction_split_debtor);
         TextView transactionSplitValue = (TextView) convertView.findViewById(R.id.transaction_split_value);
-        transactionSplitDebtor.setText(item.getDebtor().getName());
+        transactionSplitDebtor.setText(item.getDebtor().getExhibitName());
         transactionSplitValue.setText(String.valueOf(item.getValue()));
 
         View divider = convertView.findViewById(R.id.transaction_split_divider);

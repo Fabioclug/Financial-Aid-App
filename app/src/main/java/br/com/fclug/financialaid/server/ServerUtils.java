@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 public class ServerUtils {
     private static final String TAG = "ServerUtils";
     private static String EMULATOR_SERVER_URL = "http://10.0.2.2:8080/api";
-    private static String SERVER_URL = "http://192.168.1.33:8080/api";
+    private static String SERVER_URL = "http://192.168.1.36:8080/api";
 
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";

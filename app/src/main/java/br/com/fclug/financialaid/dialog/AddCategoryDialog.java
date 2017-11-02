@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.Window;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 import com.github.danielnilsson9.colorpickerview.view.ColorPanelView;
@@ -32,6 +33,7 @@ public class AddCategoryDialog extends Dialog implements ColorPickerView.OnColor
     private ColorPickerView mColorPicker;
     private ColorPanelView mColorViewer;
     private Button mConfirmCategoryButton;
+    private RadioGroup mTypeRadioGroup;
 
     public AddCategoryDialog(Context context) {
         super(context);
@@ -54,6 +56,7 @@ public class AddCategoryDialog extends Dialog implements ColorPickerView.OnColor
         mCategoryName = (EditText) findViewById(R.id.add_category_name);
         mColorPicker = (ColorPickerView) findViewById(R.id.add_category_color_picker);
         mColorViewer = (ColorPanelView) findViewById(R.id.add_category_color_viewer);
+        mTypeRadioGroup = (RadioGroup) findViewById(R.id.add_category_type_radio_group);
         mConfirmCategoryButton = (Button) findViewById(R.id.add_category_button);
     }
 
@@ -66,7 +69,15 @@ public class AddCategoryDialog extends Dialog implements ColorPickerView.OnColor
     @Override
     public void onClick(View v) {
         CategoryDao categoryDao = new CategoryDao(mContext);
-        Category newCategory = new Category(mCategoryName.getText().toString(), mSelectedColor);
+        int selectedTypeId = mTypeRadioGroup.getCheckedRadioButtonId();
+        View selectedTypeView = mTypeRadioGroup.findViewById(selectedTypeId);
+        int selectedTypeIndex = mTypeRadioGroup.indexOfChild(selectedTypeView);
+        boolean incoming = true;
+        if (selectedTypeIndex == 1) {
+            incoming = false;
+        }
+
+        Category newCategory = new Category(mCategoryName.getText().toString(), mSelectedColor, incoming);
         categoryDao.save(newCategory);
         Toast.makeText(mContext, "Category created!", Toast.LENGTH_LONG).show();
         dismiss();

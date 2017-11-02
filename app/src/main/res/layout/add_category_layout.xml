@@ -59,6 +59,7 @@
             android:text="@string/add_category_type"/>
 
         <RadioGroup
+            android:id="@+id/add_category_type_radio_group"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="@dimen/dialog_margin">

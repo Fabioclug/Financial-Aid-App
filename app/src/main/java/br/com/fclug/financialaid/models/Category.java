@@ -8,10 +8,12 @@ public class Category {
 
     private String name;
     private int color;
+    private boolean incoming;
 
-    public Category(String name, int color) {
+    public Category(String name, int color, boolean incoming) {
         this.name = name;
         this.color = color;
+        this.incoming = incoming;
     }
 
     public String getName() {
@@ -28,6 +30,14 @@ public class Category {
 
     public void setColor(int color) {
         this.color = color;
+    }
+
+    public boolean isIncoming() {
+        return incoming;
+    }
+
+    public void setIncoming(boolean incoming) {
+        this.incoming = incoming;
     }
 
     @Override

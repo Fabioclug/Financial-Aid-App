@@ -2,6 +2,7 @@ package br.com.fclug.financialaid;
 
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -18,7 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 
-import br.com.fclug.financialaid.adapter.AccountListAdapter;
+import br.com.fclug.financialaid.adapter.AccountRecyclerViewListAdapter;
+import br.com.fclug.financialaid.adapter.RecyclerViewListAdapter;
 import br.com.fclug.financialaid.dialog.AddAccountDialog;
 import br.com.fclug.financialaid.dialog.OptionsMenuDialog;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
@@ -29,7 +31,7 @@ import br.com.fclug.financialaid.utils.SwipeUtil;
 public class AccountsFragment extends Fragment implements OnClickListener {
 
     private RecyclerView mAccountsRecyclerView;
-    private AccountListAdapter mListAdapter;
+    private AccountRecyclerViewListAdapter mListAdapter;
     private FloatingActionButton mAddAccountFab;
 
     private DialogInterface.OnDismissListener mDismissListener = new DialogInterface.OnDismissListener() {
@@ -62,28 +64,28 @@ public class AccountsFragment extends Fragment implements OnClickListener {
     private OnObjectOperationListener mAccountOperationListener = new OnObjectOperationListener() {
         @Override
         public void onAdd() {
-            Snackbar.make(mAddAccountFab, "Account created", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mAddAccountFab, R.string.account_created, Snackbar.LENGTH_LONG).show();
         }
 
         @Override
         public void onUpdate(Object account) {
             Account updatedAccount = (Account) account;
             mListAdapter.updateItemView(updatedAccount);
-            Snackbar.make(mAddAccountFab, "Account edited", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(mAddAccountFab, R.string.account_updated, Snackbar.LENGTH_LONG).show();
         }
 
         @Override
         public void onDelete(Object account) {
             final Account pendingRemovalAccount = (Account) account;
             final int position = mListAdapter.setPendingRemoval(pendingRemovalAccount);
-            Snackbar.make(mAddAccountFab, "Account deleted", Snackbar.LENGTH_INDEFINITE)
-                    .setAction("UNDO", new OnClickListener() {
+            Snackbar.make(mAddAccountFab, R.string.account_removed, Snackbar.LENGTH_INDEFINITE)
+                    .setAction(R.string.undo, new OnClickListener() {
                         @Override
                         public void onClick(View view) {
                             mListAdapter.undoRemoval(pendingRemovalAccount, position);
                         }
                     })
-                    .setDuration(AccountListAdapter.PENDING_REMOVAL_TIMEOUT)
+                    .setDuration(RecyclerViewListAdapter.PENDING_REMOVAL_TIMEOUT)
                     .setActionTextColor(ContextCompat.getColor(getContext(), R.color.swipe_background))
                     .show();
         }
@@ -108,10 +110,10 @@ public class AccountsFragment extends Fragment implements OnClickListener {
         itemDecorator.setDrawable(ContextCompat.getDrawable(getActivity(), R.drawable.account_list_divider));
         mAccountsRecyclerView.addItemDecoration(itemDecorator);
 
-        mListAdapter = new AccountListAdapter(getContext());
+        mListAdapter = new AccountRecyclerViewListAdapter(getContext());
         mAccountsRecyclerView.setAdapter(mListAdapter);
         mListAdapter.setListItemClickListener(mListClickListener);
-        mAccountsRecyclerView.getItemAnimator().setChangeDuration(0);
+        //mAccountsRecyclerView.getItemAnimator().setRemoveDuration(0);
 //        mAccountsRecyclerView.setItemAnimator(new DefaultItemAnimator() {
 //            @Override
 //            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
@@ -138,12 +140,20 @@ public class AccountsFragment extends Fragment implements OnClickListener {
 
     private void setSwipeForRecyclerView() {
 
-        SwipeUtil swipeHelper = new SwipeUtil(getActivity()) {
+        final SwipeUtil swipeHelper = new SwipeUtil(getContext()) {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.LEFT) {
                     int swipedPosition = viewHolder.getAdapterPosition();
                     mListAdapter.setPendingRemoval(swipedPosition, true);
+                } else {
+                    int position = viewHolder.getAdapterPosition();
+                    Account account = mListAdapter.getItem(position);
+                    AddAccountDialog dialog = new AddAccountDialog(getActivity(), account);
+                    dialog.setOnDismissListener(mDismissListener);
+                    dialog.setOnTransactionOperationListener(mAccountOperationListener);
+                    mListAdapter.notifyItemChanged(position);
+                    dialog.show();
                 }
             }
 

@@ -12,6 +12,7 @@ import android.widget.ListView;
 
 import java.text.DecimalFormat;
 import java.text.DecimalFormatSymbols;
+import java.text.NumberFormat;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Locale;
@@ -93,8 +94,8 @@ public final class AppUtils extends Application {
         return result;
     }
 
-    public static String formatValue(double value) {
-        return String.format("%.2f", value);
+    public static String formatCurrencyValue(double value) {
+        return NumberFormat.getCurrencyInstance().format(value); //String.format("%.2f", value).replace(".", ",");
     }
 
     public static void attachCalendarToEditText(final Context context, final EditText editText, final SimpleDateFormat formatter) {

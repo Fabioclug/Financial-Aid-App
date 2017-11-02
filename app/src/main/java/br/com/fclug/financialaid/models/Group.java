@@ -14,6 +14,7 @@ public class Group implements Parcelable {
     private long id;
     private String name;
     private List<User> members;
+    private List<TransactionSplit> groupCredits;
     private boolean online;
 
     public Group(long id, String name, boolean online) {
@@ -27,10 +28,11 @@ public class Group implements Parcelable {
         this.members = members;
     }
 
-    public Group(long id, String name, List<User> members, boolean online) {
+    public Group(long id, String name, List<User> members, List<TransactionSplit> groupCredits, boolean online) {
         this.id = id;
         this.name = name;
         this.members = members;
+        this.groupCredits = groupCredits;
         this.online = online;
     }
 
@@ -44,6 +46,13 @@ public class Group implements Parcelable {
         } else {
             members = null;
         }
+
+        if (in.readByte() == 0x01) {
+            groupCredits = new ArrayList<>();
+            in.readList(groupCredits, TransactionSplit.class.getClassLoader());
+        } else {
+            groupCredits = null;
+        }
     }
 
     @Override
@@ -56,6 +65,13 @@ public class Group implements Parcelable {
         } else {
             dest.writeByte((byte) (0x01));
             dest.writeList(members);
+        }
+
+        if (groupCredits == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(groupCredits);
         }
     }
 
@@ -111,5 +127,13 @@ public class Group implements Parcelable {
 
     public void setMembers(List<User> members) {
         this.members = members;
+    }
+
+    public List<TransactionSplit> getGroupCredits() {
+        return groupCredits;
+    }
+
+    public void setGroupCredits(List<TransactionSplit> groupCredits) {
+        this.groupCredits = groupCredits;
     }
 }

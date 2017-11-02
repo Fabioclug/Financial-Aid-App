@@ -59,12 +59,14 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onSuccess(JSONObject response) throws JSONException {
             String token = null;
+            String name = null;
             if (response != null) {
                 token = response.getString("token");
+                name = response.getString("name");
             }
             mProgressDialog.dismiss();
             // Creating user login session
-            mSession.createLoginSession(usernameString, passwordString, token);
+            mSession.createLoginSession(usernameString, name, passwordString, token);
 
             // Start MainActivity
             Intent i = new Intent(getApplicationContext(), MainActivity.class);

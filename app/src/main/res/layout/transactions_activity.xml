@@ -42,27 +42,33 @@
             android:elevation="5dp"
             android:layout_alignParentBottom="true">
 
-            <TextView
-                android:id="@+id/balance_title"
+            <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="20dp"
-                android:text="Total Balance: "
                 android:layout_centerVertical="true"
-                android:textSize="20sp"
-                android:textColor="@android:color/black"/>
+                android:orientation="vertical">
 
-            <TextView
-                android:id="@+id/balance_value"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="10dp"
-                android:text="$200"
-                android:layout_centerVertical="true"
-                android:layout_toEndOf="@id/balance_title"
-                android:textSize="25sp"
-                android:textStyle="bold"
-                android:textColor="@color/transaction_type_credit"/>
+                <TextView
+                    android:id="@+id/balance_title"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/transactions_balance"
+                    android:textSize="12sp"
+                    android:textStyle="bold"
+                    android:textColor="@android:color/black"/>
+
+                <TextView
+                    android:id="@+id/balance_value"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="10dp"
+                    android:text="$200"
+                    android:textSize="25sp"
+                    android:textStyle="bold"
+                    android:textColor="@color/transaction_type_credit"/>
+
+            </LinearLayout>
 
         </RelativeLayout>
 

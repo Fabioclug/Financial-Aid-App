@@ -14,7 +14,7 @@
     <color name="account_divider_color">#E0E0E0</color>
 
     
-    <!-- Account colors -->
+    <!-- AccountTable colors -->
     <!--color name="checking_account">#F5CD00</color>
     <color name="savings_account">#1E98C9</color>
     <color name="credit_account">#cc181e</color>
@@ -26,10 +26,17 @@
     <color name="cash_account">#43A047</color>
     <!--color name="new_account">#8D6E63 2ecc71 43A047 7CB342</color-->
 
-    <!-- Category colors -->
+    <!-- CategoryTable colors -->
+    <color name="earnings_category">#8BC34A</color>
+    <color name="salary_category">#3F51B5</color>
+    <color name="reimbursement_category">#FFEE58</color>
     <color name="restaurant_category">#EF9A9A</color>
     <color name="groceries_category">#C5CAE9</color>
     <color name="electronics_category">#B0BEC5</color>
+    <color name="gas_station_category">#E53935</color>
+
+
+
     <color name="text_default_color">@android:color/tab_indicator_text</color>
 
     <!-- List swipe -->

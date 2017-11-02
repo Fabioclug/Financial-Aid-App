@@ -7,15 +7,17 @@
     tools:context=".GroupsFragment">
 
 
-    <ListView
+    <ExpandableListView
         android:id="@+id/groups_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:divider="@color/dialog_bg"
         android:dividerHeight="0dp"
-        android:paddingTop="20dp"
+        android:paddingTop="10dp"
         android:paddingBottom="75dp"
         android:clipToPadding="false"
+        android:childDivider="@android:color/transparent"
+        android:layoutAnimation="@anim/layout_animation_fall_down_fade_in"
         tools:listitem="@layout/group_account_list_item"/>
 
     <RelativeLayout

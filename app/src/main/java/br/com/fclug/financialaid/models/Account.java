@@ -7,7 +7,7 @@ import br.com.fclug.financialaid.utils.AppUtils;
 /**
  * Created by Fabioclug on 2016-06-25.
  */
-public class Account {
+public class Account implements UniqueObject {
     private long id;
     private String name;
     private double balance;
@@ -41,7 +41,7 @@ public class Account {
     }
 
     public String getFormattedBalance() {
-        return AppUtils.formatValue(balance);
+        return AppUtils.formatCurrencyValue(balance);
     }
 
     public void setBalance(double balance) {

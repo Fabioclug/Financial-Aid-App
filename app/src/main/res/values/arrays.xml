@@ -9,7 +9,7 @@
         <item>Cash</item>
     </string-array>
 
-    <!-- Account colors, according to the types -->
+    <!-- AccountTable colors, according to the types -->
     <array name="account_colors">
         <item>@color/checking_account</item>
         <item>@color/savings_account</item>
@@ -17,7 +17,7 @@
         <item>@color/cash_account</item>
     </array>
 
-    <!-- Account icons, according to the types -->
+    <!-- AccountTable icons, according to the types -->
     <integer-array name="account_icons">
         <item>@drawable/ic_bank</item>
         <item>@drawable/ic_safe</item>
@@ -25,20 +25,34 @@
         <item>@drawable/ic_cash</item>
     </integer-array>
 
-    <!-- Category names -->
-    <string-array name="category_names">
-        <item>Incoming</item>
+    <!-- Incoming category names -->
+    <string-array name="incoming_category_names">
+        <item>Earnings</item>
+        <item>Salary</item>
+        <item>Reimbursement</item>
+    </string-array>
+
+    <!-- Incoming category colors -->
+    <array name="incoming_category_colors">
+        <item>@color/earnings_category</item>
+        <item>@color/salary_category</item>
+        <item>@color/reimbursement_category</item>
+    </array>
+
+    <!-- Outgoing category names -->
+    <string-array name="outgoing_category_names">
         <item>Restaurant</item>
         <item>Groceries</item>
         <item>Electronics</item>
+        <item>Gas station</item>
     </string-array>
 
-    <!-- Category colors -->
-    <array name="category_colors">
-        <item>@color/transaction_type_credit</item>
+    <!-- Outgoing category colors -->
+    <array name="outgoing_category_colors">
         <item>@color/restaurant_category</item>
         <item>@color/groceries_category</item>
         <item>@color/electronics_category</item>
+        <item>@color/gas_station_category</item>
     </array>
 
 </resources>

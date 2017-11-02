@@ -12,6 +12,7 @@
         android:paddingBottom="50dp"
         android:clipToPadding="false"
         android:scrollbarStyle="outsideInset"
+        android:layoutAnimation="@anim/layout_animation_slide_in"
         tools:listitem="@layout/account_overview"/>
 
     <android.support.design.widget.FloatingActionButton
