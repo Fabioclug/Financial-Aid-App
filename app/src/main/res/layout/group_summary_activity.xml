@@ -35,7 +35,7 @@
             android:paddingStart="30dp"
             android:paddingEnd="30dp"
             android:textSize="17sp"
-            android:text="Fulano deve tanto pra ciclano"/>
+            android:text="@string/group_summary_no_debts"/>
 
         <include layout="@layout/period_header"/>
 
@@ -45,7 +45,9 @@
             android:layout_height="match_parent"
             tools:listitem="@layout/group_payment_list_row"
             android:groupIndicator="@null"
-            android:childDivider="@android:color/transparent"/>
+            android:childDivider="@android:color/transparent"
+            android:paddingBottom="50dp"
+            android:clipToPadding="false"/>
 
     </LinearLayout>
 
@@ -53,7 +55,7 @@
         android:id="@+id/add_group_transaction"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
+        android:layout_gravity="bottom|end"
         android:layout_marginTop="70dp"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"

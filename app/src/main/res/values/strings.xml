@@ -66,11 +66,12 @@
 
     <!-- Group summary -->
     <string name="group_summary_no_debts"> There are no debts in this group yet.</string>
-    <string name="group_summary_debt">%1$s owes %2$.2f to %3$s</string>
+    <string name="group_summary_debt">%1$s owes %2$s %3$s\n</string>
 
     <!-- Create group labels -->
     <string name="online_group"> Multiple user group</string>
     <string name="offline_group"> Offline group</string>
+    <string name="offline_default_member">You</string>
 
     <!-- Statistics strings -->
     <string name="last_seven_days_graph">Expenses in the last 7 days</string>

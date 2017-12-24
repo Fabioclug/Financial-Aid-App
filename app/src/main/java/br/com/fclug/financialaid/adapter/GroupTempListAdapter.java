@@ -61,8 +61,7 @@ public class GroupTempListAdapter extends BaseExpandableListAdapter {
         notifyDataSetChanged();
 
         // get online groups
-        SessionManager s = new SessionManager(mContext);
-        HashMap<String, String> user = s.getUserDetails();
+        HashMap<String, String> user = SessionManager.getUserDetails(mContext);
         ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
             @Override
             public void onSuccess(JSONObject response) throws JSONException {
@@ -246,10 +245,9 @@ public class GroupTempListAdapter extends BaseExpandableListAdapter {
     }
 
     private double getBalance(Group group) {
-        SessionManager manager = new SessionManager(mContext);
         double value = 0;
-        if (manager.isLoggedIn() && group.isOnline()) {
-            HashMap<String, String> userDetails = manager.getUserDetails();
+        if (SessionManager.isLoggedIn(mContext) && group.isOnline()) {
+            HashMap<String, String> userDetails = SessionManager.getUserDetails(mContext);
             User current = new User(userDetails.get(SessionManager.KEY_USERNAME));
             List<TransactionSplit> credits = group.getGroupCredits();
             for (TransactionSplit credit : credits) {

@@ -31,7 +31,11 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
+import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.GroupTransaction;
+import br.com.fclug.financialaid.models.GroupTransaction.GroupTransactionBuilder;
+import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
@@ -51,7 +55,8 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
     private Spinner mPayerSpinner;
     private boolean mChangeValues = true;
 
-    private SimpleDateFormat mFormatter = new SimpleDateFormat("MM/dd/yy", Locale.US);
+    private SimpleDateFormat mReadFormatter = new SimpleDateFormat("MM/dd/yy", Locale.US);
+    public static SimpleDateFormat dateSaveFormatter = new SimpleDateFormat("yy-MM-dd", Locale.US);
 
     private TextWatcher mValueWatcher = new TextWatcher() {
         @Override
@@ -140,7 +145,7 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
         mPayerSpinner = (Spinner) findViewById(R.id.create_payment_payer);
         LinearLayout membersLayout = (LinearLayout) findViewById(R.id.create_payment_members);
 
-        AppUtils.attachCalendarToEditText(mContext, mDate, mFormatter);
+        AppUtils.attachCalendarToEditText(mContext, mDate, mReadFormatter);
 
         mGroup = getIntent().getParcelableExtra("group");
         mMembers = mGroup.getMembers();
@@ -190,27 +195,33 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
 
     @Override
     public void onClick(View v) {
-        SimpleDateFormat formatter = new SimpleDateFormat("yy-MM-dd", Locale.US);
+        if (mGroup.isOnline()) {
+            createOnlinePayment();
+        } else {
+            createOfflinePayment();
+        }
+    }
+
+    private void createOnlinePayment() {
         JSONObject args = new JSONObject();
         try {
-            SessionManager session = new SessionManager(mContext);
-            args.put("token", session.getToken());
+            args.put("token", SessionManager.getToken(this));
             args.put("group", mGroup.getId());
             args.put("description", mDescription.getText());
             args.put("value", mValue.getText());
             args.put("payer", mPayer.getUsername());
             try {
-                Date date = mFormatter.parse(mDate.getText().toString());
-                args.put("date", formatter.format(date));
-                Log.d("CreateGroupPayment", formatter.format(date));
+                Date date = mReadFormatter.parse(mDate.getText().toString());
+                args.put("date", dateSaveFormatter.format(date));
+                Log.d("CreateGroupPayment", dateSaveFormatter.format(date));
             } catch (ParseException e) {
                 e.printStackTrace();
             }
             JSONArray transactionSplits = new JSONArray();
-            List<User> groupMembers = mGroup.getMembers();
-            for (int i = 0; i < groupMembers.size(); i++) {
+
+            for (int i = 0; i < mMembers.size(); i++) {
                 JSONObject split = new JSONObject();
-                split.put("username", groupMembers.get(i).getUsername());
+                split.put("username", mMembers.get(i).getUsername());
                 split.put("value", mSplits[i].getText());
                 transactionSplits.put(split);
             }
@@ -232,6 +243,39 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
                         // perhaps a dialog?
                     }
                 }).execute();
+    }
+
+    private void createOfflinePayment() {
+
+        boolean result = false;
+
+        List<TransactionSplit> splits = new ArrayList<>();
+        for (int i = 0; i < mMembers.size(); i++) {
+            TransactionSplit split = new TransactionSplit(mMembers.get(i), Double.valueOf(mSplits[i].getText().toString()));
+            splits.add(split);
+        }
+
+        GroupTransactionBuilder groupTransactionBuilder =
+                new GroupTransactionBuilder()
+                    .setDescription(mDescription.getText().toString())
+                    .setPayer(mPayer)
+                    .setValue(Double.valueOf(mValue.getText().toString()))
+                    .setSplits(splits);
+
+        try {
+            Date date = mReadFormatter.parse(mDate.getText().toString());
+            GroupTransaction groupTransaction = groupTransactionBuilder.setDate(date).build();
+            GroupDao dao = new GroupDao(mContext);
+            result = dao.saveTransaction(mGroup, groupTransaction);
+
+        } catch (ParseException e) {
+            e.printStackTrace();
+        }
+
+        if (result) {
+            finish();
+        }
+
     }
 
     @Override

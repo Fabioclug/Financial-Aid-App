@@ -63,7 +63,7 @@ public class AccountsFragment extends Fragment implements OnClickListener {
 
     private OnObjectOperationListener mAccountOperationListener = new OnObjectOperationListener() {
         @Override
-        public void onAdd() {
+        public void onAdd(Object account) {
             Snackbar.make(mAddAccountFab, R.string.account_created, Snackbar.LENGTH_LONG).show();
         }
 

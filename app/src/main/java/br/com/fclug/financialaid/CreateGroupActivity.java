@@ -26,12 +26,15 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
+import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
 
 public class CreateGroupActivity extends AppCompatActivity {
+
+    private Group mGroup;
 
     private class AutoCompleteAdapter extends MemberListAdapter implements Filterable {
 
@@ -126,7 +129,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             setTitle("Create GroupTable");
         }
 
-        mUserData = new SessionManager(this).getUserDetails();
+        mUserData = SessionManager.getUserDetails(this);
 
         mGroupName = (EditText) findViewById(R.id.create_group_name);
         member = (AutoCompleteTextView) findViewById(R.id.create_group_username);
@@ -153,7 +156,10 @@ public class CreateGroupActivity extends AppCompatActivity {
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
+                    String groupName = mGroupName.getText().toString();
                     List<User> members = mListAdapter.getMembersList();
+                    mGroup = new Group(groupName, members);
+
                     JSONObject args = new JSONObject();
                     JSONArray memberList = new JSONArray();
                     try {
@@ -179,8 +185,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private void addCurrentUser() {
-        SessionManager manager = new SessionManager(this);
-        HashMap<String, String> currentUser = manager.getUserDetails();
+        HashMap<String, String> currentUser = SessionManager.getUserDetails(this);
         OnlineUser user = new OnlineUser(currentUser.get(SessionManager.KEY_USERNAME),
                 currentUser.get(SessionManager.KEY_NAME));
         mListAdapter.addMember(user);

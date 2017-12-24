@@ -8,6 +8,7 @@ import org.json.JSONObject;
 
 import java.io.IOException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 
 /**
  * Created by Fabioclug on 2016-09-05.
@@ -44,6 +45,14 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
                 response = ServerUtils.doGetRequest(mRoute);
             }
 
+        } catch (SocketTimeoutException e) {
+            response = new JSONObject();
+            Log.d(TAG, "Connection timed out");
+            try {
+                response.put("status_code", HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
+            } catch (JSONException jsonException) {
+                Log.d(TAG, "JSON formatting exception on timeout");
+            }
         } catch (IOException | JSONException e) {
             Log.d(TAG, "Impossible to complete request: " + e.toString());
         }
@@ -71,9 +80,11 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
                 break;
             case HttpURLConnection.HTTP_NOT_FOUND:
             case HttpURLConnection.HTTP_INTERNAL_ERROR:
+            case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
                 mCallback.onFailure(statusCode);
                 break;
             default:
+                Log.d(TAG, "Unexpected response code");
                 break;
 
         }

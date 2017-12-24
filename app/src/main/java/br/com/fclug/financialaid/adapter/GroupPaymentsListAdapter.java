@@ -21,12 +21,14 @@ import java.util.Locale;
 
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.SessionManager;
+import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupTransaction;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
+import br.com.fclug.financialaid.utils.AppUtils;
 
 /**
  * Created by Fabioclug on 2016-10-30.
@@ -37,38 +39,27 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
     private Context mContext;
     private List<GroupTransaction> mGroupTransactions;
     private Group mGroup;
-    private SimpleDateFormat mDateBuilder = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    public static SimpleDateFormat buildDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd", Locale.US);
 
     public GroupPaymentsListAdapter(Context context, Group group) {
         this.mContext = context;
         mGroupTransactions = new ArrayList<>();
         mGroup = group;
-//        User fabio = new User("fclug", "Fabio Clug");
-//        User audrey = new User("adey", "Audrey Clug");
-//        GroupTransactionTable tr1 = new GroupTransactionTable(1, "Compra na padaria", fabio, 50);
-//        GroupTransactionTable tr2 = new GroupTransactionTable(1, "Mercado", audrey, 80);
-//        TransactionSplitTable sp1 = new TransactionSplitTable(fabio, 25);
-//        TransactionSplitTable sp2 = new TransactionSplitTable(audrey, 25);
-//        tr1.addSplit(sp1);
-//        tr1.addSplit(sp2);
-//        tr2.addSplit(sp2);
-//        mGroupTransactions.add(tr1);
-//        mGroupTransactions.add(tr2);
     }
 
     public void updateListItems(HashMap<String, User> members) {
         if (mGroup.isOnline()) {
             getOnlineTransactions(members);
+        } else {
+            getOfflineTransactions(members);
         }
     }
 
     private void getOnlineTransactions(final HashMap<String, User> members) {
-        SessionManager session = new SessionManager(mContext);
-
         JSONObject args = new JSONObject();
         try {
-            args.put("token", session.getToken());
+            args.put("token", SessionManager.getToken(mContext));
             args.put("group_id", mGroup.getId());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -85,7 +76,7 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
                         User payer = members.get(transactionJson.getString("creditor"));
                         GroupTransaction transaction = new GroupTransaction(transactionJson.getLong("id"),
                                 transactionJson.getString("name"), payer, transactionJson.getDouble("value"),
-                                mDateBuilder.parse(transactionJson.getString("moment")));
+                                buildDateFormatter.parse(transactionJson.getString("moment")));
                         JSONArray transactionSplits = transactionJson.getJSONArray("splits");
                         for (int j = 0; j < transactionSplits.length(); j++) {
                             JSONObject splitJson = transactionSplits.getJSONObject(j);
@@ -109,6 +100,11 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         };
 
         new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_TRANSACTIONS, args, callback).execute();
+    }
+
+    private void getOfflineTransactions(HashMap<String, User> members) {
+        GroupDao dao = new GroupDao(mContext);
+        mGroupTransactions = dao.findGroupTransactions(mGroup, members);
     }
 
     @Override
@@ -159,12 +155,14 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         TextView transactionValue = (TextView) convertView.findViewById(R.id.group_transaction_value);
         TextView transactionPayer = (TextView) convertView.findViewById(R.id.group_transaction_payer);
         ImageView transactionExpand = (ImageView) convertView.findViewById(R.id.group_transaction_expand);
+        TextView transactionSplitsHeader = (TextView) convertView.findViewById(R.id.splits_header);
 
         transactionName.setText(item.getDescription());
         transactionDate.setText(mDateFormatter.format(item.getDate()));
-        transactionValue.setText(String.valueOf(item.getValue()));
+        transactionValue.setText(AppUtils.formatCurrencyValue(item.getValue()));
         transactionPayer.setText(item.getPayer().getExhibitName());
 
+        transactionSplitsHeader.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
         int transactionExpandedImage = isExpanded ? R.drawable.ic_collapse : R.drawable.ic_expand;
         transactionExpand.setImageResource(transactionExpandedImage);
 
@@ -181,14 +179,10 @@ public class GroupPaymentsListAdapter extends BaseExpandableListAdapter {
         TextView transactionSplitDebtor = (TextView) convertView.findViewById(R.id.transaction_split_debtor);
         TextView transactionSplitValue = (TextView) convertView.findViewById(R.id.transaction_split_value);
         transactionSplitDebtor.setText(item.getDebtor().getExhibitName());
-        transactionSplitValue.setText(String.valueOf(item.getValue()));
+        transactionSplitValue.setText(AppUtils.formatCurrencyValue(item.getValue()));
 
         View divider = convertView.findViewById(R.id.transaction_split_divider);
-        if(isLastChild) {
-            divider.setVisibility(View.VISIBLE);
-        } else {
-            divider.setVisibility(View.GONE);
-        }
+        divider.setVisibility(isLastChild ? View.VISIBLE : View.GONE);
 
         return convertView;
     }

@@ -1,34 +1,73 @@
 package br.com.fclug.financialaid;
 
 import android.animation.Animator;
+import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.ExpandableListView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import br.com.fclug.financialaid.adapter.GroupTempListAdapter;
+import br.com.fclug.financialaid.adapter.GroupRecyclerViewListAdapter;
+import br.com.fclug.financialaid.interfaces.OnListClickListener;
+import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
 import br.com.fclug.financialaid.models.Group;
 
 public class GroupsFragment extends Fragment implements View.OnClickListener {
 
-    private ExpandableListView mGroupsListView;
-    private GroupTempListAdapter mListAdapter;
+    private RecyclerView mGroupsListView;
+    private GroupRecyclerViewListAdapter mListAdapter;
     private boolean isFabMenuOpen = false;
 
-    private LinearLayout createOnlineGroupLayout;
-    private LinearLayout createOfflineGroupLayout;
-    private FloatingActionButton createGroupButton;
+    private LinearLayout mCreateOnlineGroupLayout;
+    private LinearLayout mCreateOfflineGroupLayout;
+    private FloatingActionButton mCreateGroupButton;
     private RelativeLayout obstructor;
+
+    public static int REQUEST_CALLBACK = 1;
+
+    private OnListClickListener mListClickListener = new OnListClickListener() {
+        @Override
+        public void onItemClick(Object groupObject) {
+            Group group = (Group) groupObject;
+            Intent intent = new Intent(getContext(), GroupSummaryActivity.class);
+            intent.putExtra("group", group);
+            startActivity(intent);
+        }
+
+        @Override
+        public void onItemLongClick(View v, Object o) {
+
+        }
+    };
+
+    private OnObjectOperationListener mGroupOperationListener = new OnObjectOperationListener() {
+        @Override
+        public void onAdd(Object group) {
+            mListAdapter.addGroup((Group) group);
+            Snackbar.make(mCreateGroupButton, "Group created", Snackbar.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onUpdate(Object group) {
+            mListAdapter.updateItemView((Group) group);
+            Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
+        }
+
+        @Override
+        public void onDelete(Object object) {
+
+        }
+    };
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -36,27 +75,22 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
         if (container == null)
             return null;
-        View view = inflater.inflate(R.layout.group_payments_fragment, container, false);
-        mGroupsListView = (ExpandableListView) view.findViewById(R.id.groups_list);
-        mListAdapter = new GroupTempListAdapter(getContext());
+        View view = inflater.inflate(R.layout.groups_fragment, container, false);
+        mGroupsListView = (RecyclerView) view.findViewById(R.id.groups_list);
+
+        LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        mGroupsListView.setLayoutManager(layoutManager);
+
+        mListAdapter = new GroupRecyclerViewListAdapter(getContext());
         mGroupsListView.setAdapter(mListAdapter);
+        mListAdapter.setListItemClickListener(mListClickListener);
+        mListAdapter.updateListItems();
 
-        mGroupsListView.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView expandableListView, View view, int groupPosition,
-                                        int childPosition, long id) {
-                Group group = mListAdapter.getChild(groupPosition, childPosition);
-                Intent intent = new Intent(getContext(), GroupSummaryActivity.class);
-                intent.putExtra("group", group);
-                startActivity(intent);
-                return false;
-            }
-        });
+        mCreateGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
 
-        createGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
-
-        createOnlineGroupLayout = (LinearLayout) view.findViewById(R.id.create_online_group_layout);
-        createOfflineGroupLayout = (LinearLayout) view.findViewById(R.id.create_offline_group_layout);
+        mCreateOnlineGroupLayout = (LinearLayout) view.findViewById(R.id.create_online_group_layout);
+        mCreateOfflineGroupLayout = (LinearLayout) view.findViewById(R.id.create_offline_group_layout);
 
         FloatingActionButton createOnlineGroup = (FloatingActionButton) view.findViewById(R.id.create_online_group_fab);
         FloatingActionButton createOfflineGroup = (FloatingActionButton) view.findViewById(R.id.create_offline_group_fab);
@@ -66,7 +100,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
         obstructor = (RelativeLayout) view.findViewById(R.id.obstructor);
 
-        createGroupButton.setOnClickListener(this);
+        mCreateGroupButton.setOnClickListener(this);
         createOnlineGroup.setOnClickListener(this);
         createOfflineGroup.setOnClickListener(this);
         obstructor.setOnClickListener(this);
@@ -74,15 +108,6 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         createOfflineGroupLabel.setOnClickListener(this);
 
         return view;
-    }
-
-    @Override
-    public void onResume() {
-        super.onResume();
-        mListAdapter.updateListItems();
-        for (int i = 0; i < mListAdapter.getGroupCount(); i++) {
-            mGroupsListView.expandGroup(i);
-        }
     }
 
     @Override
@@ -104,7 +129,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             case R.id.create_offline_group_fab:
             case R.id.create_offline_group_label:
                 intent = new Intent(getContext(), CreateLocalGroupActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_CALLBACK);
                 closeFabMenu();
                 break;
             case R.id.obstructor:
@@ -116,18 +141,18 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     private void openFabMenu() {
         isFabMenuOpen = true;
         obstructor.setVisibility(View.VISIBLE);
-        createOnlineGroupLayout.setVisibility(View.VISIBLE);
-        createOfflineGroupLayout.setVisibility(View.VISIBLE);
-        createGroupButton.animate().rotationBy(180);
-        createOnlineGroupLayout.animate().translationY(-getResources().getDimension(R.dimen.fab_first_button_anim));
-        createOfflineGroupLayout.animate().translationY(-getResources().getDimension(R.dimen.fab_second_button_anim));
+        mCreateOnlineGroupLayout.setVisibility(View.VISIBLE);
+        mCreateOfflineGroupLayout.setVisibility(View.VISIBLE);
+        mCreateGroupButton.animate().rotationBy(360);
+        mCreateOnlineGroupLayout.animate().translationY(-getResources().getDimension(R.dimen.fab_first_button_anim));
+        mCreateOfflineGroupLayout.animate().translationY(-getResources().getDimension(R.dimen.fab_second_button_anim));
     }
 
     private void closeFabMenu() {
         isFabMenuOpen = false;
         obstructor.setVisibility(View.GONE);
-        createGroupButton.animate().rotationBy(-180);
-        createOnlineGroupLayout.animate().translationY(0).setListener(new Animator.AnimatorListener() {
+        mCreateGroupButton.animate().rotationBy(-360);
+        mCreateOnlineGroupLayout.animate().translationY(0).setListener(new Animator.AnimatorListener() {
             @Override
             public void onAnimationStart(Animator animation) {
 
@@ -136,8 +161,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             @Override
             public void onAnimationEnd(Animator animation) {
                 if (!isFabMenuOpen) {
-                    createOnlineGroupLayout.setVisibility(View.GONE);
-                    createOfflineGroupLayout.setVisibility(View.GONE);
+                    mCreateOnlineGroupLayout.setVisibility(View.GONE);
+                    mCreateOfflineGroupLayout.setVisibility(View.GONE);
                 }
             }
 
@@ -151,7 +176,17 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
             }
         });
-        createOfflineGroupLayout.animate().translationY(0);
+        mCreateOfflineGroupLayout.animate().translationY(0);
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (requestCode == REQUEST_CALLBACK) {
+            if (resultCode == Activity.RESULT_OK) {
+                Group createdGroup = data.getParcelableExtra("group");
+                mGroupOperationListener.onAdd(createdGroup);
+            }
+        }
     }
 
     /**

@@ -17,6 +17,23 @@ public class GroupTransaction {
     private Date date;
     private List<TransactionSplit> splits;
 
+    private GroupTransaction(GroupTransactionBuilder builder) {
+        this.id = builder.id;
+        this.description = builder.description;
+        this.payer = builder.payer;
+        this.value = builder.value;
+        this.date = builder.date;
+        this.splits = builder.splits;
+    }
+
+    public GroupTransaction(String description, User payer, double value, Date date, List<TransactionSplit> splits) {
+        this.description = description;
+        this.payer = payer;
+        this.value = value;
+        this.date = date;
+        this.splits = splits;
+    }
+
     public GroupTransaction(long id, String description, User payer, double value, Date date) {
         this.id = id;
         this.description = description;
@@ -68,5 +85,48 @@ public class GroupTransaction {
 
     public Date getDate() {
         return date;
+    }
+
+    public static class GroupTransactionBuilder {
+        private String description;
+        private User payer;
+        private double value;
+        private Date date;
+        private List<TransactionSplit> splits;
+        private long id;
+
+        public GroupTransactionBuilder setDescription(String description) {
+            this.description = description;
+            return this;
+        }
+
+        public GroupTransactionBuilder setPayer(User payer) {
+            this.payer = payer;
+            return this;
+        }
+
+        public GroupTransactionBuilder setValue(double value) {
+            this.value = value;
+            return this;
+        }
+
+        public GroupTransactionBuilder setDate(Date date) {
+            this.date = date;
+            return this;
+        }
+
+        public GroupTransactionBuilder setSplits(List<TransactionSplit> splits) {
+            this.splits = splits;
+            return this;
+        }
+
+        public GroupTransactionBuilder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public GroupTransaction build() {
+            return new GroupTransaction(this);
+        }
     }
 }

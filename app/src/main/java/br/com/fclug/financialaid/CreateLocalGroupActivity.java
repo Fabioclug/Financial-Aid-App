@@ -1,5 +1,6 @@
 package br.com.fclug.financialaid;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
@@ -18,6 +19,7 @@ import java.util.List;
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.utils.FabScrollBehavior;
 
@@ -69,7 +71,7 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         mConfirmButton.setOnClickListener(this);
 
         mAddedNames = new ArrayList<>();
-        addMember("You");
+        addMember(this.getResources().getString(R.string.offline_default_member));
     }
 
     private void addMember() {
@@ -93,11 +95,14 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         }
     }
 
-    private void createGroup() {
+    private Group createGroup() {
         GroupDao groupDao = new GroupDao(this);
         List<User> members = mListAdapter.getMembersList();
         Group group = new Group(mGroupName.getText().toString(), members);
+        group.setOnline(false);
+        group.setGroupCredits(new ArrayList<TransactionSplit>());
         groupDao.save(group);
+        return group;
     }
 
     @Override
@@ -105,7 +110,10 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         if (v.getId() == R.id.create_group_add_member) {
             addMember();
         } else {
-            createGroup();
+            Group createdGroup = createGroup();
+            Intent returnIntent = new Intent();
+            returnIntent.putExtra("group", createdGroup);
+            setResult(RESULT_OK, returnIntent);
             finish();
         }
     }
@@ -113,6 +121,8 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
+            Intent returnIntent = new Intent();
+            setResult(RESULT_CANCELED, returnIntent);
             finish();
         }
         return super.onOptionsItemSelected(item);

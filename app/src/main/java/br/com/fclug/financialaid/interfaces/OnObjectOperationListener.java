@@ -7,7 +7,7 @@ package br.com.fclug.financialaid.interfaces;
  */
 
 public interface OnObjectOperationListener {
-    void onAdd();
+    void onAdd(Object object);
     void onUpdate(Object object);
     void onDelete(Object object);
 }

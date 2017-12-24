@@ -119,7 +119,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
                         new Date(), newAccount.getId());
                 new TransactionDao(getContext()).save(initialTransaction);
             }
-            mOperationListener.onAdd();
+            mOperationListener.onAdd(newAccount);
         } else {
 
             mUpdateAccount.setName(accountName);

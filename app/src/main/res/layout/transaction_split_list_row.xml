@@ -12,8 +12,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:paddingStart="30dp"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
+            android:paddingBottom="5dp"
             android:text="aisiasia"
             android:textSize="17sp"
             android:textColor="@color/color_black"/>
@@ -22,9 +21,8 @@
             android:id="@+id/transaction_split_value"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingBottom="10dp"
-            android:paddingEnd="70dp"
+            android:paddingBottom="5dp"
+            android:paddingEnd="30dp"
             android:layout_alignParentEnd="true"
             android:text="$200"
             android:textSize="17sp"
@@ -39,6 +37,7 @@
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/divider_color"
+        android:layout_marginTop="10dp"
         android:visibility="gone"/>
 
 </LinearLayout>

@@ -7,6 +7,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ExpandableListView;
@@ -29,6 +30,7 @@ import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
+import br.com.fclug.financialaid.utils.AppUtils;
 
 public class GroupSummaryActivity extends AppCompatActivity {
 
@@ -142,6 +144,15 @@ public class GroupSummaryActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.group_menu, menu);
+        if (mGroup.isOnline()) {
+            menu.findItem(R.id.action_remove_group).setIcon(R.drawable.ic_exit);
+        }
+        return super.onCreateOptionsMenu(menu);
+    }
+
     private TransactionSplit closest(double value, List<TransactionSplit> debits) {
         double min = Integer.MAX_VALUE;
         TransactionSplit closest = null;
@@ -223,7 +234,8 @@ public class GroupSummaryActivity extends AppCompatActivity {
             GroupDebt debt = (GroupDebt) obj;
             if (debt.getValue() != 0) {
                 overview += String.format(getResources().getString(R.string.group_summary_debt),
-                        debt.getDebtor().getExhibitName(), debt.getValue(), debt.getCreditor().getExhibitName()) + "\n";
+                        debt.getDebtor().getExhibitName(), debt.getCreditor().getExhibitName(),
+                        AppUtils.formatCurrencyValue(debt.getValue()));
             }
         }
 
@@ -235,10 +247,9 @@ public class GroupSummaryActivity extends AppCompatActivity {
     }
 
     private void getOnlineGroupDebts() {
-        SessionManager session = new SessionManager(this);
         JSONObject args = new JSONObject();
         try {
-            args.put("token", session.getToken());
+            args.put("token", SessionManager.getToken(this));
             args.put("group_id", mGroup.getId());
         } catch (JSONException e) {
             e.printStackTrace();
@@ -278,6 +289,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
     private void getOfflineGroupDebts() {
         GroupDao dao = new GroupDao(this);
         mGroupCredits = dao.getGroupCredits(mGroup, mGroupMembers);
+        mGroupDebits = new ArrayList<>();
 
         for (Iterator<TransactionSplit> iterator = mGroupCredits.iterator(); iterator.hasNext(); ) {
             TransactionSplit entry = iterator.next();

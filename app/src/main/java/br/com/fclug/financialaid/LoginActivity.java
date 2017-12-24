@@ -12,16 +12,17 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import java.net.HttpURLConnection;
 
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
 
 public class LoginActivity extends AppCompatActivity {
-
-    private SessionManager mSession;
 
     private EditText mUsername;
     private EditText mPassword;
@@ -66,7 +67,7 @@ public class LoginActivity extends AppCompatActivity {
             }
             mProgressDialog.dismiss();
             // Creating user login session
-            mSession.createLoginSession(usernameString, name, passwordString, token);
+            SessionManager.createLoginSession(LoginActivity.this, usernameString, name, passwordString, token);
 
             // Start MainActivity
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
@@ -77,8 +78,15 @@ public class LoginActivity extends AppCompatActivity {
         @Override
         public void onFailure(int code) {
             mProgressDialog.dismiss();
-            mAlertDialog.setMessage("Username/password doesn't match");
-            mAlertDialog.show();
+            switch (code) {
+                case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
+                    Toast.makeText(LoginActivity.this, "Server is unavailable", Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    mAlertDialog.setMessage("Username/password doesn't match");
+                    mAlertDialog.show();
+                    break;
+            }
         }
     };
 
@@ -86,8 +94,6 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
-
-        mSession = new SessionManager(getApplicationContext());
 
         mUsername = (EditText) findViewById(R.id.login_username);
         mPassword = (EditText) findViewById(R.id.login_password);
@@ -143,7 +149,7 @@ public class LoginActivity extends AppCompatActivity {
         mSkipLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                mSession.skipLogin();
+                SessionManager.skipLogin(LoginActivity.this);
             }
         });
 

@@ -18,10 +18,7 @@ import java.util.List;
 
 import br.com.fclug.financialaid.fragments.StatisticsFragment;
 
-public class MainActivity extends AppCompatActivity
-        implements NavigationView.OnNavigationItemSelectedListener {
-
-    SessionManager mSession;
+public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {
 
     protected FrameLayout mFrameLayout;
     private DrawerLayout mDrawerLayout;
@@ -32,8 +29,7 @@ public class MainActivity extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_activity);
 
-        mSession = new SessionManager(getApplicationContext());
-        mSession.checkLogin();
+        SessionManager.checkLogin(this);
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
@@ -43,7 +39,7 @@ public class MainActivity extends AppCompatActivity
 //            actionBar.setDisplayShowTitleEnabled(false);
 //        }
 
-        mFrameLayout = (FrameLayout)findViewById(R.id.content_frame);
+        mFrameLayout = (FrameLayout) findViewById(R.id.content_frame);
 
         mDrawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
@@ -93,7 +89,6 @@ public class MainActivity extends AppCompatActivity
         return super.onOptionsItemSelected(item);
     }
 
-    @SuppressWarnings("StatementWithEmptyBody")
     @Override
     public boolean onNavigationItemSelected(MenuItem item) {
         // Handle navigation view item clicks here.
@@ -112,7 +107,7 @@ public class MainActivity extends AppCompatActivity
                 fragmentClass = StatisticsFragment.class;
                 break;
             case R.id.nav_send:
-                mSession.logoutUser();
+                SessionManager.logoutUser(this);
                 break;
             default:
                 fragmentClass = AccountsFragment.class;

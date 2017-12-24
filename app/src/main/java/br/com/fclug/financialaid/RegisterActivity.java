@@ -16,11 +16,13 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.net.HttpURLConnection;
 import java.util.HashMap;
 
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -99,8 +101,7 @@ public class RegisterActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.register_activity);
 
-        mSession = new SessionManager(RegisterActivity.this);
-        mUserData = mSession.getUserDetails();
+        mUserData = SessionManager.getUserDetails(this);
 
         mName = (EditText) findViewById(R.id.register_name);
         mUsername = (EditText) findViewById(R.id.register_username);
@@ -132,11 +133,11 @@ public class RegisterActivity extends AppCompatActivity {
         mRegister.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                progressDialog.show();
                 final String username = mUsername.getText().toString();
                 final String password = mPassword.getText().toString();
                 String passwordRepeat = mPasswordRepeat.getText().toString();
                 if (password.equals(passwordRepeat)) {
+                    progressDialog.show();
                     JSONObject args = new JSONObject();
                     try {
                         args.put("name", mName.getText().toString());
@@ -151,7 +152,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 public void onSuccess(JSONObject response) throws JSONException {
                                     progressDialog.dismiss();
                                     String token = response.getString("token");
-                                    mSession.createLoginSession(username, mName.getText().toString(), password, token);
+                                    SessionManager.createLoginSession(RegisterActivity.this, username,
+                                            mName.getText().toString(), password, token);
                                     Intent i = new Intent(RegisterActivity.this, MainActivity.class);
                                     startActivity(i);
                                     finish();
@@ -160,6 +162,9 @@ public class RegisterActivity extends AppCompatActivity {
                                 @Override
                                 public void onFailure(int code) {
                                     progressDialog.dismiss();
+                                    if (code == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
+                                        Toast.makeText(RegisterActivity.this, "Server is unavailable", Toast.LENGTH_SHORT).show();
+                                    }
                                 }
                             });
                     registerRequest.execute();

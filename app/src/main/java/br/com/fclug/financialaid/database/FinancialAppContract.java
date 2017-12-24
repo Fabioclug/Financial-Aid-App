@@ -116,6 +116,17 @@ public final class FinancialAppContract {
                 FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID + "), " +
                 FOREIGN_KEY + "(" + COLUMN_CREDITOR + ") REFERENCES " +
                     GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
+
+        public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_credit " +
+                "AFTER INSERT " +
+                "ON[" + TABLE_NAME + "] " +
+                "FOR EACH ROW " +
+                "BEGIN " +
+                " update " + GroupMemberTable.TABLE_NAME + " set " + GroupMemberTable.COLUMN_VALUE + " = " +
+                    GroupMemberTable.COLUMN_VALUE + " + new." + COLUMN_VALUE +
+                " where " + GroupMemberTable.COLUMN_GROUP + " = new." + COLUMN_GROUP + " and " +
+                    GroupMemberTable.COLUMN_USER + " = new." + COLUMN_CREDITOR + "; " +
+                "END;";
     }
 
     public static class TransactionSplitTable {
@@ -133,5 +144,18 @@ public final class FinancialAppContract {
                     GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + "), " +
                 FOREIGN_KEY + "(" + COLUMN_DEBTOR + ") REFERENCES " +
                     GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
+
+        public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_debt " +
+                "AFTER INSERT " +
+                "ON[" + TABLE_NAME + "] " +
+                "FOR EACH ROW " +
+                "BEGIN " +
+                " update " + GroupMemberTable.TABLE_NAME + " set " + GroupMemberTable.COLUMN_VALUE + " = " +
+                GroupMemberTable.COLUMN_VALUE + " - new." + COLUMN_VALUE +
+                " where " + GroupMemberTable.COLUMN_GROUP + " = (SELECT " + GroupTransactionTable.COLUMN_GROUP +
+                " from " + GroupTransactionTable.TABLE_NAME + " where " + GroupTransactionTable._ID +
+                " = new." + COLUMN_TRANSACTION + ") and " +
+                GroupMemberTable.COLUMN_USER + " = new." + COLUMN_DEBTOR + "; " +
+                "END;";
     }
 }

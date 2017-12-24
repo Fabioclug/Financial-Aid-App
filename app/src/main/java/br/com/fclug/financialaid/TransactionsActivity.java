@@ -136,7 +136,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private OnObjectOperationListener mTransactionOperationListener = new OnObjectOperationListener() {
                 @Override
-                public void onAdd() {
+                public void onAdd(Object transaction) {
                     Snackbar.make(mAddTransactionFab, R.string.transaction_created, Snackbar.LENGTH_LONG).show();
                 }
 
@@ -358,7 +358,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private void updateBalance() {
         TextView accountBalance = (TextView) findViewById(R.id.balance_value);
-        String balance = /*"$" +*/ mAccount.getFormattedBalance();
+        String balance = mAccount.getFormattedBalance();
         accountBalance.setText(balance);
         if (mAccount.getBalance() < 0) {
             accountBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));

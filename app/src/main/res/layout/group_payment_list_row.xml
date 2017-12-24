@@ -3,21 +3,32 @@
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="wrap_content"
-              android:padding="20dp">
-
-    <TextView
-        android:id="@+id/group_transaction_name"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Nome do gasto"
-        android:textSize="20sp"
-        android:textColor="@color/color_black"
-        android:textStyle="bold"/>
+              android:paddingEnd="20dp"
+              android:paddingTop="15dp">
 
     <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="10dp">
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/group_transaction_expand"
+            android:layout_width="25dp"
+            android:layout_height="25dp"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="10dp"
+            android:background="@android:color/transparent"
+            android:tint="@color/color_black"
+            android:src="@drawable/ic_expand"/>
+
+        <TextView
+            android:id="@+id/group_transaction_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Nome do gasto"
+            android:textSize="20sp"
+            android:textColor="@color/color_black"
+            android:textStyle="bold"
+            android:layout_toRightOf="@id/group_transaction_expand"/>
 
         <TextView
             android:id="@+id/group_transaction_date"
@@ -28,7 +39,42 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textSize="16sp"
+            android:layout_alignParentEnd="true"
             android:textColor="@color/color_black"/>
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="10dp"
+        android:paddingStart="20dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="Payer"
+            android:textStyle="bold"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:paddingStart="10dp"
+            android:paddingEnd="10dp"
+            android:text="Total value"
+            android:textStyle="bold"
+            android:layout_alignParentEnd="true" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:paddingStart="20dp"
+        android:paddingBottom="10dp">
 
         <TextView
             android:id="@+id/group_transaction_payer"
@@ -38,8 +84,7 @@
             android:paddingStart="10dp"
             android:paddingEnd="10dp"
             android:textColor="@color/color_black"
-            android:textSize="17sp"
-            android:layout_toRightOf="@id/group_transaction_date"/>
+            android:textSize="17sp"/>
 
         <TextView
             android:id="@+id/group_transaction_value"
@@ -51,18 +96,18 @@
             android:textStyle="bold"
             android:textSize="17sp"
             android:textColor="@android:color/holo_red_dark"
-            android:layout_toRightOf="@id/group_transaction_payer"/>
-
-        <ImageView
-            android:id="@+id/group_transaction_expand"
-            android:layout_width="30dp"
-            android:layout_height="30dp"
-            android:layout_marginEnd="10dp"
-            android:layout_alignParentEnd="true"
-            android:background="@android:color/transparent"
-            android:tint="@color/color_black"
-            android:src="@drawable/ic_expand"/>
+            android:layout_alignParentEnd="true"/>
 
     </RelativeLayout>
+
+    <TextView
+        android:id="@+id/splits_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingStart="30dp"
+        android:paddingEnd="30dp"
+        android:text="Split values"
+        android:textStyle="bold"
+        android:visibility="gone"/>
 
 </LinearLayout>

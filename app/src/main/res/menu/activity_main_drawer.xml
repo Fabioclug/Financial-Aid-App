@@ -8,7 +8,7 @@
             android:title="@string/drawer_cash_control" />
         <item
             android:id="@+id/nav_gallery"
-            android:icon="@drawable/ic_account"
+            android:icon="@drawable/ic_group"
             android:title="Group Payments" />
         <item
             android:id="@+id/nav_slideshow"

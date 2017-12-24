@@ -5,15 +5,23 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 
+import java.text.ParseException;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 
+import br.com.fclug.financialaid.CreateGroupPaymentActivity;
+import br.com.fclug.financialaid.adapter.GroupPaymentsListAdapter;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.GroupTransaction;
+import br.com.fclug.financialaid.models.GroupTransaction.GroupTransactionBuilder;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.database.FinancialAppContract.GroupTable;
 import br.com.fclug.financialaid.database.FinancialAppContract.GroupMemberTable;
+import br.com.fclug.financialaid.database.FinancialAppContract.GroupTransactionTable;
+import br.com.fclug.financialaid.database.FinancialAppContract.TransactionSplitTable;
 
 /**
  * Created by Fabioclug on 2017-06-26.
@@ -101,5 +109,81 @@ public class GroupDao {
             }
         }
         return credits;
+    }
+
+    public boolean saveTransaction(Group group, GroupTransaction transaction) {
+        SQLiteDatabase database = mDbHandler.getWritableDatabase();
+        ContentValues contentValues = new ContentValues();
+        contentValues.put(GroupTransactionTable.COLUMN_DESCRIPTION, transaction.getDescription());
+        contentValues.put(GroupTransactionTable.COLUMN_CREDITOR, transaction.getPayer().getUsername());
+        contentValues.put(GroupTransactionTable.COLUMN_VALUE, transaction.getValue());
+        contentValues.put(GroupTransactionTable.COLUMN_DATE, CreateGroupPaymentActivity.dateSaveFormatter.format(
+                transaction.getDate()));
+        contentValues.put(GroupTransactionTable.COLUMN_GROUP, group.getId());
+        long transactionId = database.insert(GroupTransactionTable.TABLE_NAME, null, contentValues);
+
+        boolean result = (transactionId > 0);
+        if (result) {
+            transaction.setId(transactionId);
+        }
+
+        for (TransactionSplit split : transaction.getSplits()) {
+            contentValues = new ContentValues();
+            contentValues.put(TransactionSplitTable.COLUMN_TRANSACTION, transactionId);
+            contentValues.put(TransactionSplitTable.COLUMN_DEBTOR, split.getDebtor().getUsername());
+            contentValues.put(TransactionSplitTable.COLUMN_VALUE, split.getValue());
+            result &= (database.insert(TransactionSplitTable.TABLE_NAME, null, contentValues) > 0);
+        }
+
+        return result;
+    }
+
+    public List<GroupTransaction> findGroupTransactions(Group group, HashMap<String, User> groupMembers) {
+        List<GroupTransaction> transactions = new ArrayList<>();
+        String whereClause = GroupTransactionTable.COLUMN_GROUP + " = ?";
+        String[] whereArgs = new String[] {String.valueOf(group.getId())};
+        SQLiteDatabase db = mDbHandler.getReadableDatabase();
+        try (Cursor cursor = db.query(GroupTransactionTable.TABLE_NAME, null, whereClause, whereArgs,
+                null, null, null)) {
+            while (cursor.moveToNext()) {
+                long id = cursor.getLong(cursor.getColumnIndex(GroupTransactionTable._ID));
+                String description = cursor.getString(cursor.getColumnIndex(GroupTransactionTable.COLUMN_DESCRIPTION));
+                User payer = groupMembers.get(cursor.getString(cursor.getColumnIndex(
+                        GroupTransactionTable.COLUMN_CREDITOR)));
+                double value = cursor.getDouble(cursor.getColumnIndex(GroupTransactionTable.COLUMN_VALUE));
+                String date = cursor.getString(cursor.getColumnIndex(GroupTransactionTable.COLUMN_DATE));
+                Date formattedDate = null;
+                try {
+                    formattedDate = GroupPaymentsListAdapter.buildDateFormatter.parse(date);
+                } catch (ParseException e) {
+                    e.printStackTrace();
+                }
+                GroupTransactionBuilder transactionBuilder = new GroupTransactionBuilder()
+                        .setId(id)
+                        .setDescription(description)
+                        .setPayer(payer)
+                        .setValue(value)
+                        .setDate(formattedDate);
+
+                whereClause = TransactionSplitTable.COLUMN_TRANSACTION + " = ?";
+                whereArgs = new String[] {String.valueOf(id)};
+                List<TransactionSplit> splits = new ArrayList<>();
+
+                try (Cursor splitCursor = db.query(TransactionSplitTable.TABLE_NAME, null, whereClause, whereArgs, null,
+                        null, null)) {
+                    while (splitCursor.moveToNext()) {
+                        User debtor = groupMembers.get(splitCursor.getString(splitCursor.getColumnIndex(
+                                TransactionSplitTable.COLUMN_DEBTOR)));
+                        double split = splitCursor.getDouble(splitCursor.getColumnIndex(
+                                TransactionSplitTable.COLUMN_VALUE));
+                        splits.add(new TransactionSplit(debtor, split));
+
+                    }
+                }
+                transactionBuilder.setSplits(splits);
+                transactions.add(transactionBuilder.build());
+            }
+        }
+        return transactions;
     }
 }

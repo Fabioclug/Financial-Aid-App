@@ -187,7 +187,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             transactionDao.save(newTransaction);
             // update account balance
             mAccountDao.updateBalance(mSelectedAccount, newTransaction);
-            mOperationListener.onAdd();
+            mOperationListener.onAdd(newTransaction);
         } else {
             Transaction updatedTransaction = new Transaction();
             updatedTransaction.setId(mUpdateTransaction.getId());

@@ -22,7 +22,7 @@ import java.util.concurrent.TimeoutException;
 public class ServerUtils {
     private static final String TAG = "ServerUtils";
     private static String EMULATOR_SERVER_URL = "http://10.0.2.2:8080/api";
-    private static String SERVER_URL = "http://192.168.1.36:8080/api";
+    private static String SERVER_URL = "http://ec2-18-217-92-219.us-east-2.compute.amazonaws.com:8080/api";
 
     public static final String METHOD_GET = "GET";
     public static final String METHOD_POST = "POST";
@@ -87,17 +87,21 @@ public class ServerUtils {
         connection.setConnectTimeout(TIMEOUT);
         connection.setReadTimeout(TIMEOUT);
         connection.setDoOutput(true);
+
+        String requestBody = args.toString();
+        connection.setFixedLengthStreamingMode(requestBody.length());
         //connection.setChunkedStreamingMode(0);
         connection.addRequestProperty("Content-Type", "application/json; charset=UTF-8");
         connection.addRequestProperty("Accept", "application/json");
 
         // write the json object to the request and post
         OutputStreamWriter writer = new OutputStreamWriter(connection.getOutputStream());
-        writer.write(args.toString());
+        writer.write(requestBody);
         writer.flush();
 
         // get the server response
         BufferedReader response = new BufferedReader(new InputStreamReader(connection.getInputStream()));
+        connection.disconnect();
         return readResponse(response);
     }
 

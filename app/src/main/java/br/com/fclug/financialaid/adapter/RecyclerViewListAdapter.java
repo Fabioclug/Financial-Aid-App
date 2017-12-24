@@ -40,7 +40,7 @@ public abstract class RecyclerViewListAdapter<T extends UniqueObject, VH extends
             } else {
                 notifyItemChanged(position);
             }
-            // crete a runnable to delete the account after the timeout
+            // create a runnable to delete the item after the timeout
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {

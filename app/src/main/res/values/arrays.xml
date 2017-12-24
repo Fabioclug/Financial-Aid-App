@@ -22,7 +22,7 @@
         <item>@drawable/ic_bank</item>
         <item>@drawable/ic_safe</item>
         <item>@drawable/ic_credit_card</item>
-        <item>@drawable/ic_cash</item>
+        <item>@drawable/ic_wallet</item>
     </integer-array>
 
     <!-- Incoming category names -->
