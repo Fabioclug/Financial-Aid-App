@@ -18,7 +18,6 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.Toast;
 
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -56,12 +55,15 @@ public class RegisterActivity extends AppCompatActivity {
                     ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
                         @Override
                         public void onSuccess(JSONObject response) throws JSONException {
-                            boolean exists = response.getJSONArray("result").getJSONObject(0).getInt("existing") == 1;
+                            boolean exists = response.getJSONArray("result").getJSONObject(0)
+                                    .getInt("existing") == 1;
                             if (exists) {
                                 mFeedbackImage.setImageResource(android.R.drawable.ic_delete);
                             } else {
-                                Drawable confirm = ContextCompat.getDrawable(getApplicationContext(), R.drawable.ic_confirm);
-                                confirm.setColorFilter(ContextCompat.getColor(getApplicationContext(), R.color.transaction_type_credit), PorterDuff.Mode.SRC_ATOP);
+                                Drawable confirm = ContextCompat.getDrawable(getApplicationContext(),
+                                        R.drawable.ic_confirm);
+                                confirm.setColorFilter(ContextCompat.getColor(getApplicationContext(),
+                                        R.color.transaction_type_credit), PorterDuff.Mode.SRC_ATOP);
                                 mFeedbackImage.setImageDrawable(confirm);
                             }
                             mFeedbackImage.setVisibility(View.VISIBLE);
@@ -146,8 +148,8 @@ public class RegisterActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    ApiRequest registerRequest = new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_REGISTER_USER, args,
-                            new ApiRequest.RequestCallback() {
+                    ApiRequest registerRequest = new ApiRequest(ServerUtils.METHOD_POST,
+                            ServerUtils.ROUTE_REGISTER_USER, args, new ApiRequest.RequestCallback() {
                                 @Override
                                 public void onSuccess(JSONObject response) throws JSONException {
                                     progressDialog.dismiss();
@@ -163,7 +165,8 @@ public class RegisterActivity extends AppCompatActivity {
                                 public void onFailure(int code) {
                                     progressDialog.dismiss();
                                     if (code == HttpURLConnection.HTTP_GATEWAY_TIMEOUT) {
-                                        Toast.makeText(RegisterActivity.this, "Server is unavailable", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegisterActivity.this, "Server is unavailable",
+                                                Toast.LENGTH_SHORT).show();
                                     }
                                 }
                             });

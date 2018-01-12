@@ -22,7 +22,11 @@
 
     <string name="fragment">Group payments fragment</string>
 
+    <!-- Drawer options -->
     <string name="drawer_cash_control">Cash Flow Control</string>
+    <string name="drawer_group_payments">Group Payments</string>
+    <string name="drawer_statistics">Statistics</string>
+    <string name="drawer_logout">Logout</string>
 
     <string name="transactions_balance">Balance</string>
 
@@ -60,18 +64,26 @@
     <string name="transaction_updated">Transaction updated</string>
     <string name="transaction_removed">Transaction removed</string>
 
+    <string name="group_created">Group created</string>
+    <string name="group_updated">Group updated</string>
+    <string name="group_removed">Group removed</string>
+
     <!-- Groups List Section Headers -->
     <string name="groups_header_online">Online groups</string>
     <string name="groups_header_offline">Local groups</string>
 
     <!-- Group summary -->
-    <string name="group_summary_no_debts"> There are no debts in this group yet.</string>
+    <string name="group_summary_no_debts">There are no debts in this group yet.</string>
     <string name="group_summary_debt">%1$s owes %2$s %3$s\n</string>
 
     <!-- Create group labels -->
     <string name="online_group"> Multiple user group</string>
     <string name="offline_group"> Offline group</string>
     <string name="offline_default_member">You</string>
+
+    <!-- Remove group -->
+    <string name="remove_group_title">Remove group</string>
+    <string name="remove_group_confirm">Are you sure you want to remove this group?</string>
 
     <!-- Statistics strings -->
     <string name="last_seven_days_graph">Expenses in the last 7 days</string>

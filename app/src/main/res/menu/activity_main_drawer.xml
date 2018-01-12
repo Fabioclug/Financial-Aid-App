@@ -3,17 +3,17 @@
 
     <group android:checkableBehavior="single">
         <item
-            android:id="@+id/nav_camera"
+            android:id="@+id/drawer_item_accounts"
             android:icon="@drawable/ic_cash"
             android:title="@string/drawer_cash_control" />
         <item
-            android:id="@+id/nav_gallery"
+            android:id="@+id/drawer_item_groups"
             android:icon="@drawable/ic_group"
-            android:title="Group Payments" />
+            android:title="@string/drawer_group_payments" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/drawer_item_statistics"
             android:icon="@drawable/ic_menu_piechart"
-            android:title="Statistics" />
+            android:title="@string/drawer_statistics" />
         <item
             android:id="@+id/nav_manage"
             android:icon="@drawable/ic_menu_manage"
@@ -29,7 +29,7 @@
             <item
                 android:id="@+id/nav_send"
                 android:icon="@drawable/ic_logout"
-                android:title="Logout" />
+                android:title="@string/drawer_logout" />
         </menu>
     </item>
 

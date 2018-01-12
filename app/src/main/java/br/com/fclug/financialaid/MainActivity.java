@@ -6,7 +6,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarDrawerToggle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -50,7 +49,7 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
-        navigationView.setCheckedItem(R.id.nav_camera);
+        navigationView.setCheckedItem(R.id.drawer_item_accounts);
 
         Fragment fragment = new AccountsFragment();
         FragmentManager fragmentManager = getSupportFragmentManager();
@@ -97,13 +96,13 @@ public class MainActivity extends AppCompatActivity implements NavigationView.On
         Class fragmentClass = null;
         switch(item.getItemId()) {
 
-            case R.id.nav_camera:
+            case R.id.drawer_item_accounts:
                 fragmentClass = AccountsFragment.class;
                 break;
-            case R.id.nav_gallery:
+            case R.id.drawer_item_groups:
                 fragmentClass = GroupsFragment.class;
                 break;
-            case R.id.nav_slideshow:
+            case R.id.drawer_item_statistics:
                 fragmentClass = StatisticsFragment.class;
                 break;
             case R.id.nav_send:

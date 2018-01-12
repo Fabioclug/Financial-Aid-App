@@ -27,7 +27,8 @@ import br.com.fclug.financialaid.utils.FabScrollBehavior;
  * Created by Fabioclug on 2017-06-25.
  */
 
-public class CreateLocalGroupActivity extends AppCompatActivity implements View.OnClickListener, View.OnFocusChangeListener {
+public class CreateLocalGroupActivity extends AppCompatActivity implements View.OnClickListener,
+        View.OnFocusChangeListener {
 
     private EditText mGroupName;
     private EditText mGroupMember;
@@ -90,7 +91,8 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
                 mListAdapter.notifyDataSetChanged();
                 mGroupMember.getText().clear();
             } else {
-                Toast.makeText(this, "This name is already on your list of members", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "This name is already on your list of members", Toast.LENGTH_SHORT)
+                        .show();
             }
         }
     }

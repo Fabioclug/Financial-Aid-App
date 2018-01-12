@@ -68,6 +68,8 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
     private boolean mShowMonthly;
 
+    private final static int HEADER_ITEMS = 2;
+
     private SwipeMenuCreator mSwipeMenuCreator = new SwipeMenuCreator() {
 
         @Override
@@ -80,7 +82,8 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
             // create "delete" item
             SwipeMenuItem deleteItem = new SwipeMenuItem(mContext);
-            deleteItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext, R.color.transaction_type_debt)));
+            deleteItem.setBackground(new ColorDrawable(ContextCompat.getColor(mContext,
+                    R.color.swipe_background)));
             deleteItem.setWidth(AppUtils.dpToPixels(mContext, 90));
             deleteItem.setIcon(R.drawable.ic_delete);
 
@@ -185,9 +188,9 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
 
         // set the account overview and the period header as headers for the list
         ViewGroup accountOverview = (ViewGroup) inflater.inflate(R.layout.account_overview, mTransactionList, false);
-        mTransactionList.addHeaderView(accountOverview, null, true);
+        mTransactionList.addHeaderView(accountOverview, null, false);
         ViewGroup periodHeader = (ViewGroup) inflater.inflate(R.layout.period_header, mTransactionList, false);
-        mTransactionList.addHeaderView(periodHeader, null, true);
+        mTransactionList.addHeaderView(periodHeader, null, false);
 
         mPreviousButton = (ImageButton) periodHeader.findViewById(R.id.transactions_previous);
         mNextButton = (ImageButton) periodHeader.findViewById(R.id.transactions_next);
@@ -258,7 +261,7 @@ public class TransactionsActivity extends AppCompatActivity implements View.OnCl
                             }
                         });
                         //animation.setRepeatCount(1);
-                        AppUtils.getViewByPosition(position, mTransactionList, 2).startAnimation(animation);
+                        AppUtils.getViewByPosition(position, mTransactionList, HEADER_ITEMS).startAnimation(animation);
                         mTransactionOperationListener.onDelete(item);
                         break;
                 }

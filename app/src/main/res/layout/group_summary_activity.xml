@@ -46,7 +46,7 @@
             tools:listitem="@layout/group_payment_list_row"
             android:groupIndicator="@null"
             android:childDivider="@android:color/transparent"
-            android:paddingBottom="50dp"
+            android:paddingBottom="60dp"
             android:clipToPadding="false"/>
 
     </LinearLayout>

@@ -26,6 +26,7 @@ import br.com.fclug.financialaid.interfaces.OnListClickListener;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.TransactionSplit;
+import br.com.fclug.financialaid.models.UniqueObject;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
@@ -37,10 +38,10 @@ import br.com.fclug.financialaid.utils.AppUtils;
  * Credits: https://github.com/anandbose/ExpandableListViewDemo
  */
 
-public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupRecyclerViewListAdapter.Item,
+        RecyclerView.ViewHolder> {
 
     private Context mContext;
-    private List<Item> mItems;
     private OnListClickListener mListItemClickListener;
     private RecyclerView recyclerView;
     private int mLastPositionLoaded = -1;
@@ -51,7 +52,9 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
     private final int MAXIMUM_MEMBERS_SHOWED = 3;
 
 
-    private static class Item {
+    public static class Item implements UniqueObject {
+        public static long incrementalId = 1;
+        public long id;
         public int type;
         public String title;
         public Group group;
@@ -60,11 +63,44 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
         public Item(String title) {
             type = HEADER;
             this.title = title;
+            setId(incrementalId);
         }
 
         public Item(Group group) {
             type = CHILD;
             this.group = group;
+            setId(incrementalId);
+        }
+
+        @Override
+        public long getId() {
+            return id;
+        }
+
+        @Override
+        public void setId(long id) {
+            this.id = id;
+            incrementalId++;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) return true;
+            if (o == null || getClass() != o.getClass()) return false;
+
+            Item item = (Item) o;
+
+            if (type != item.type) return false;
+            if (title != null ? !title.equals(item.title) : item.title != null) return false;
+            return group != null ? group.equals(item.group) : item.group == null;
+        }
+
+        @Override
+        public int hashCode() {
+            int result = type;
+            result = 31 * result + (title != null ? title.hashCode() : 0);
+            result = 31 * result + (group != null ? group.hashCode() : 0);
+            return result;
         }
     }
 
@@ -86,7 +122,6 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
         TextView groupName;
         TextView groupMembers;
         TextView groupBalance;
-        View view;
         OnListClickListener clickListener;
 
         public GroupViewHolder(View view) {
@@ -94,13 +129,12 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
             groupName = (TextView) view.findViewById(R.id.group_name);
             groupMembers = (TextView) view.findViewById(R.id.group_members);
             groupBalance = (TextView) view.findViewById(R.id.group_balance);
-            this.view = view;
-            this.view.setOnClickListener(this);
+            itemView.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
-            clickListener.onItemClick(group);
+            clickListener.onItemClick(group, this.getAdapterPosition());
         }
     }
 
@@ -193,12 +227,91 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
                 if (balance == 0) {
                     groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext, R.color.colorAccent));
                 } else if (balance < 0) {
-                    groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_debt));
+                    groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext,
+                            R.color.transaction_type_debt));
                 } else if (balance > 0) {
-                    groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
+                    groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext,
+                            R.color.transaction_type_credit));
                 }
                 break;
         }
+    }
+
+    @Override
+    public void removeFromDatabase(Item item) {
+        //TODO: implement removal from database
+    }
+
+    /** Important: Never call notifyDataSetChanged, because it ruins the elevation on the views **/
+    @Override
+    public void setListItems() {
+
+        Item offlineHeader = new Item(mContext.getResources().getString(R.string.groups_header_offline));
+        mItems.add(offlineHeader);
+
+        // get offline groups
+        GroupDao mGroupsDao = new GroupDao(mContext);
+        List<Group> offlineGroups = mGroupsDao.findAll();
+        for (Group offlineGroup : offlineGroups) {
+            Item offlineGroupItem = new Item(offlineGroup);
+            mItems.add(offlineGroupItem);
+        }
+
+        mLastOfflineGroupIndex = mItems.size() - 1;
+
+        Item onlineHeader = new Item(mContext.getResources().getString(R.string.groups_header_online));
+        mItems.add(onlineHeader);
+        final int loadedItems = mItems.size();
+        notifyItemRangeInserted(0, loadedItems);
+
+
+        // get online groups
+        HashMap<String, String> user = SessionManager.getUserDetails(mContext);
+        ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
+            @Override
+            public void onSuccess(JSONObject response) throws JSONException {
+                JSONArray groups = response.getJSONArray("result");
+                for (int i = 0; i < groups.length(); i++) {
+                    JSONObject group = groups.getJSONObject(i);
+
+                    JSONArray members = group.getJSONArray("members");
+                    List<User> memberList = new ArrayList<>();
+                    List<TransactionSplit> memberCredits = new ArrayList<>();
+                    for(int j = 0; j < members.length(); j++) {
+                        JSONObject member = members.getJSONObject(j);
+                        OnlineUser user = new OnlineUser(member.getString("username"),
+                                member.getString("name"));
+                        memberList.add(user);
+                        memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
+                    }
+                    Item onlineGroupItem = new Item(new Group(group.getLong("group_id"),
+                            group.getString("name"), memberList, memberCredits, true));
+                    mItems.add(onlineGroupItem);
+                }
+
+                // this is needed to load the new results in the UI thread, the data is not supposed to be loaded on
+                // a background thread
+                recyclerView.post(new Runnable() {
+                    @Override
+                    public void run() {
+                        notifyItemRangeInserted(loadedItems, mItems.size() - loadedItems);
+                    }
+                });
+            }
+
+            @Override
+            public void onFailure(int code) {
+                Log.d("RC", code + "asasas");
+            }
+        };
+        JSONObject args = new JSONObject();
+        try {
+            args.put("username", user.get(SessionManager.KEY_USERNAME));
+            args.put("token", user.get(SessionManager.KEY_TOKEN));
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_GROUPS, args, callback).execute();
     }
 
     @Override
@@ -237,72 +350,6 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
 
     }
 
-    /** Important: Never call notifyDataSetChanged, because it ruins the elevation on the views **/
-    public void updateListItems() {
-
-        mItems.add(new Item(mContext.getResources().getString(R.string.groups_header_offline)));
-
-        // get offline groups
-        GroupDao mGroupsDao = new GroupDao(mContext);
-        List<Group> offlineGroups = mGroupsDao.findAll();
-        for (Group offlineGroup : offlineGroups) {
-            mItems.add(new Item(offlineGroup));
-        }
-
-        mLastOfflineGroupIndex = mItems.size() - 1;
-
-        mItems.add(new Item(mContext.getResources().getString(R.string.groups_header_online)));
-        final int loadedItems = mItems.size();
-        notifyItemRangeInserted(0, loadedItems);
-
-
-        // get online groups
-        HashMap<String, String> user = SessionManager.getUserDetails(mContext);
-        ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
-            @Override
-            public void onSuccess(JSONObject response) throws JSONException {
-                JSONArray groups = response.getJSONArray("result");
-                for (int i = 0; i < groups.length(); i++) {
-                    JSONObject group = groups.getJSONObject(i);
-
-                    JSONArray members = group.getJSONArray("members");
-                    List<User> memberList = new ArrayList<>();
-                    List<TransactionSplit> memberCredits = new ArrayList<>();
-                    for(int j = 0; j < members.length(); j++) {
-                        JSONObject member = members.getJSONObject(j);
-                        OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
-                        memberList.add(user);
-                        memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
-                    }
-                    mItems.add(new Item(new Group(group.getLong("group_id"), group.getString("name"), memberList,
-                            memberCredits, true)));
-                }
-
-                // this is needed to load the new results in the UI thread, the data is not supposed to be loaded on
-                // a background thread
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyItemRangeInserted(loadedItems, mItems.size() - loadedItems);
-                    }
-                });
-            }
-
-            @Override
-            public void onFailure(int code) {
-                Log.d("RC", code + "asasas");
-            }
-        };
-        JSONObject args = new JSONObject();
-        try {
-            args.put("username", user.get(SessionManager.KEY_USERNAME));
-            args.put("token", user.get(SessionManager.KEY_TOKEN));
-        } catch (JSONException e) {
-            e.printStackTrace();
-        }
-        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_GROUPS, args, callback).execute();
-    }
-
     public void setListItemClickListener(OnListClickListener listItemClickListener) {
         mListItemClickListener = listItemClickListener;
     }
@@ -318,13 +365,6 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
             mItems.add(mLastOfflineGroupIndex, newItem);
             notifyItemInserted(mLastOfflineGroupIndex);
         }
-    }
-
-    public void updateItemView(Group group) {
-        // implement the comparison methods on Item
-        Item item = new Item(group);
-        int position = mItems.indexOf(item);
-        notifyItemChanged(position);
     }
 
     @Override
@@ -343,6 +383,14 @@ public class GroupRecyclerViewListAdapter extends RecyclerView.Adapter<RecyclerV
             mLastPositionLoaded = position;
         } else {
             holder.itemView.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.fall_down_fade_in));
+        }
+    }
+
+    @Override
+    protected void remove(Item pendingRemoval) {
+        super.remove(pendingRemoval);
+        if (!pendingRemoval.group.isOnline()) {
+            mLastOfflineGroupIndex--;
         }
     }
 }

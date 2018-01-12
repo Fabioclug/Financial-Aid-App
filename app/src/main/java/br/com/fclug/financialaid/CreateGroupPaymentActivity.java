@@ -41,7 +41,8 @@ import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
 import br.com.fclug.financialaid.utils.AppUtils;
 
-public class CreateGroupPaymentActivity extends AppCompatActivity implements View.OnClickListener, AdapterView.OnItemSelectedListener{
+public class CreateGroupPaymentActivity extends AppCompatActivity implements View.OnClickListener,
+        AdapterView.OnItemSelectedListener {
 
     private Group mGroup;
     private List<User> mMembers;
@@ -178,7 +179,8 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
         mPayerSpinner.setAdapter(accountsAdapter);
         mPayerSpinner.setOnItemSelectedListener(this);
 
-        FloatingActionButton confirmTransaction = (FloatingActionButton) findViewById(R.id.confirm_group_transaction_fab);
+        FloatingActionButton confirmTransaction =
+                (FloatingActionButton) findViewById(R.id.confirm_group_transaction_fab);
         confirmTransaction.setOnClickListener(this);
     }
 
@@ -251,7 +253,8 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
 
         List<TransactionSplit> splits = new ArrayList<>();
         for (int i = 0; i < mMembers.size(); i++) {
-            TransactionSplit split = new TransactionSplit(mMembers.get(i), Double.valueOf(mSplits[i].getText().toString()));
+            TransactionSplit split = new TransactionSplit(mMembers.get(i),
+                    Double.valueOf(mSplits[i].getText().toString()));
             splits.add(split);
         }
 

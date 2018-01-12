@@ -44,7 +44,7 @@ public class AccountsFragment extends Fragment implements OnClickListener {
 
     private OnListClickListener mListClickListener = new OnListClickListener() {
         @Override
-        public void onItemClick(Object account) {
+        public void onItemClick(Object account, int position) {
             Account clickedAccount = (Account) account;
             Intent intent = new Intent(getContext(), TransactionsActivity.class);
             intent.putExtra("account", clickedAccount.getId());
@@ -113,20 +113,6 @@ public class AccountsFragment extends Fragment implements OnClickListener {
         mListAdapter = new AccountRecyclerViewListAdapter(getContext());
         mAccountsRecyclerView.setAdapter(mListAdapter);
         mListAdapter.setListItemClickListener(mListClickListener);
-        //mAccountsRecyclerView.getItemAnimator().setRemoveDuration(0);
-//        mAccountsRecyclerView.setItemAnimator(new DefaultItemAnimator() {
-//            @Override
-//            public boolean animateChange(RecyclerView.ViewHolder oldHolder, RecyclerView.ViewHolder newHolder,
-//                                         int fromX, int fromY, int toX, int toY) {
-//                if (oldHolder == newHolder) {
-//                    newHolder.itemView.animate()
-//                            .alpha(1f)
-//                            .setDuration(500)
-//                            .setListener(null);
-//                }
-//                return true;
-//            }
-//        });
         setSwipeForRecyclerView();
 
         return view;

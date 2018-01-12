@@ -1,8 +1,10 @@
 package br.com.fclug.financialaid;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
@@ -30,6 +32,7 @@ import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
+import br.com.fclug.financialaid.utils.AppConstants;
 import br.com.fclug.financialaid.utils.AppUtils;
 
 public class GroupSummaryActivity extends AppCompatActivity {
@@ -135,9 +138,27 @@ public class GroupSummaryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
+        final Intent returnIntent = new Intent();
         switch (item.getItemId()) {
             case android.R.id.home:
+                //TODO: verify if the group has really changed before sending this extra
+                returnIntent.putExtra("operation", AppConstants.GROUP_OPERATION_UPDATE);
+                setResult(RESULT_OK, returnIntent);
                 finish();
+                return true;
+            case R.id.action_remove_group:
+                new AlertDialog.Builder(GroupSummaryActivity.this).setTitle(R.string.remove_group_title)
+                        .setMessage(getString(R.string.remove_group_confirm))
+                        .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int id) {
+                                returnIntent.putExtra("operation", AppConstants.GROUP_OPERATION_DELETE);
+                                setResult(RESULT_OK, returnIntent);
+                                finish();
+                            }
+                        })
+                        .setNegativeButton("No", null)
+                        .show();
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -228,19 +249,19 @@ public class GroupSummaryActivity extends AppCompatActivity {
     }
 
     private void updateGroupOverview() {
-        String overview = "";
+        StringBuilder overview = new StringBuilder();
 
         for (Object obj : mGroupDebts.values()) {
             GroupDebt debt = (GroupDebt) obj;
             if (debt.getValue() != 0) {
-                overview += String.format(getResources().getString(R.string.group_summary_debt),
+                overview.append(String.format(getResources().getString(R.string.group_summary_debt),
                         debt.getDebtor().getExhibitName(), debt.getCreditor().getExhibitName(),
-                        AppUtils.formatCurrencyValue(debt.getValue()));
+                        AppUtils.formatCurrencyValue(debt.getValue())));
             }
         }
 
-        if (overview.isEmpty()) {
-            overview = getResources().getString(R.string.group_summary_no_debts);
+        if (overview.toString().isEmpty()) {
+            overview.append(getResources().getString(R.string.group_summary_no_debts));
         }
 
         mGroupOverview.setText(overview);

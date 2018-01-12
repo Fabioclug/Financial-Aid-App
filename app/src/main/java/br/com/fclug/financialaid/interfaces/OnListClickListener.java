@@ -7,6 +7,6 @@ import android.view.View;
  */
 
 public interface OnListClickListener {
-    void onItemClick(Object o);
+    void onItemClick(Object o, int position);
     void onItemLongClick(View v, Object o);
 }

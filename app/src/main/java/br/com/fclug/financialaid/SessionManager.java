@@ -13,9 +13,6 @@ import android.content.SharedPreferences.Editor;
 
 public class SessionManager {
 
-    private SharedPreferences mSharedPreferences;
-    private Context mContext;
-
     private static final String PREF_NAME = "financial_aid";
 
     // Shared Preferences keys
@@ -26,11 +23,6 @@ public class SessionManager {
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_TOKEN = "token";
 
-    public SessionManager(Context context){
-        mContext = context;
-        mSharedPreferences = context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
-    }
-
     public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
     }
@@ -39,9 +31,10 @@ public class SessionManager {
         //TODO: the API request and call createLoginSession
     }
 
-    public void requestLogin() {
-        String username = mSharedPreferences.getString(KEY_USERNAME, null);
-        String password = mSharedPreferences.getString(KEY_PASSWORD, null);
+    public void requestLogin(Context context) {
+        SharedPreferences preferences = getSharedPreferences(context);
+        String username = preferences.getString(KEY_USERNAME, null);
+        String password = preferences.getString(KEY_PASSWORD, null);
         if(username != null && password != null) {
             requestLogin(username, password);
         }

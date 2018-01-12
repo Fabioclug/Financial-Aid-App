@@ -62,7 +62,7 @@ public class AccountRecyclerViewListAdapter extends RecyclerViewListAdapter<Acco
 
         @Override
         public void onClick(View v) {
-            clickListener.onItemClick(account);
+            clickListener.onItemClick(account, this.getAdapterPosition());
         }
 
         @Override

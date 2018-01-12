@@ -100,7 +100,8 @@ public class CreateGroupActivity extends AppCompatActivity {
     private ApiRequest.RequestCallback createGroupCallback = new ApiRequest.RequestCallback() {
         @Override
         public void onSuccess(JSONObject response) {
-            Toast.makeText(CreateGroupActivity.this, "Group created successfully!", Toast.LENGTH_LONG).show();
+            Toast.makeText(CreateGroupActivity.this, "Group created successfully!", Toast.LENGTH_LONG)
+                    .show();
             finish();
         }
 
@@ -177,7 +178,8 @@ public class CreateGroupActivity extends AppCompatActivity {
                     } catch (JSONException e) {
                         e.printStackTrace();
                     }
-                    new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP, args, createGroupCallback).execute();
+                    new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP, args, createGroupCallback)
+                            .execute();
                 }
             });
         }

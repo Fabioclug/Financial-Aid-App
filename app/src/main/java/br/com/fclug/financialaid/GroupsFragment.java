@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -18,9 +19,10 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import br.com.fclug.financialaid.adapter.GroupRecyclerViewListAdapter;
+import br.com.fclug.financialaid.adapter.RecyclerViewListAdapter;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
-import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.utils.AppConstants;
 
 public class GroupsFragment extends Fragment implements View.OnClickListener {
 
@@ -33,38 +35,23 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
     private FloatingActionButton mCreateGroupButton;
     private RelativeLayout obstructor;
 
-    public static int REQUEST_CALLBACK = 1;
+    private int mLastClickedPosition;
+
+    public static int REQUEST_ADD_GROUP = 1;
+    public static int REQUEST_UPDATE_GROUPS = 2;
 
     private OnListClickListener mListClickListener = new OnListClickListener() {
         @Override
-        public void onItemClick(Object groupObject) {
+        public void onItemClick(Object groupObject, int position) {
             Group group = (Group) groupObject;
+            mLastClickedPosition = position;
             Intent intent = new Intent(getContext(), GroupSummaryActivity.class);
             intent.putExtra("group", group);
-            startActivity(intent);
+            startActivityForResult(intent, REQUEST_UPDATE_GROUPS);
         }
 
         @Override
         public void onItemLongClick(View v, Object o) {
-
-        }
-    };
-
-    private OnObjectOperationListener mGroupOperationListener = new OnObjectOperationListener() {
-        @Override
-        public void onAdd(Object group) {
-            mListAdapter.addGroup((Group) group);
-            Snackbar.make(mCreateGroupButton, "Group created", Snackbar.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onUpdate(Object group) {
-            mListAdapter.updateItemView((Group) group);
-            Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
-        }
-
-        @Override
-        public void onDelete(Object object) {
 
         }
     };
@@ -85,7 +72,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         mListAdapter = new GroupRecyclerViewListAdapter(getContext());
         mGroupsListView.setAdapter(mListAdapter);
         mListAdapter.setListItemClickListener(mListClickListener);
-        mListAdapter.updateListItems();
+        mListAdapter.setListItems();
 
         mCreateGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
 
@@ -93,7 +80,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         mCreateOfflineGroupLayout = (LinearLayout) view.findViewById(R.id.create_offline_group_layout);
 
         FloatingActionButton createOnlineGroup = (FloatingActionButton) view.findViewById(R.id.create_online_group_fab);
-        FloatingActionButton createOfflineGroup = (FloatingActionButton) view.findViewById(R.id.create_offline_group_fab);
+        FloatingActionButton createOfflineGroup =
+                (FloatingActionButton) view.findViewById(R.id.create_offline_group_fab);
 
         TextView createOnlineGroupLabel = (TextView) view.findViewById(R.id.create_online_group_label);
         TextView createOfflineGroupLabel = (TextView) view.findViewById(R.id.create_offline_group_label);
@@ -129,7 +117,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             case R.id.create_offline_group_fab:
             case R.id.create_offline_group_label:
                 intent = new Intent(getContext(), CreateLocalGroupActivity.class);
-                startActivityForResult(intent, REQUEST_CALLBACK);
+                startActivityForResult(intent, REQUEST_ADD_GROUP);
                 closeFabMenu();
                 break;
             case R.id.obstructor:
@@ -181,10 +169,32 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent data) {
-        if (requestCode == REQUEST_CALLBACK) {
+        if (requestCode == REQUEST_ADD_GROUP) {
             if (resultCode == Activity.RESULT_OK) {
                 Group createdGroup = data.getParcelableExtra("group");
-                mGroupOperationListener.onAdd(createdGroup);
+                mListAdapter.addGroup(createdGroup);
+                Snackbar.make(mCreateGroupButton, R.string.group_created, Snackbar.LENGTH_LONG).show();
+            }
+        } else if (requestCode == REQUEST_UPDATE_GROUPS) {
+            if (resultCode == Activity.RESULT_OK && data.hasExtra("operation")) {
+                int operation = data.getIntExtra("operation", 0);
+                if (operation == AppConstants.GROUP_OPERATION_UPDATE) {
+//                    mListAdapter.updateItemView(new GroupRecyclerViewListAdapter.Item(mLastClickedGroup));
+//                    Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
+                } else if (operation == AppConstants.GROUP_OPERATION_DELETE) {
+                    final GroupRecyclerViewListAdapter.Item pendingRemoval =
+                            mListAdapter.setPendingRemoval(mLastClickedPosition, false);
+                    Snackbar.make(mCreateGroupButton, R.string.group_removed, Snackbar.LENGTH_INDEFINITE)
+                            .setAction(R.string.undo, new View.OnClickListener() {
+                                @Override
+                                public void onClick(View view) {
+                                    mListAdapter.undoRemoval(pendingRemoval, mLastClickedPosition);
+                                }
+                            })
+                            .setDuration(RecyclerViewListAdapter.PENDING_REMOVAL_TIMEOUT)
+                            .setActionTextColor(ContextCompat.getColor(getContext(), R.color.swipe_background))
+                            .show();
+                }
             }
         }
     }

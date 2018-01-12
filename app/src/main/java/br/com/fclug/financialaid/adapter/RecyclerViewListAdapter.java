@@ -30,7 +30,7 @@ public abstract class RecyclerViewListAdapter<T extends UniqueObject, VH extends
         mPendingRemovalItems = new ArrayList<>();
     }
 
-    public void setPendingRemoval(final int position, boolean showSwipeLayout) {
+    public T setPendingRemoval(final int position, boolean showSwipeLayout) {
         final T pendingRemoval = mItems.get(position);
         if (!mPendingRemovalItems.contains(pendingRemoval)) {
             mPendingRemovalItems.add(pendingRemoval);
@@ -44,31 +44,31 @@ public abstract class RecyclerViewListAdapter<T extends UniqueObject, VH extends
             Runnable pendingRemovalRunnable = new Runnable() {
                 @Override
                 public void run() {
-                    remove(position);
+                    remove(pendingRemoval);
                 }
             };
             handler.postDelayed(pendingRemovalRunnable, PENDING_REMOVAL_TIMEOUT);
             mPendingRunnables.append((int) pendingRemoval.getId(), pendingRemovalRunnable);
         }
+        return pendingRemoval;
     }
 
     public int setPendingRemoval(T item) {
         int position = mItems.indexOf(item);
         setPendingRemoval(position, false);
-        notifyItemRemoved(position);
         return position;
     }
 
-    private void remove(int position) {
-        T pendingRemoval = mItems.get(position);
+    protected void remove(T pendingRemoval) {
         if (mPendingRemovalItems.contains(pendingRemoval)) {
             mPendingRemovalItems.remove(pendingRemoval);
         }
         if (mItems.contains(pendingRemoval)) {
-            removeFromDatabase(pendingRemoval);
+            int position = mItems.indexOf(pendingRemoval);
             mItems.remove(position);
             notifyItemRemoved(position);
         }
+        removeFromDatabase(pendingRemoval);
     }
 
     public abstract void removeFromDatabase(T item);
