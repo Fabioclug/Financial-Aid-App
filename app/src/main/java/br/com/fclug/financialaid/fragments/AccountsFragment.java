@@ -1,4 +1,4 @@
-package br.com.fclug.financialaid;
+package br.com.fclug.financialaid.fragments;
 
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -19,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 
+import br.com.fclug.financialaid.R;
+import br.com.fclug.financialaid.TransactionsActivity;
 import br.com.fclug.financialaid.adapter.AccountRecyclerViewListAdapter;
 import br.com.fclug.financialaid.adapter.RecyclerViewListAdapter;
 import br.com.fclug.financialaid.dialog.AddAccountDialog;

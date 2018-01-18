@@ -15,6 +15,8 @@ import android.widget.FrameLayout;
 
 import java.util.List;
 
+import br.com.fclug.financialaid.fragments.AccountsFragment;
+import br.com.fclug.financialaid.fragments.GroupsFragment;
 import br.com.fclug.financialaid.fragments.StatisticsFragment;
 
 public class MainActivity extends AppCompatActivity implements NavigationView.OnNavigationItemSelectedListener {

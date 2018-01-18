@@ -15,30 +15,6 @@
         <include android:id="@+id/action_bar"
                  layout="@layout/toolbar_layout"/>
 
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="20dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:paddingBottom="10dp"
-            android:textSize="20sp"
-            android:text="Overview"
-            android:textColor="@color/color_black"
-            android:textStyle="bold"/>
-
-        <TextView
-            android:id="@+id/group_summary_overview"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:paddingTop="10dp"
-            android:paddingStart="30dp"
-            android:paddingEnd="30dp"
-            android:textSize="17sp"
-            android:text="@string/group_summary_no_debts"/>
-
-        <include layout="@layout/period_header"/>
-
         <ExpandableListView
             android:id="@+id/group_transactions_list"
             android:layout_width="match_parent"

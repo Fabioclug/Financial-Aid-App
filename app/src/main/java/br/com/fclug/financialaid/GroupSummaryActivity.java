@@ -12,6 +12,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ExpandableListView;
 import android.widget.TextView;
 
@@ -90,7 +91,14 @@ public class GroupSummaryActivity extends AppCompatActivity {
             mGroupMembers.put(u.getUsername(), u);
         }
 
-        mGroupOverview = (TextView) findViewById(R.id.group_summary_overview);
+        final ExpandableListView groupTransactionsList =
+                (ExpandableListView) findViewById(R.id.group_transactions_list);
+
+        ViewGroup groupListHeader = (ViewGroup) getLayoutInflater().inflate(R.layout.group_summary_header,
+                groupTransactionsList, false);
+        groupTransactionsList.addHeaderView(groupListHeader, null, false);
+
+        mGroupOverview = (TextView) groupListHeader.findViewById(R.id.group_summary_overview);
 
         if (mGroup.isOnline()) {
             getOnlineGroupDebts();
@@ -98,33 +106,32 @@ public class GroupSummaryActivity extends AppCompatActivity {
             getOfflineGroupDebts();
         }
 
-        final ExpandableListView groupTransactionsList = (ExpandableListView) findViewById(R.id.group_transactions_list);
         GroupPaymentsListAdapter adapter = new GroupPaymentsListAdapter(this, mGroup);
-        if (groupTransactionsList != null) {
-            groupTransactionsList.setAdapter(adapter);
-            adapter.updateListItems(mGroupMembers);
+        groupTransactionsList.setAdapter(adapter);
+        adapter.updateListItems(mGroupMembers);
 
-            groupTransactionsList.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-                @Override
-                public void onGroupExpand(int groupPosition) {
+        groupTransactionsList.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
+            @Override
+            public void onGroupExpand(int groupPosition) {
 
-                }
-            });
-            groupTransactionsList.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
-                @Override
-                public void onGroupCollapse(int groupPosition) {
+            }
+        });
+        groupTransactionsList.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
+            @Override
+            public void onGroupCollapse(int groupPosition) {
 
-                }
-            });
-            groupTransactionsList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-                @Override
-                public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition, long id) {
-                    return false;
-                }
-            });
-        }
+            }
+        });
+        groupTransactionsList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
+            @Override
+            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition,
+                                        long id) {
+                return false;
+            }
+        });
 
-        FloatingActionButton addGroupTransactionButton = (FloatingActionButton) findViewById(R.id.add_group_transaction);
+        FloatingActionButton addGroupTransactionButton =
+                (FloatingActionButton) findViewById(R.id.add_group_transaction);
         addGroupTransactionButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -264,7 +271,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             overview.append(getResources().getString(R.string.group_summary_no_debts));
         }
 
-        mGroupOverview.setText(overview);
+        mGroupOverview.setText(overview.toString().trim());
     }
 
     private void getOnlineGroupDebts() {

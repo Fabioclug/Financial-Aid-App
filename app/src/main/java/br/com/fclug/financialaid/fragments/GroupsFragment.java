@@ -1,4 +1,4 @@
-package br.com.fclug.financialaid;
+package br.com.fclug.financialaid.fragments;
 
 import android.animation.Animator;
 import android.app.Activity;
@@ -18,6 +18,10 @@ import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
+import br.com.fclug.financialaid.CreateGroupActivity;
+import br.com.fclug.financialaid.CreateLocalGroupActivity;
+import br.com.fclug.financialaid.GroupSummaryActivity;
+import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.adapter.GroupRecyclerViewListAdapter;
 import br.com.fclug.financialaid.adapter.RecyclerViewListAdapter;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
