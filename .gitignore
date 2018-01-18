@@ -33,3 +33,6 @@ captures/
 # OSX file system
 .DS_Store
 
+# Android Studio cache
+.idea
+*.iml
