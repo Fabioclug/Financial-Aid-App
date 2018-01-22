@@ -4,6 +4,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -135,5 +136,13 @@ public class Group implements Parcelable {
 
     public void setGroupCredits(List<TransactionSplit> groupCredits) {
         this.groupCredits = groupCredits;
+    }
+
+    public HashMap<String, User> getMembersDictionary() {
+        HashMap<String, User> groupMembers = new HashMap<>();
+        for (User u : members) {
+            groupMembers.put(u.getUsername(), u);
+        }
+        return groupMembers;
     }
 }

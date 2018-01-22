@@ -7,6 +7,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.DividerItemDecoration;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
@@ -26,6 +29,7 @@ import java.util.Iterator;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.GroupPaymentsListAdapter;
+import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupDebt;
@@ -86,49 +90,27 @@ public class GroupSummaryActivity extends AppCompatActivity {
             actionBar.setTitle(mGroup.getName());
         }
 
-        mGroupMembers = new HashMap<String, User>();
-        for (User u : mGroup.getMembers()) {
-            mGroupMembers.put(u.getUsername(), u);
-        }
+        mGroupMembers = mGroup.getMembersDictionary();
 
-        final ExpandableListView groupTransactionsList =
-                (ExpandableListView) findViewById(R.id.group_transactions_list);
+        RecyclerView groupTransactionsRecyclerView = (RecyclerView) findViewById(R.id.group_transactions_list);
+        LinearLayoutManager layoutManager = new LinearLayoutManager(this);
+        layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
+        groupTransactionsRecyclerView.setLayoutManager(layoutManager);
+        groupTransactionsRecyclerView.addItemDecoration(new DividerItemDecoration(this,
+                DividerItemDecoration.VERTICAL));
 
-        ViewGroup groupListHeader = (ViewGroup) getLayoutInflater().inflate(R.layout.group_summary_header,
-                groupTransactionsList, false);
-        groupTransactionsList.addHeaderView(groupListHeader, null, false);
+        GroupTransactionRecyclerViewListAdapter adapter = new GroupTransactionRecyclerViewListAdapter(this, mGroup);
+        groupTransactionsRecyclerView.setAdapter(adapter);
+        adapter.setListItems();
+        groupTransactionsRecyclerView.setNestedScrollingEnabled(false);
 
-        mGroupOverview = (TextView) groupListHeader.findViewById(R.id.group_summary_overview);
+        mGroupOverview = (TextView) findViewById(R.id.group_summary_overview);
 
         if (mGroup.isOnline()) {
             getOnlineGroupDebts();
         } else {
             getOfflineGroupDebts();
         }
-
-        GroupPaymentsListAdapter adapter = new GroupPaymentsListAdapter(this, mGroup);
-        groupTransactionsList.setAdapter(adapter);
-        adapter.updateListItems(mGroupMembers);
-
-        groupTransactionsList.setOnGroupExpandListener(new ExpandableListView.OnGroupExpandListener() {
-            @Override
-            public void onGroupExpand(int groupPosition) {
-
-            }
-        });
-        groupTransactionsList.setOnGroupCollapseListener(new ExpandableListView.OnGroupCollapseListener() {
-            @Override
-            public void onGroupCollapse(int groupPosition) {
-
-            }
-        });
-        groupTransactionsList.setOnChildClickListener(new ExpandableListView.OnChildClickListener() {
-            @Override
-            public boolean onChildClick(ExpandableListView parent, View v, int groupPosition, int childPosition,
-                                        long id) {
-                return false;
-            }
-        });
 
         FloatingActionButton addGroupTransactionButton =
                 (FloatingActionButton) findViewById(R.id.add_group_transaction);

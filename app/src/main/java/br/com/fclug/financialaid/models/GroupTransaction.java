@@ -8,7 +8,7 @@ import java.util.List;
  * Created by Fabioclug on 2016-10-17.
  */
 
-public class GroupTransaction {
+public class GroupTransaction implements UniqueObject {
 
     private long id;
     private String description;
