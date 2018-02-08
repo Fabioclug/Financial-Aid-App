@@ -2,7 +2,6 @@ package br.com.fclug.financialaid.fragments;
 
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
@@ -154,14 +153,6 @@ public class AccountsFragment extends Fragment implements OnClickListener {
                 return super.getSwipeDirs(recyclerView, viewHolder);
             }
 
-            @Override
-            public void onLeftClick(int position) {
-                Account account = mListAdapter.getItem(position);
-                AddAccountDialog dialog = new AddAccountDialog(getActivity(), account);
-                dialog.setOnDismissListener(mDismissListener);
-                dialog.setOnTransactionOperationListener(mAccountOperationListener);
-                dialog.show();
-            }
         };
 
         ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(swipeHelper);
@@ -171,7 +162,7 @@ public class AccountsFragment extends Fragment implements OnClickListener {
         swipeHelper.setLeftSwipeLabel("Delete");
         //set swipe background-Color
         swipeHelper.setLeftSwipeColor(ContextCompat.getColor(getActivity(), R.color.swipe_background));
-        swipeHelper.setRightColorCode(ContextCompat.getColor(getActivity(), R.color.electronics_category));
+        swipeHelper.setRightSwipeColor(ContextCompat.getColor(getActivity(), R.color.electronics_category));
 
     }
 

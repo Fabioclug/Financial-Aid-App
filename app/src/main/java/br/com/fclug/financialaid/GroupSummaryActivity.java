@@ -3,6 +3,7 @@ package br.com.fclug.financialaid;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -11,12 +12,11 @@ import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ExpandableListView;
 import android.widget.TextView;
 
 import org.json.JSONArray;
@@ -28,7 +28,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 
-import br.com.fclug.financialaid.adapter.GroupPaymentsListAdapter;
 import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
@@ -39,6 +38,7 @@ import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
 import br.com.fclug.financialaid.utils.AppConstants;
 import br.com.fclug.financialaid.utils.AppUtils;
+import br.com.fclug.financialaid.utils.SwipeUtil;
 
 public class GroupSummaryActivity extends AppCompatActivity {
 
@@ -73,6 +73,8 @@ public class GroupSummaryActivity extends AppCompatActivity {
     private GroupDebtHashMap<String, GroupDebt> mGroupDebts;
     private HashMap<String, User> mGroupMembers;
     private TextView mGroupOverview;
+    private RecyclerView mGroupTransactionsRecyclerView;
+    private GroupTransactionRecyclerViewListAdapter mListAdapter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,17 +94,18 @@ public class GroupSummaryActivity extends AppCompatActivity {
 
         mGroupMembers = mGroup.getMembersDictionary();
 
-        RecyclerView groupTransactionsRecyclerView = (RecyclerView) findViewById(R.id.group_transactions_list);
+        mGroupTransactionsRecyclerView = (RecyclerView) findViewById(R.id.group_transactions_list);
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
-        groupTransactionsRecyclerView.setLayoutManager(layoutManager);
-        groupTransactionsRecyclerView.addItemDecoration(new DividerItemDecoration(this,
+        mGroupTransactionsRecyclerView.setLayoutManager(layoutManager);
+        mGroupTransactionsRecyclerView.addItemDecoration(new DividerItemDecoration(this,
                 DividerItemDecoration.VERTICAL));
 
-        GroupTransactionRecyclerViewListAdapter adapter = new GroupTransactionRecyclerViewListAdapter(this, mGroup);
-        groupTransactionsRecyclerView.setAdapter(adapter);
-        adapter.setListItems();
-        groupTransactionsRecyclerView.setNestedScrollingEnabled(false);
+        mListAdapter = new GroupTransactionRecyclerViewListAdapter(this, mGroup);
+        mGroupTransactionsRecyclerView.setAdapter(mListAdapter);
+        mListAdapter.setListItems();
+        mGroupTransactionsRecyclerView.setNestedScrollingEnabled(false);
+        setSwipeForRecyclerView();
 
         mGroupOverview = (TextView) findViewById(R.id.group_summary_overview);
 
@@ -310,6 +313,39 @@ public class GroupSummaryActivity extends AppCompatActivity {
             }
         }
         calculateGroupDebts();
+
+    }
+
+    private void setSwipeForRecyclerView() {
+
+        final SwipeUtil swipeHelper = new SwipeUtil(this) {
+            @Override
+            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+                if (direction == ItemTouchHelper.LEFT) {
+                    mListAdapter.setPendingRemoval(viewHolder.getAdapterPosition(), true);
+                }
+            }
+
+            @Override
+            public int getSwipeDirs(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+                int position = viewHolder.getAdapterPosition();
+                if (mListAdapter.isPendingRemoval(position)) {
+                    return 0;
+                }
+                mListAdapter.collapseView(mGroupTransactionsRecyclerView, position);
+                return super.getSwipeDirs(recyclerView, viewHolder);
+            }
+
+        };
+
+        ItemTouchHelper mItemTouchHelper = new ItemTouchHelper(swipeHelper);
+        mItemTouchHelper.attachToRecyclerView(mGroupTransactionsRecyclerView);
+
+        //set swipe label
+        swipeHelper.setLeftSwipeLabel("Delete");
+        //set swipe background-Color
+        swipeHelper.setLeftSwipeColor(ContextCompat.getColor(this, R.color.swipe_background));
+        swipeHelper.setRightSwipeColor(ContextCompat.getColor(this, R.color.electronics_category));
 
     }
 }

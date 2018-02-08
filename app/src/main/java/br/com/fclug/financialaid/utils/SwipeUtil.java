@@ -11,7 +11,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.util.TypedValue;
-import android.view.MotionEvent;
 import android.view.View;
 
 import br.com.fclug.financialaid.R;
@@ -38,8 +37,6 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
     private int mLeftColorCode;
     private int mRightColorCode;
     private String leftSwipeLabel;
-
-    private RectF mLeftButtonArea;
 
     public SwipeUtil(Context context) {
         super(0, ItemTouchHelper.LEFT | ItemTouchHelper.RIGHT);
@@ -122,12 +119,11 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
                 deleteIcon.draw(c);
 
                 //Draw Swipe Text
-                c.drawText(getLeftSwipeLabel(), xMarkLeft - 140, itemView.getTop() + itemHeight / 2 - (mRemoveText.descent() + mRemoveText.ascent()) / 2, mRemoveText);
+                c.drawText(leftSwipeLabel, xMarkLeft - 140, itemView.getTop() + itemHeight / 2 - (mRemoveText.descent() + mRemoveText.ascent()) / 2, mRemoveText);
 
             } else if (dX > 0) {
                 ((ColorDrawable) background).setColor(mRightColorCode);
                 background.setBounds(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
-                mLeftButtonArea = new RectF(itemView.getLeft(), itemView.getTop(), itemView.getLeft() + (int) dX, itemView.getBottom());
                 background.draw(c);
 
                 int intrinsicWidth = editIcon.getIntrinsicWidth();
@@ -142,32 +138,9 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
                 editIcon.draw(c);
 
                 c.drawText("Edit", xMarkLeft + intrinsicWidth + 100, itemView.getTop() + itemHeight / 2 - (mRemoveText.descent() + mRemoveText.ascent()) / 2, mRemoveText);
-
-                //setTouchListener(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
             }
         }
         super.onChildDraw(c, recyclerView, viewHolder, dX, dY, actionState, isCurrentlyActive);
-    }
-
-    public void setTouchListener(final Canvas c, final RecyclerView recyclerView, final RecyclerView.ViewHolder viewHolder, final float dX, final float dY, final int actionState, final boolean isCurrentlyActive) {
-        recyclerView.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View v, MotionEvent event) {
-                if (event.getAction() == MotionEvent.ACTION_UP) {
-                    if (mLeftButtonArea != null && mLeftButtonArea.contains(event.getX(), event.getY())) {
-                        int position = viewHolder.getAdapterPosition();
-                        onLeftClick(position);
-                    }
-                }
-                return false;
-            }
-        });
-    }
-
-    public abstract void onLeftClick(int position);
-
-    public String getLeftSwipeLabel() {
-        return leftSwipeLabel;
     }
 
     public void setLeftSwipeLabel(String leftSwipeLabel) {
@@ -178,7 +151,7 @@ public abstract class SwipeUtil extends ItemTouchHelper.SimpleCallback {
         mLeftColorCode = leftColorCode;
     }
 
-    public void setRightColorCode(int rightColorCode) {
+    public void setRightSwipeColor(int rightColorCode) {
         mRightColorCode = rightColorCode;
     }
 }

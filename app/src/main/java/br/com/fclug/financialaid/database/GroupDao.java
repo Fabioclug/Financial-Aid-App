@@ -12,7 +12,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import br.com.fclug.financialaid.CreateGroupPaymentActivity;
-import br.com.fclug.financialaid.adapter.GroupPaymentsListAdapter;
+import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupTransaction;
 import br.com.fclug.financialaid.models.GroupTransaction.GroupTransactionBuilder;
@@ -154,7 +154,7 @@ public class GroupDao {
                 String date = cursor.getString(cursor.getColumnIndex(GroupTransactionTable.COLUMN_DATE));
                 Date formattedDate = null;
                 try {
-                    formattedDate = GroupPaymentsListAdapter.buildDateFormatter.parse(date);
+                    formattedDate = GroupTransactionRecyclerViewListAdapter.buildDateFormatter.parse(date);
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }

@@ -42,30 +42,40 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     public static SimpleDateFormat buildDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
 
     public static class GroupTransactionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
-        View transactionDetails;
+        LinearLayout regularLayout;
+        LinearLayout swipeLayout;
         TextView transactionName;
         TextView transactionDate;
         TextView transactionValue;
         TextView transactionPayer;
         ImageView transactionExpand;
         LinearLayout transactionSplits;
+        LinearLayout undo;
         boolean isExpanded;
+        boolean splitsBound;
 
         public GroupTransactionViewHolder(View view) {
             super(view);
-            transactionDetails = view.findViewById(R.id.group_transaction_details);
+            regularLayout = (LinearLayout) view.findViewById(R.id.regular_layout);
+            swipeLayout = (LinearLayout) view.findViewById(R.id.swipe_layout);
             transactionName = (TextView) view.findViewById(R.id.group_transaction_name);
             transactionDate = (TextView) view.findViewById(R.id.group_transaction_date);
             transactionValue = (TextView) view.findViewById(R.id.group_transaction_value);
             transactionPayer = (TextView) view.findViewById(R.id.group_transaction_payer);
             transactionExpand = (ImageView) view.findViewById(R.id.group_transaction_expand);
             transactionSplits = (LinearLayout) view.findViewById(R.id.transaction_splits);
+            undo = (LinearLayout) view.findViewById(R.id.undo);
             isExpanded = false;
-            transactionDetails.setOnClickListener(this);
+            splitsBound = false;
+            regularLayout.setOnClickListener(this);
         }
 
         @Override
         public void onClick(View view) {
+            expandOrCollapse();
+        }
+
+        public void expandOrCollapse() {
             isExpanded = !isExpanded;
             transactionSplits.setVisibility(isExpanded ? View.VISIBLE : View.GONE);
             transactionExpand.setImageResource(isExpanded ? R.drawable.ic_collapse : R.drawable.ic_expand);
@@ -80,23 +90,40 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
 
     @Override
     public GroupTransactionViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
-        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.group_payment_list_row, parent, false);
+        View itemView = LayoutInflater.from(parent.getContext()).inflate(R.layout.group_transaction_list_item, parent, false);
         return new GroupTransactionViewHolder(itemView);
     }
 
     @Override
     public void onBindViewHolder(GroupTransactionViewHolder holder, int position) {
-        GroupTransaction transactionItem = mItems.get(position);
-        holder.transactionName.setText(transactionItem.getDescription());
-        holder.transactionDate.setText(mDateFormatter.format(transactionItem.getDate()));
-        holder.transactionValue.setText(AppUtils.formatCurrencyValue(transactionItem.getValue()));
-        holder.transactionPayer.setText(transactionItem.getPayer().getExhibitName());
+        final GroupTransaction transactionItem = mItems.get(position);
 
-        holder.transactionSplits.setVisibility(holder.isExpanded ? View.VISIBLE : View.GONE);
-        holder.transactionExpand.setImageResource(R.drawable.ic_expand);
+        if (mPendingRemovalItems.contains(transactionItem)) {
+            holder.regularLayout.setVisibility(View.INVISIBLE);
+            holder.swipeLayout.setVisibility(View.VISIBLE);
+            holder.undo.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    undoRemoval(transactionItem);
+                }
+            });
+        } else {
+            holder.regularLayout.setVisibility(View.VISIBLE);
+            holder.swipeLayout.setVisibility(View.GONE);
+            holder.transactionName.setText(transactionItem.getDescription());
+            holder.transactionDate.setText(mDateFormatter.format(transactionItem.getDate()));
+            holder.transactionValue.setText(AppUtils.formatCurrencyValue(transactionItem.getValue()));
+            holder.transactionPayer.setText(transactionItem.getPayer().getExhibitName());
 
-        for (TransactionSplit split : transactionItem.getSplits()) {
-            bindChildView(holder, split);
+            holder.transactionSplits.setVisibility(holder.isExpanded ? View.VISIBLE : View.GONE);
+            holder.transactionExpand.setImageResource(R.drawable.ic_expand);
+
+            if (!holder.splitsBound) {
+                for (TransactionSplit split : transactionItem.getSplits()) {
+                    bindChildView(holder, split);
+                }
+                holder.splitsBound = true;
+            }
         }
     }
 
@@ -173,5 +200,13 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     private void getOfflineTransactions(HashMap<String, User> members) {
         GroupDao dao = new GroupDao(mContext);
         mItems = dao.findGroupTransactions(mGroup, members);
+    }
+
+    public void collapseView(RecyclerView recyclerView, int position) {
+        GroupTransactionViewHolder viewHolder= (GroupTransactionViewHolder)
+                recyclerView.findViewHolderForAdapterPosition(position);
+        if (viewHolder.isExpanded) {
+            viewHolder.expandOrCollapse();
+        }
     }
 }
