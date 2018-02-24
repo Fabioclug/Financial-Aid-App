@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     tools:context=".fragments.AccountsFragment">
 
-    <android.support.v7.widget.RecyclerView
+    <br.com.fclug.financialaid.EmptySupportRecyclerView
         android:id="@+id/account_recyclerview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -14,6 +14,38 @@
         android:scrollbarStyle="outsideInset"
         android:layoutAnimation="@anim/layout_animation_slide_in"
         tools:listitem="@layout/account_overview"/>
+
+    <LinearLayout
+        android:id="@+id/account_list_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="110dp"
+            android:src="@drawable/account_empty_list"
+            android:adjustViewBounds="true"
+            android:alpha="0.8"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/account_list_empty_title"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/account_list_empty_suggestion"/>
+
+    </LinearLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/add_control_entry"

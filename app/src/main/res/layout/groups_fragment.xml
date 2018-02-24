@@ -6,16 +6,47 @@
     android:background="@color/dialog_bg"
     tools:context=".fragments.GroupsFragment">
 
-
-    <android.support.v7.widget.RecyclerView
+    <br.com.fclug.financialaid.EmptySupportRecyclerView
         android:id="@+id/groups_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:paddingTop="10dp"
         android:paddingBottom="75dp"
         android:clipToPadding="false"
-        tools:listitem="@layout/group_account_list_item"/>
-    <!--android:layoutAnimation="@anim/layout_animation_fall_down_fade_in"-->
+        tools:listitem="@layout/group_account_list_item"
+        android:layoutAnimation="@anim/layout_animation_slide_from_bottom"/>
+
+    <LinearLayout
+        android:id="@+id/groups_list_empty_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:visibility="gone"
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_marginStart="50dp"
+        android:layout_marginEnd="50dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/group_empty_list"
+            android:adjustViewBounds="true"
+            android:alpha="0.8"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/group_list_empty_title"
+            android:textStyle="bold"
+            android:textSize="20sp"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="@string/group_list_empty_suggestion"/>
+
+    </LinearLayout>
 
     <RelativeLayout
         android:id="@+id/obstructor"

@@ -26,7 +26,6 @@ import br.com.fclug.financialaid.interfaces.OnListClickListener;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.TransactionSplit;
-import br.com.fclug.financialaid.models.UniqueObject;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
 import br.com.fclug.financialaid.server.ServerUtils;
@@ -38,71 +37,19 @@ import br.com.fclug.financialaid.utils.AppUtils;
  * Credits: https://github.com/anandbose/ExpandableListViewDemo
  */
 
-public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupRecyclerViewListAdapter.Item,
+public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupListItem,
         RecyclerView.ViewHolder> {
 
     private Context mContext;
     private OnListClickListener mListItemClickListener;
-    private RecyclerView recyclerView;
-    private int mLastPositionLoaded = -1;
-    private int mLastOfflineGroupIndex = -1;
+    private RecyclerView mRecyclerView;
 
-    public static final int HEADER = 0;
-    public static final int CHILD = 1;
+    // used for rendering animations
+    private int mLastPositionLoaded = -1;
     private final int MAXIMUM_MEMBERS_SHOWED = 3;
 
-
-    public static class Item implements UniqueObject {
-        public static long incrementalId = 1;
-        public long id;
-        public int type;
-        public String title;
-        public Group group;
-        public List<Item> hiddenChildren;
-
-        public Item(String title) {
-            type = HEADER;
-            this.title = title;
-            setId(incrementalId);
-        }
-
-        public Item(Group group) {
-            type = CHILD;
-            this.group = group;
-            setId(incrementalId);
-        }
-
-        @Override
-        public long getId() {
-            return id;
-        }
-
-        @Override
-        public void setId(long id) {
-            this.id = id;
-            incrementalId++;
-        }
-
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) return true;
-            if (o == null || getClass() != o.getClass()) return false;
-
-            Item item = (Item) o;
-
-            if (type != item.type) return false;
-            if (title != null ? !title.equals(item.title) : item.title != null) return false;
-            return group != null ? group.equals(item.group) : item.group == null;
-        }
-
-        @Override
-        public int hashCode() {
-            int result = type;
-            result = 31 * result + (title != null ? title.hashCode() : 0);
-            result = 31 * result + (group != null ? group.hashCode() : 0);
-            return result;
-        }
-    }
+    private GroupListItem mOfflineHeader;
+    private GroupListItem mOnlineHeader;
 
     private static class HeaderViewHolder extends RecyclerView.ViewHolder {
         TextView headerTitle;
@@ -141,6 +88,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
     public GroupRecyclerViewListAdapter(Context context) {
         mContext = context;
         mItems = new ArrayList<>();
+        mOfflineHeader = new GroupListItem(mContext.getResources().getString(R.string.groups_header_offline));
+        mOnlineHeader = new GroupListItem(mContext.getResources().getString(R.string.groups_header_online));
     }
 
     @Override
@@ -148,10 +97,10 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
         View itemView;
         LayoutInflater inflater = LayoutInflater.from(parent.getContext());
         switch (viewType) {
-            case HEADER:
+            case GroupListItem.HEADER:
                 itemView = inflater.inflate(R.layout.group_header_list_item, parent, false);
                 return new HeaderViewHolder(itemView);
-            case CHILD:
+            case GroupListItem.CHILD:
                 itemView = inflater.inflate(R.layout.group_account_list_item, parent, false);
                 return new GroupViewHolder(itemView);
         }
@@ -160,9 +109,9 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
 
     @Override
     public void onBindViewHolder(RecyclerView.ViewHolder holder, int position) {
-        final Item item = mItems.get(position);
+        final GroupListItem item = mItems.get(position);
         switch (item.type) {
-            case HEADER:
+            case GroupListItem.HEADER:
                 final HeaderViewHolder headerViewHolder = (HeaderViewHolder) holder;
                 headerViewHolder.headerTitle.setText(item.title);
 
@@ -175,10 +124,10 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
                     @Override
                     public void onClick(View v) {
                         if (item.hiddenChildren == null) {
-                            item.hiddenChildren = new ArrayList<Item>();
+                            item.hiddenChildren = new ArrayList<GroupListItem>();
                             int count = 0;
                             int pos = headerViewHolder.getAdapterPosition();
-                            while (mItems.size() > pos + 1 && mItems.get(pos + 1).type == CHILD) {
+                            while (mItems.size() > pos + 1 && mItems.get(pos + 1).type == GroupListItem.CHILD) {
                                 item.hiddenChildren.add(mItems.remove(pos + 1));
                                 count++;
                             }
@@ -187,7 +136,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
                         } else {
                             int pos = headerViewHolder.getAdapterPosition();
                             int index = pos + 1;
-                            for (Item i : item.hiddenChildren) {
+                            for (GroupListItem i : item.hiddenChildren) {
                                 mItems.add(index, i);
                                 index++;
                             }
@@ -198,7 +147,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
                     }
                 });
                 break;
-            case CHILD:
+            case GroupListItem.CHILD:
                 final Group groupItem = item.group;
                 GroupViewHolder groupViewHolder = (GroupViewHolder) holder;
                 groupViewHolder.group = groupItem;
@@ -238,7 +187,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
     }
 
     @Override
-    public void removeFromDatabase(Item item) {
+    public void removeFromDatabase(GroupListItem item) {
         //TODO: implement removal from database
     }
 
@@ -246,24 +195,21 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
     @Override
     public void setListItems() {
 
-        Item offlineHeader = new Item(mContext.getResources().getString(R.string.groups_header_offline));
-        mItems.add(offlineHeader);
-
         // get offline groups
         GroupDao mGroupsDao = new GroupDao(mContext);
         List<Group> offlineGroups = mGroupsDao.findAll();
-        for (Group offlineGroup : offlineGroups) {
-            Item offlineGroupItem = new Item(offlineGroup);
-            mItems.add(offlineGroupItem);
+        if (offlineGroups.size() > 0) {
+            mItems.add(mOfflineHeader);
+            for (Group offlineGroup : offlineGroups) {
+                GroupListItem offlineGroupItem = new GroupListItem(offlineGroup);
+                mItems.add(offlineGroupItem);
+            }
         }
 
-        mLastOfflineGroupIndex = mItems.size() - 1;
-
-        Item onlineHeader = new Item(mContext.getResources().getString(R.string.groups_header_online));
-        mItems.add(onlineHeader);
         final int loadedItems = mItems.size();
-        notifyItemRangeInserted(0, loadedItems);
-
+        if (loadedItems > 0) {
+            notifyItemRangeInserted(0, loadedItems);
+        }
 
         // get online groups
         HashMap<String, String> user = SessionManager.getUserDetails(mContext);
@@ -271,37 +217,40 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
             @Override
             public void onSuccess(JSONObject response) throws JSONException {
                 JSONArray groups = response.getJSONArray("result");
-                for (int i = 0; i < groups.length(); i++) {
-                    JSONObject group = groups.getJSONObject(i);
+                if (groups.length() > 0) {
+                    mItems.add(mOnlineHeader);
+                    for (int i = 0; i < groups.length(); i++) {
+                        JSONObject group = groups.getJSONObject(i);
 
-                    JSONArray members = group.getJSONArray("members");
-                    List<User> memberList = new ArrayList<>();
-                    List<TransactionSplit> memberCredits = new ArrayList<>();
-                    for(int j = 0; j < members.length(); j++) {
-                        JSONObject member = members.getJSONObject(j);
-                        OnlineUser user = new OnlineUser(member.getString("username"),
-                                member.getString("name"));
-                        memberList.add(user);
-                        memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
+                        JSONArray members = group.getJSONArray("members");
+                        List<User> memberList = new ArrayList<>();
+                        List<TransactionSplit> memberCredits = new ArrayList<>();
+                        for (int j = 0; j < members.length(); j++) {
+                            JSONObject member = members.getJSONObject(j);
+                            OnlineUser user = new OnlineUser(member.getString("username"),
+                                    member.getString("name"));
+                            memberList.add(user);
+                            memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
+                        }
+                        GroupListItem onlineGroupItem = new GroupListItem(new Group(group.getLong("group_id"),
+                                group.getString("name"), memberList, memberCredits, true));
+                        mItems.add(onlineGroupItem);
                     }
-                    Item onlineGroupItem = new Item(new Group(group.getLong("group_id"),
-                            group.getString("name"), memberList, memberCredits, true));
-                    mItems.add(onlineGroupItem);
+
+                    // this is needed to load the new results in the UI thread, the data is not supposed to be loaded on
+                    // a background thread
+                    mRecyclerView.post(new Runnable() {
+                        @Override
+                        public void run() {
+                            notifyItemRangeInserted(loadedItems, mItems.size() - loadedItems);
+                        }
+                    });
                 }
-
-                // this is needed to load the new results in the UI thread, the data is not supposed to be loaded on
-                // a background thread
-                recyclerView.post(new Runnable() {
-                    @Override
-                    public void run() {
-                        notifyItemRangeInserted(loadedItems, mItems.size() - loadedItems);
-                    }
-                });
             }
 
             @Override
             public void onFailure(int code) {
-                Log.d("RC", code + "asasas");
+                Log.d("GroupListAdapter", code + "couldn't get online groups");
             }
         };
         JSONObject args = new JSONObject();
@@ -346,8 +295,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
     @Override
     public void onAttachedToRecyclerView(RecyclerView recyclerView) {
         super.onAttachedToRecyclerView(recyclerView);
-        this.recyclerView = recyclerView;
-
+        this.mRecyclerView = recyclerView;
     }
 
     public void setListItemClickListener(OnListClickListener listItemClickListener) {
@@ -355,15 +303,30 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
     }
 
     public void addGroup(Group group) {
-
-        Item newItem = new Item(group);
+        GroupListItem newItem = new GroupListItem(group);
         if (group.isOnline()) {
+            int rangeStart = mItems.size();
+            if (!mItems.contains(mOnlineHeader)) {
+                mItems.add(mOnlineHeader);
+            }
             mItems.add(newItem);
-            notifyItemInserted(mItems.size() - 1);
+            notifyItemRangeInserted(rangeStart, mItems.size() - rangeStart);
         } else {
-            mLastOfflineGroupIndex++;
-            mItems.add(mLastOfflineGroupIndex, newItem);
-            notifyItemInserted(mLastOfflineGroupIndex);
+            int offlineIndex = 0;
+            int addedCount = 1;
+            if (!mItems.contains(mOfflineHeader)) {
+                mItems.add(offlineIndex, mOfflineHeader);
+                mItems.add(offlineIndex + 1, newItem);
+                addedCount = 2;
+            } else {
+                if (mItems.contains(mOnlineHeader)) {
+                    offlineIndex = mItems.indexOf(mOnlineHeader);
+                } else {
+                    offlineIndex = mItems.size();
+                }
+                mItems.add(offlineIndex, newItem);
+            }
+            notifyItemRangeInserted(offlineIndex, addedCount);
         }
     }
 
@@ -379,18 +342,41 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupR
         super.onViewAttachedToWindow(holder);
         int position = holder.getAdapterPosition();
         if (position > mLastPositionLoaded) {
-            holder.itemView.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.slide_from_bottom));
             mLastPositionLoaded = position;
+            holder.itemView.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.slide_from_bottom));
         } else {
             holder.itemView.startAnimation(AnimationUtils.loadAnimation(mContext, R.anim.fall_down_fade_in));
         }
     }
 
     @Override
-    protected void remove(Item pendingRemoval) {
-        super.remove(pendingRemoval);
-        if (!pendingRemoval.group.isOnline()) {
-            mLastOfflineGroupIndex--;
+    public GroupListItem setPendingRemoval(int position, boolean showSwipeLayout) {
+        GroupListItem result = super.setPendingRemoval(position, showSwipeLayout);
+        int headerPosition = position - 1;
+        if (result.group.isOnline()) {
+            if (mItems.indexOf(mOnlineHeader) == (mItems.size() - 1)) {
+                mItems.remove(mOnlineHeader);
+                notifyItemRemoved(headerPosition);
+            }
+        } else {
+            if (mItems.size() == 1 ||
+                    (headerPosition == mItems.indexOf(mOfflineHeader) && position == mItems.indexOf(mOnlineHeader))) {
+                mItems.remove(mOfflineHeader);
+                notifyItemRemoved(headerPosition);
+            }
         }
+        return result;
+    }
+
+    @Override
+    public void undoRemoval(GroupListItem item, int... position) {
+        GroupListItem header = item.group.isOnline() ? mOnlineHeader : mOfflineHeader;
+        int headerPosition = position[0] - 1;
+        if (!mItems.contains(header)) {
+            mItems.add(headerPosition, header);
+            notifyItemInserted(headerPosition);
+        }
+
+        super.undoRemoval(item, position);
     }
 }

@@ -18,6 +18,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.View.OnClickListener;
 
+import br.com.fclug.financialaid.EmptySupportRecyclerView;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.TransactionsActivity;
 import br.com.fclug.financialaid.adapter.AccountRecyclerViewListAdapter;
@@ -31,7 +32,7 @@ import br.com.fclug.financialaid.utils.SwipeUtil;
 
 public class AccountsFragment extends Fragment implements OnClickListener {
 
-    private RecyclerView mAccountsRecyclerView;
+    private EmptySupportRecyclerView mAccountsRecyclerView;
     private AccountRecyclerViewListAdapter mListAdapter;
     private FloatingActionButton mAddAccountFab;
 
@@ -99,7 +100,8 @@ public class AccountsFragment extends Fragment implements OnClickListener {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.accounts_fragment, container, false);
-        mAccountsRecyclerView = (RecyclerView) view.findViewById(R.id.account_recyclerview);
+        mAccountsRecyclerView = (EmptySupportRecyclerView) view.findViewById(R.id.account_recyclerview);
+        mAccountsRecyclerView.setEmptyView(view.findViewById(R.id.account_list_empty_view));
 
         mAddAccountFab = (FloatingActionButton) view.findViewById(R.id.add_control_entry);
         mAddAccountFab.setOnClickListener(this);
@@ -112,6 +114,7 @@ public class AccountsFragment extends Fragment implements OnClickListener {
         mAccountsRecyclerView.addItemDecoration(itemDecorator);
 
         mListAdapter = new AccountRecyclerViewListAdapter(getContext());
+        mListAdapter.setListItems();
         mAccountsRecyclerView.setAdapter(mListAdapter);
         mListAdapter.setListItemClickListener(mListClickListener);
         setSwipeForRecyclerView();
@@ -122,7 +125,6 @@ public class AccountsFragment extends Fragment implements OnClickListener {
     @Override
     public void onResume() {
         super.onResume();
-        mListAdapter.setListItems();
     }
 
     private void setSwipeForRecyclerView() {

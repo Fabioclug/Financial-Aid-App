@@ -10,7 +10,6 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -20,8 +19,10 @@ import android.widget.TextView;
 
 import br.com.fclug.financialaid.CreateGroupActivity;
 import br.com.fclug.financialaid.CreateLocalGroupActivity;
+import br.com.fclug.financialaid.EmptySupportRecyclerView;
 import br.com.fclug.financialaid.GroupSummaryActivity;
 import br.com.fclug.financialaid.R;
+import br.com.fclug.financialaid.adapter.GroupListItem;
 import br.com.fclug.financialaid.adapter.GroupRecyclerViewListAdapter;
 import br.com.fclug.financialaid.adapter.RecyclerViewListAdapter;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
@@ -30,7 +31,7 @@ import br.com.fclug.financialaid.utils.AppConstants;
 
 public class GroupsFragment extends Fragment implements View.OnClickListener {
 
-    private RecyclerView mGroupsListView;
+    private EmptySupportRecyclerView mGroupsListView;
     private GroupRecyclerViewListAdapter mListAdapter;
     private boolean isFabMenuOpen = false;
 
@@ -67,7 +68,8 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         if (container == null)
             return null;
         View view = inflater.inflate(R.layout.groups_fragment, container, false);
-        mGroupsListView = (RecyclerView) view.findViewById(R.id.groups_list);
+        mGroupsListView = (EmptySupportRecyclerView) view.findViewById(R.id.groups_list);
+        mGroupsListView.setEmptyView(view.findViewById(R.id.groups_list_empty_view));
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
         layoutManager.setOrientation(LinearLayoutManager.VERTICAL);
@@ -186,13 +188,14 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
 //                    mListAdapter.updateItemView(new GroupRecyclerViewListAdapter.Item(mLastClickedGroup));
 //                    Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
                 } else if (operation == AppConstants.GROUP_OPERATION_DELETE) {
-                    final GroupRecyclerViewListAdapter.Item pendingRemoval =
+                    final GroupListItem pendingRemoval =
                             mListAdapter.setPendingRemoval(mLastClickedPosition, false);
                     Snackbar.make(mCreateGroupButton, R.string.group_removed, Snackbar.LENGTH_INDEFINITE)
                             .setAction(R.string.undo, new View.OnClickListener() {
                                 @Override
                                 public void onClick(View view) {
                                     mListAdapter.undoRemoval(pendingRemoval, mLastClickedPosition);
+                                    mGroupsListView.smoothScrollToPosition(mLastClickedPosition);
                                 }
                             })
                             .setDuration(RecyclerViewListAdapter.PENDING_REMOVAL_TIMEOUT)

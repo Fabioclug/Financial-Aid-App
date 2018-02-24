@@ -30,11 +30,19 @@
 
     <string name="transactions_balance">Balance</string>
 
+    <!-- Accounts list empty state -->
+    <string name="account_list_empty_title">No accounts</string>
+    <string name="account_list_empty_suggestion">Add one to track your expenses!</string>
+
+    <!-- Groups list empty state -->
+    <string name="group_list_empty_title">No groups</string>
+    <string name="group_list_empty_suggestion">Add one to track shared expenses!</string>
+
     <!-- Account register -->
     <string name="add_account">Add Account</string>
-    <string name="add_account_name">Name:</string>
-    <string name="add_account_balance">Initial Balance:</string>
-    <string name="add_account_category">Category:</string>
+    <string name="add_account_name">Name</string>
+    <string name="add_account_balance">Initial Balance</string>
+    <string name="add_account_category">Category</string>
     <string name="edit_account">Edit Account</string>
 
     <!-- Transaction register -->
