@@ -186,4 +186,13 @@ public class GroupDao {
         }
         return transactions;
     }
+
+    public boolean delete(Group group) {
+        long id = group.getId();
+        String whereClause = GroupTable._ID + " = ?";
+        String[] whereArgs = new String[] { String.valueOf(id) };
+        int result = mDbHandler.getWritableDatabase()
+                               .delete(GroupTable.TABLE_NAME, whereClause, whereArgs);
+        return result > 0;
+    }
 }

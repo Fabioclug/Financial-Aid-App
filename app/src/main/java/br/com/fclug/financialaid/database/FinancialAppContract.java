@@ -94,7 +94,8 @@ public final class FinancialAppContract {
                 COLUMN_GROUP + " INTEGER, " +
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
                 PRIMARY_KEY + "(" + COLUMN_USER + ", " + COLUMN_GROUP + "), " +
-                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID + "))";
+                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
+                ") ON DELETE CASCADE)";
     }
 
     public static class GroupTransactionTable implements BaseColumns{
@@ -113,9 +114,8 @@ public final class FinancialAppContract {
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
                 COLUMN_DATE + " TEXT " + NOT_NULL + ", " +
                 COLUMN_CREDITOR + " TEXT " + NOT_NULL + ", " +
-                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID + "), " +
-                FOREIGN_KEY + "(" + COLUMN_CREDITOR + ") REFERENCES " +
-                    GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
+                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
+                ") ON DELETE CASCADE)";
 
         public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_credit " +
                 "AFTER INSERT " +
@@ -141,9 +141,7 @@ public final class FinancialAppContract {
                 COLUMN_DEBTOR + " TEXT, " +
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
                 FOREIGN_KEY + "(" + COLUMN_TRANSACTION + ") REFERENCES " +
-                    GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + "), " +
-                FOREIGN_KEY + "(" + COLUMN_DEBTOR + ") REFERENCES " +
-                    GroupMemberTable.TABLE_NAME + "(" + GroupMemberTable.COLUMN_USER + "))";
+                    GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + ") ON DELETE CASCADE)";
 
         public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_debt " +
                 "AFTER INSERT " +

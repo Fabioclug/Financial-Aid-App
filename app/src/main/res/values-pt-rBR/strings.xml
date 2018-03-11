@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <!--Login-->
+    <string name="login_username">Usuário</string>
+    <string name="login_password">Senha</string>
+    <string name="login_signup">Registrar-se</string>
+
+    <!--Register-->
+    <string name="register_name">Nome</string>
+    <string name="register_username">Nome de usuário</string>
+    <string name="register_password">Senha</string>
+    <string name="register_password_repeat">Repetir Senha</string>
+    <string name="user_register">Registrar</string>
+
+    <string name="action_settings">Configurações</string>
+
+    <!-- Drawer options -->
+    <string name="drawer_cash_control">Controle de caixa</string>
+    <string name="drawer_group_payments">Pagamentos em grupo</string>
+    <string name="drawer_statistics">Estatísticas</string>
+
+    <string name="transactions_balance">Saldo</string>
+
+    <!-- Accounts list empty state -->
+    <string name="account_list_empty_title">Nenhuma conta</string>
+    <string name="account_list_empty_suggestion">Adicione uma para monitorar suas despesas!</string>
+
+    <!-- Groups list empty state -->
+    <string name="group_list_empty_title">Nenhum grupo</string>
+    <string name="group_list_empty_suggestion">Adicione um para monitorar despesas compartilhadas!</string>
+
+    <!-- Account register -->
+    <string name="add_account">Adicionar Conta</string>
+    <string name="add_account_name">Nome</string>
+    <string name="add_account_balance">Saldo Inicial</string>
+    <string name="add_account_category">Categoria</string>
+    <string name="edit_account">Editar Conta</string>
+
+    <!-- Transaction register -->
+    <string name="add_transaction">Adicionar Transação</string>
+    <string name="add_transaction_value">Valor</string>
+    <string name="add_transaction_account">Conta</string>
+    <string name="add_transaction_description">Descrição</string>
+    <string name="add_transaction_category">Categoria</string>
+    <string name="add_transaction_date">Data</string>
+    <string name="edit_transaction">Editar Transação</string>
+
+    <!-- Category register -->
+    <string name="add_category">Adicionar Categoria</string>
+    <string name="add_category_name">Nome</string>
+    <string name="add_category_type">Tipo</string>
+    <string name="add_category_type_incoming">Incoming</string>
+    <string name="add_category_type_outgoing">Outgoing</string>
+
+    <!-- Snackbar feedback text -->
+    <string name="undo">DESFAZER</string>
+
+    <string name="account_created">Conta criada</string>
+    <string name="account_updated">Conta atualizada</string>
+    <string name="account_removed">Conta removida</string>
+
+    <string name="transaction_created">Transação criada</string>
+    <string name="transaction_updated">Transação atualizada</string>
+    <string name="transaction_removed">Transação removida</string>
+
+    <string name="group_created">Grupo criado</string>
+    <string name="group_updated">Grupo atualizado</string>
+    <string name="group_removed">Grupo removido</string>
+
+    <!-- Groups List Section Headers -->
+    <string name="groups_header_online">Grupos online</string>
+    <string name="groups_header_offline">Grupos locais</string>
+
+    <!-- Group summary -->
+    <string name="group_summary_no_debts">Ainda não há débitos nesse grupo.</string>
+    <string name="group_summary_debt">%1$s deve %3$s para %2$s\n</string>
+
+    <!-- Create group labels -->
+    <string name="online_group"> Grupo de múltiplos usuários</string>
+    <string name="offline_group"> Grupo offline</string>
+    <string name="offline_default_member">Você</string>
+
+    <!-- Remove group -->
+    <string name="remove_group_title">Remover grupo</string>
+    <string name="remove_group_confirm">Tem certeza que deseja remover esse grupo?</string>
+
+    <!-- Statistics strings -->
+    <string name="last_seven_days_graph">Gastos nos últimos 7 dias</string>
+    <string name="transactions_per_account_chart">Transações por Conta</string>
+    <string name="account_balances_graph">Saldo por Conta</string>
+</resources>

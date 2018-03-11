@@ -36,6 +36,15 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     }
 
     @Override
+    public void onOpen(SQLiteDatabase db) {
+        super.onOpen(db);
+        if (!db.isReadOnly()) {
+            // Enable foreign key constraints
+            db.execSQL(String.format("PRAGMA foreign_keys = %s;", "ON"));
+        }
+    }
+
+    @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
         db.execSQL(FinancialAppContract.TransactionTable.DROP_TABLE);
         db.execSQL(FinancialAppContract.CategoryTable.DROP_TABLE);

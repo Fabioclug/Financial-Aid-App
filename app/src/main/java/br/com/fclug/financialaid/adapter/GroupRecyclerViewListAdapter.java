@@ -188,7 +188,15 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
 
     @Override
     public void removeFromDatabase(GroupListItem item) {
-        //TODO: implement removal from database
+        Group groupItem = item.group;
+        if (groupItem != null) {
+            if (groupItem.isOnline()) {
+                //TODO: implement removal from remote database
+            } else {
+                GroupDao dao = new GroupDao(mContext);
+                dao.delete(groupItem);
+            }
+        }
     }
 
     /** Important: Never call notifyDataSetChanged, because it ruins the elevation on the views **/
