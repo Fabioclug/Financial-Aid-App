@@ -29,8 +29,10 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.execSQL(FinancialAppContract.GroupMemberTable.CREATE_TABLE);
         db.execSQL(FinancialAppContract.GroupTransactionTable.CREATE_TABLE);
         db.execSQL(FinancialAppContract.TransactionSplitTable.CREATE_TABLE);
-        db.execSQL(FinancialAppContract.GroupTransactionTable.CREATE_VALUE_TRIGGER);
-        db.execSQL(FinancialAppContract.TransactionSplitTable.CREATE_VALUE_TRIGGER);
+        db.execSQL(FinancialAppContract.GroupTransactionTable.CREATE_INSERT_VALUE_TRIGGER);
+        db.execSQL(FinancialAppContract.GroupTransactionTable.CREATE_DELETE_VALUE_TRIGGER);
+        db.execSQL(FinancialAppContract.TransactionSplitTable.CREATE_INSERT_VALUE_TRIGGER);
+        db.execSQL(FinancialAppContract.TransactionSplitTable.CREATE_DELETE_VALUE_TRIGGER);
 
         CategoryDao.insertDefaultValues(mContext, db);
     }

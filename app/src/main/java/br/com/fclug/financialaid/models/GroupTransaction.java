@@ -1,5 +1,8 @@
 package br.com.fclug.financialaid.models;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -8,7 +11,7 @@ import java.util.List;
  * Created by Fabioclug on 2016-10-17.
  */
 
-public class GroupTransaction implements UniqueObject {
+public class GroupTransaction implements UniqueObject, Parcelable {
 
     private long id;
     private String description;
@@ -50,6 +53,53 @@ public class GroupTransaction implements UniqueObject {
         this.value = value;
         this.splits = splits;
     }
+
+    protected GroupTransaction(Parcel in) {
+        id = in.readLong();
+        description = in.readString();
+        payer = in.readParcelable(User.class.getClassLoader());
+        value = in.readDouble();
+        date = new Date(in.readLong());
+
+        if (in.readByte() == 0x01) {
+            splits = new ArrayList<>();
+            in.readList(splits, TransactionSplit.class.getClassLoader());
+        } else {
+            splits = null;
+        }
+    }
+
+    @Override
+    public void writeToParcel(Parcel dest, int flags) {
+        dest.writeLong(id);
+        dest.writeString(description);
+        dest.writeParcelable(payer, flags);
+        dest.writeDouble(value);
+        dest.writeLong(date.getTime());
+        if (splits == null) {
+            dest.writeByte((byte) (0x00));
+        } else {
+            dest.writeByte((byte) (0x01));
+            dest.writeList(splits);
+        }
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    public static final Creator<GroupTransaction> CREATOR = new Creator<GroupTransaction>() {
+        @Override
+        public GroupTransaction createFromParcel(Parcel in) {
+            return new GroupTransaction(in);
+        }
+
+        @Override
+        public GroupTransaction[] newArray(int size) {
+            return new GroupTransaction[size];
+        }
+    };
 
     public List<TransactionSplit> getSplits() {
         return splits;

@@ -2,6 +2,7 @@ package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -40,6 +41,7 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     private Group mGroup;
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd", Locale.US);
     public static SimpleDateFormat buildDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
+    private SparseArray<Runnable> mPendingCallbacks = new SparseArray<>();
 
     public static class GroupTransactionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         LinearLayout regularLayout;
@@ -138,7 +140,11 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
 
     @Override
     public void removeFromDatabase(GroupTransaction item) {
-
+        if(mGroup.isOnline()) {
+            //TODO: implementation on the server
+        } else {
+            new GroupDao(mContext).delete(item);
+        }
     }
 
     @Override
@@ -149,6 +155,11 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
         } else {
             getOfflineTransactions(members);
         }
+    }
+
+    public void addTransaction(GroupTransaction transaction) {
+        mItems.add(transaction);
+        notifyItemInserted(mItems.size() - 1);
     }
 
     private void getOnlineTransactions(final HashMap<String, User> members) {
@@ -208,5 +219,19 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
         if (viewHolder.isExpanded) {
             viewHolder.expandOrCollapse();
         }
+    }
+
+    public GroupTransaction setPendingRemoval(int position, boolean showSwipeLayout, Runnable callback) {
+        mPendingCallbacks.append((int) mItems.get(position).getId(), callback);
+        return super.setPendingRemoval(position, showSwipeLayout);
+    }
+
+    @Override
+    protected void remove(GroupTransaction pendingRemoval) {
+        super.remove(pendingRemoval);
+        int hashIndex = (int) pendingRemoval.getId();
+        Runnable pendingCallback = mPendingCallbacks.get(hashIndex);
+        pendingCallback.run();
+        mPendingCallbacks.remove(hashIndex);
     }
 }

@@ -1,5 +1,6 @@
 package br.com.fclug.financialaid;
 
+import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
@@ -32,6 +33,7 @@ import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupDebt;
+import br.com.fclug.financialaid.models.GroupTransaction;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -75,6 +77,8 @@ public class GroupSummaryActivity extends AppCompatActivity {
     private TextView mGroupOverview;
     private RecyclerView mGroupTransactionsRecyclerView;
     private GroupTransactionRecyclerViewListAdapter mListAdapter;
+
+    public static int REQUEST_ADD_TRANSACTION = 1;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -122,7 +126,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(GroupSummaryActivity.this, CreateGroupPaymentActivity.class);
                 intent.putExtra("group", mGroup);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_ADD_TRANSACTION);
             }
         });
 
@@ -164,6 +168,14 @@ public class GroupSummaryActivity extends AppCompatActivity {
             menu.findItem(R.id.action_remove_group).setIcon(R.drawable.ic_exit);
         }
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == Activity.RESULT_OK) {
+            GroupTransaction transaction = data.getParcelableExtra("transaction");
+            mListAdapter.addTransaction(transaction);
+        }
     }
 
     private TransactionSplit closest(double value, List<TransactionSplit> debits) {
@@ -233,6 +245,30 @@ public class GroupSummaryActivity extends AppCompatActivity {
                 // the value of the debt will be kept positive
                 if (debt.getValue() < 0) {
                     debt.swapMembers();
+                }
+            }
+        }
+
+        updateGroupOverview();
+    }
+
+    private void undoGroupTransaction(GroupTransaction transaction) {
+        //TODO: wrong implementation
+        User creditor = transaction.getPayer();
+        for(TransactionSplit split : transaction.getSplits()) {
+            User debtor = split.getDebtor();
+            if(!debtor.equals(creditor)) {
+                double value = split.getValue();
+                GroupDebt groupDebt = mGroupDebts.get(creditor.getUsername(), debtor.getUsername());
+
+                if (creditor.equals(groupDebt.getCreditor())) {
+                    groupDebt.setValue(groupDebt.getValue() - value);
+                } else {
+                    groupDebt.setValue(groupDebt.getValue() + value);
+                }
+
+                if (groupDebt.getValue() < 0) {
+                    groupDebt.swapMembers();
                 }
             }
         }
@@ -322,7 +358,14 @@ public class GroupSummaryActivity extends AppCompatActivity {
             @Override
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.LEFT) {
-                    mListAdapter.setPendingRemoval(viewHolder.getAdapterPosition(), true);
+                    int index = viewHolder.getAdapterPosition();
+                    final GroupTransaction transaction = mListAdapter.getItem(index);
+                    mListAdapter.setPendingRemoval(index, true, new Runnable() {
+                        @Override
+                        public void run() {
+                            undoGroupTransaction(transaction);
+                        }
+                    });
                 }
             }
 

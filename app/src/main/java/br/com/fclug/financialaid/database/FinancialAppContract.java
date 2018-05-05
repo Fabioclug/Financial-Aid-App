@@ -117,7 +117,7 @@ public final class FinancialAppContract {
                 FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
                 ") ON DELETE CASCADE)";
 
-        public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_credit " +
+        public static final String CREATE_INSERT_VALUE_TRIGGER = "CREATE TRIGGER insert_member_credit " +
                 "AFTER INSERT " +
                 "ON[" + TABLE_NAME + "] " +
                 "FOR EACH ROW " +
@@ -127,6 +127,17 @@ public final class FinancialAppContract {
                 " where " + GroupMemberTable.COLUMN_GROUP + " = new." + COLUMN_GROUP + " and " +
                     GroupMemberTable.COLUMN_USER + " = new." + COLUMN_CREDITOR + "; " +
                 "END;";
+
+        public static final String CREATE_DELETE_VALUE_TRIGGER = "CREATE TRIGGER delete_member_credit " +
+                "AFTER DELETE " +
+                "ON[" + TABLE_NAME + "] " +
+                "FOR EACH ROW " +
+                "BEGIN " +
+                " update " + GroupMemberTable.TABLE_NAME + " set " + GroupMemberTable.COLUMN_VALUE + " = " +
+                GroupMemberTable.COLUMN_VALUE + " - old." + COLUMN_VALUE +
+                " where " + GroupMemberTable.COLUMN_GROUP + " = old." + COLUMN_GROUP + " and " +
+                GroupMemberTable.COLUMN_USER + " = old." + COLUMN_CREDITOR + "; " +
+                "END;";
     }
 
     public static class TransactionSplitTable {
@@ -134,26 +145,39 @@ public final class FinancialAppContract {
         public static final String COLUMN_TRANSACTION = "transaction_id";
         public static final String COLUMN_DEBTOR = "debtor";
         public static final String COLUMN_VALUE = "value";
+        public static final String COLUMN_GROUP = "group_id";
 
         public static final String CREATE_TABLE = "CREATE TABLE " +
                 TABLE_NAME + " (" +
                 COLUMN_TRANSACTION + " INTEGER, " +
                 COLUMN_DEBTOR + " TEXT, " +
                 COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                COLUMN_GROUP + " INTEGER, " +
                 FOREIGN_KEY + "(" + COLUMN_TRANSACTION + ") REFERENCES " +
-                    GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + ") ON DELETE CASCADE)";
+                    GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + ") ON DELETE CASCADE, " +
+                FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
+                ") ON DELETE CASCADE)";
 
-        public static final String CREATE_VALUE_TRIGGER = "CREATE TRIGGER update_member_debt " +
+        public static final String CREATE_INSERT_VALUE_TRIGGER = "CREATE TRIGGER insert_member_debt " +
                 "AFTER INSERT " +
                 "ON[" + TABLE_NAME + "] " +
                 "FOR EACH ROW " +
                 "BEGIN " +
                 " update " + GroupMemberTable.TABLE_NAME + " set " + GroupMemberTable.COLUMN_VALUE + " = " +
                 GroupMemberTable.COLUMN_VALUE + " - new." + COLUMN_VALUE +
-                " where " + GroupMemberTable.COLUMN_GROUP + " = (SELECT " + GroupTransactionTable.COLUMN_GROUP +
-                " from " + GroupTransactionTable.TABLE_NAME + " where " + GroupTransactionTable._ID +
-                " = new." + COLUMN_TRANSACTION + ") and " +
+                " where " + GroupMemberTable.COLUMN_GROUP + " = new." + COLUMN_GROUP + " and " +
                 GroupMemberTable.COLUMN_USER + " = new." + COLUMN_DEBTOR + "; " +
+                "END;";
+
+        public static final String CREATE_DELETE_VALUE_TRIGGER = "CREATE TRIGGER delete_member_debt " +
+                "AFTER DELETE " +
+                "ON[" + TABLE_NAME + "] " +
+                "FOR EACH ROW " +
+                "BEGIN " +
+                " update " + GroupMemberTable.TABLE_NAME + " set " + GroupMemberTable.COLUMN_VALUE + " = " +
+                GroupMemberTable.COLUMN_VALUE + " + old." + COLUMN_VALUE +
+                " where " + GroupMemberTable.COLUMN_GROUP + " = old." + COLUMN_GROUP + " and " +
+                GroupMemberTable.COLUMN_USER + " = old." + COLUMN_DEBTOR + "; " +
                 "END;";
     }
 }

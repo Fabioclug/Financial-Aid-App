@@ -1,6 +1,7 @@
 package br.com.fclug.financialaid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
@@ -188,6 +189,7 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case android.R.id.home:
+                setResult(RESULT_CANCELED, new Intent());
                 finish();
                 return true;
             default:
@@ -205,52 +207,59 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
     }
 
     private void createOnlinePayment() {
-        JSONObject args = new JSONObject();
-        try {
-            args.put("token", SessionManager.getToken(this));
-            args.put("group", mGroup.getId());
-            args.put("description", mDescription.getText());
-            args.put("value", mValue.getText());
-            args.put("payer", mPayer.getUsername());
+        final GroupTransaction groupTransaction = createPayment();
+        if (groupTransaction != null) {
+            JSONObject args = new JSONObject();
             try {
-                Date date = mReadFormatter.parse(mDate.getText().toString());
-                args.put("date", dateSaveFormatter.format(date));
-                Log.d("CreateGroupPayment", dateSaveFormatter.format(date));
-            } catch (ParseException e) {
+                args.put("token", SessionManager.getToken(this));
+                args.put("group", mGroup.getId());
+                args.put("description", groupTransaction.getDescription());
+                args.put("value", groupTransaction.getValue());
+                args.put("payer", groupTransaction.getPayer().getUsername());
+                args.put("date", dateSaveFormatter.format(groupTransaction.getDate()));
+
+                JSONArray transactionSplits = new JSONArray();
+                for (TransactionSplit transactionSplit : groupTransaction.getSplits()) {
+                    JSONObject split = new JSONObject();
+                    split.put("username", transactionSplit.getDebtor().getUsername());
+                    split.put("value", transactionSplit.getValue());
+                    transactionSplits.put(split);
+                }
+                args.put("splits", transactionSplits);
+            } catch (JSONException e) {
                 e.printStackTrace();
             }
-            JSONArray transactionSplits = new JSONArray();
+            Log.d("CreateGroupPayment", args.toString());
 
-            for (int i = 0; i < mMembers.size(); i++) {
-                JSONObject split = new JSONObject();
-                split.put("username", mMembers.get(i).getUsername());
-                split.put("value", mSplits[i].getText());
-                transactionSplits.put(split);
-            }
-            args.put("splits", transactionSplits);
-        } catch (JSONException e) {
-            e.printStackTrace();
+            new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP_TRANSACTION, args,
+                    new ApiRequest.RequestCallback() {
+                        @Override
+                        public void onSuccess(JSONObject response) {
+                            setActivityResult(groupTransaction);
+                            finish();
+                        }
+
+                        @Override
+                        public void onFailure(int code) {
+                            // perhaps a dialog?
+                        }
+                    }).execute();
         }
-        Log.d("CreateGroupPayment", args.toString());
-
-        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP_TRANSACTION, args,
-                new ApiRequest.RequestCallback() {
-                    @Override
-                    public void onSuccess(JSONObject response) {
-                        finish();
-                    }
-
-                    @Override
-                    public void onFailure(int code) {
-                        // perhaps a dialog?
-                    }
-                }).execute();
     }
 
     private void createOfflinePayment() {
 
-        boolean result = false;
+        GroupTransaction groupTransaction = createPayment();
+        GroupDao dao = new GroupDao(mContext);
+        boolean result = dao.saveTransaction(mGroup, groupTransaction);
+        if (result) {
+            setActivityResult(groupTransaction);
+            finish();
+        }
 
+    }
+
+    private GroupTransaction createPayment() {
         List<TransactionSplit> splits = new ArrayList<>();
         for (int i = 0; i < mMembers.size(); i++) {
             TransactionSplit split = new TransactionSplit(mMembers.get(i),
@@ -260,25 +269,24 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
 
         GroupTransactionBuilder groupTransactionBuilder =
                 new GroupTransactionBuilder()
-                    .setDescription(mDescription.getText().toString())
-                    .setPayer(mPayer)
-                    .setValue(Double.valueOf(mValue.getText().toString()))
-                    .setSplits(splits);
+                        .setDescription(mDescription.getText().toString())
+                        .setPayer(mPayer)
+                        .setValue(Double.valueOf(mValue.getText().toString()))
+                        .setSplits(splits);
 
         try {
             Date date = mReadFormatter.parse(mDate.getText().toString());
-            GroupTransaction groupTransaction = groupTransactionBuilder.setDate(date).build();
-            GroupDao dao = new GroupDao(mContext);
-            result = dao.saveTransaction(mGroup, groupTransaction);
-
+            return groupTransactionBuilder.setDate(date).build();
         } catch (ParseException e) {
             e.printStackTrace();
+            return null;
         }
+    }
 
-        if (result) {
-            finish();
-        }
-
+    public void setActivityResult(GroupTransaction transaction) {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("transaction", transaction);
+        setResult(RESULT_OK, returnIntent);
     }
 
     @Override

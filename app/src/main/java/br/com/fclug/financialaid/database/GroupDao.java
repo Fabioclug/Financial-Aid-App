@@ -132,6 +132,7 @@ public class GroupDao {
             contentValues.put(TransactionSplitTable.COLUMN_TRANSACTION, transactionId);
             contentValues.put(TransactionSplitTable.COLUMN_DEBTOR, split.getDebtor().getUsername());
             contentValues.put(TransactionSplitTable.COLUMN_VALUE, split.getValue());
+            contentValues.put(TransactionSplitTable.COLUMN_GROUP, group.getId());
             result &= (database.insert(TransactionSplitTable.TABLE_NAME, null, contentValues) > 0);
         }
 
@@ -193,6 +194,14 @@ public class GroupDao {
         String[] whereArgs = new String[] { String.valueOf(id) };
         int result = mDbHandler.getWritableDatabase()
                                .delete(GroupTable.TABLE_NAME, whereClause, whereArgs);
+        return result > 0;
+    }
+
+    public boolean delete(GroupTransaction transaction) {
+        String whereClause = GroupTransactionTable._ID + " = ?";
+        String[] whereArgs = new String[] { String.valueOf(transaction.getId()) };
+        int result = mDbHandler.getWritableDatabase()
+                .delete(GroupTransactionTable.TABLE_NAME, whereClause, whereArgs);
         return result > 0;
     }
 }
