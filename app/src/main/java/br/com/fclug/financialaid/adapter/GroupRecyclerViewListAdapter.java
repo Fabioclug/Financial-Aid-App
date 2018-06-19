@@ -24,7 +24,6 @@ import br.com.fclug.financialaid.SessionManager;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -228,20 +227,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                 if (groups.length() > 0) {
                     mItems.add(mOnlineHeader);
                     for (int i = 0; i < groups.length(); i++) {
-                        JSONObject group = groups.getJSONObject(i);
-
-                        JSONArray members = group.getJSONArray("members");
-                        List<User> memberList = new ArrayList<>();
-                        List<TransactionSplit> memberCredits = new ArrayList<>();
-                        for (int j = 0; j < members.length(); j++) {
-                            JSONObject member = members.getJSONObject(j);
-                            OnlineUser user = new OnlineUser(member.getString("username"),
-                                    member.getString("name"));
-                            memberList.add(user);
-                            memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
-                        }
-                        GroupListItem onlineGroupItem = new GroupListItem(new Group(group.getLong("group_id"),
-                                group.getString("name"), memberList, memberCredits, true));
+                        JSONObject groupJsonData = groups.getJSONObject(i);
+                        GroupListItem onlineGroupItem = new GroupListItem(new Group(groupJsonData));
                         mItems.add(onlineGroupItem);
                     }
 
@@ -283,7 +270,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
 
     private double getBalance(Group group) {
         double value = 0;
-        List<TransactionSplit> credits = group.getGroupCredits();
+        List<TransactionSplit> credits = group.getGroupBalances();
         User current;
         if (SessionManager.isLoggedIn(mContext) && group.isOnline()) {
             HashMap<String, String> userDetails = SessionManager.getUserDetails(mContext);
@@ -386,5 +373,11 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         }
 
         super.undoRemoval(item, position);
+    }
+
+    public void updateGroupItem(Group updatedGroup, int position) {
+        GroupListItem groupItem = mItems.get(position);
+        groupItem.group = updatedGroup;
+        updateItemView(groupItem);
     }
 }

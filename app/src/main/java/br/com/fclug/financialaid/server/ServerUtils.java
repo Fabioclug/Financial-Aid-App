@@ -31,12 +31,13 @@ public class ServerUtils {
     public static final String ROUTE_CHECK_USERNAME = "/checkUsername";
     public static final String ROUTE_LOGIN = "/login";
     public static final String ROUTE_REGISTER_USER = "/register";
+    public static final String ROUTE_SYNC_FB_TOKEN = "/syncFbToken";
     public static final String ROUTE_CREATE_GROUP = "/createGroup";
     public static final String ROUTE_CREATE_GROUP_TRANSACTION = "/createGroupTransaction";
     public static final String ROUTE_GET_GROUPS = "/getGroups";
     public static final String ROUTE_GET_USERS = "/getUsers";
     public static final String ROUTE_GET_TRANSACTIONS = "/getGroupTransactions";
-    public static final String ROUTE_GET_CREDITS = "/getGroupCredits";
+    public static final String ROUTE_GET_CREDITS = "/getGroupBalances";
 
     public static final int TIMEOUT = 15000;
 

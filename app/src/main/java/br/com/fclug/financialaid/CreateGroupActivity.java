@@ -127,7 +127,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            setTitle("Create GroupTable");
+            setTitle("Create Group");
         }
 
         mUserData = SessionManager.getUserDetails(this);
@@ -180,6 +180,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                     }
                     new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP, args, createGroupCallback)
                             .execute();
+                    finish();
                 }
             });
         }

@@ -88,7 +88,7 @@ public class GroupDao {
                     }
                 }
                 group.setMembers(members);
-                group.setGroupCredits(credits);
+                group.setGroupBalances(credits);
             }
         }
         return groups;

@@ -51,7 +51,7 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         if(actionBar != null) {
             actionBar.setDisplayHomeAsUpEnabled(true);
             actionBar.setDisplayShowHomeEnabled(true);
-            setTitle("Create Local GroupTable");
+            setTitle("Create Local Group");
         }
 
 
@@ -102,7 +102,7 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         List<User> members = mListAdapter.getMembersList();
         Group group = new Group(mGroupName.getText().toString(), members);
         group.setOnline(false);
-        group.setGroupCredits(new ArrayList<TransactionSplit>());
+        group.setGroupBalances(new ArrayList<TransactionSplit>());
         groupDao.save(group);
         return group;
     }

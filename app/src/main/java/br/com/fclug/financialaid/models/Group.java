@@ -3,6 +3,10 @@ package br.com.fclug.financialaid.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -15,7 +19,7 @@ public class Group implements Parcelable {
     private long id;
     private String name;
     private List<User> members;
-    private List<TransactionSplit> groupCredits;
+    private List<TransactionSplit> groupBalances;
     private boolean online;
 
     public Group(long id, String name, boolean online) {
@@ -29,12 +33,32 @@ public class Group implements Parcelable {
         this.members = members;
     }
 
-    public Group(long id, String name, List<User> members, List<TransactionSplit> groupCredits, boolean online) {
+    public Group(long id, String name, List<User> members, List<TransactionSplit> groupBalances, boolean online) {
         this.id = id;
         this.name = name;
         this.members = members;
-        this.groupCredits = groupCredits;
+        this.groupBalances = groupBalances;
         this.online = online;
+    }
+
+    public Group(JSONObject groupJsonData) throws JSONException {
+        this(groupJsonData.getLong("group_id"), groupJsonData.getString("name"), true);
+        setGroupBalances(groupJsonData.getJSONArray("members"), true);
+    }
+
+    public void setGroupBalances(JSONArray membersObject, boolean setMembers) throws JSONException {
+        List<User> memberList = new ArrayList<>();
+        List<TransactionSplit> memberCredits = new ArrayList<>();
+        for (int j = 0; j < membersObject.length(); j++) {
+            JSONObject member = membersObject.getJSONObject(j);
+            OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
+            memberList.add(user);
+            memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
+        }
+        if(setMembers) {
+            this.members = memberList;
+        }
+        this.groupBalances = memberCredits;
     }
 
     protected Group(Parcel in) {
@@ -49,10 +73,10 @@ public class Group implements Parcelable {
         }
 
         if (in.readByte() == 0x01) {
-            groupCredits = new ArrayList<>();
-            in.readList(groupCredits, TransactionSplit.class.getClassLoader());
+            groupBalances = new ArrayList<>();
+            in.readList(groupBalances, TransactionSplit.class.getClassLoader());
         } else {
-            groupCredits = null;
+            groupBalances = null;
         }
     }
 
@@ -68,11 +92,11 @@ public class Group implements Parcelable {
             dest.writeList(members);
         }
 
-        if (groupCredits == null) {
+        if (groupBalances == null) {
             dest.writeByte((byte) (0x00));
         } else {
             dest.writeByte((byte) (0x01));
-            dest.writeList(groupCredits);
+            dest.writeList(groupBalances);
         }
     }
 
@@ -130,12 +154,12 @@ public class Group implements Parcelable {
         this.members = members;
     }
 
-    public List<TransactionSplit> getGroupCredits() {
-        return groupCredits;
+    public List<TransactionSplit> getGroupBalances() {
+        return groupBalances;
     }
 
-    public void setGroupCredits(List<TransactionSplit> groupCredits) {
-        this.groupCredits = groupCredits;
+    public void setGroupBalances(List<TransactionSplit> groupBalances) {
+        this.groupBalances = groupBalances;
     }
 
     public HashMap<String, User> getMembersDictionary() {

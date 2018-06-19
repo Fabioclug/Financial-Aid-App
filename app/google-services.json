@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "202127808346",
+    "firebase_url": "https://financial-aid-app.firebaseio.com",
+    "project_id": "financial-aid-app",
+    "storage_bucket": "financial-aid-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:202127808346:android:4840f0676be7eb05",
+        "android_client_info": {
+          "package_name": "br.com.fclug.financialaid"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "202127808346-5gmd7ihrpbn1sl2guann653o9bj7p1d3.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "br.com.fclug.financialaid",
+            "certificate_hash": "53c79c2a5a6bd82f523b2969e236d90806d1276b"
+          }
+        },
+        {
+          "client_id": "202127808346-uos074rg38n3iogkasi6f3vkv4q3lccb.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBywok7k_kNOkCznRwuWEJUAzp0F_Cp8s4"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "202127808346-uos074rg38n3iogkasi6f3vkv4q3lccb.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

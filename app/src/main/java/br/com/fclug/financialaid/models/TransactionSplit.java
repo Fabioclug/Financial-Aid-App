@@ -18,6 +18,10 @@ public class TransactionSplit implements Parcelable {
         this.debtor = debtor;
         this.value = value;
     }
+    public TransactionSplit(TransactionSplit other) {
+        this.debtor = other.getDebtor();
+        this.value = other.getValue();
+    }
 
     protected TransactionSplit(Parcel in) {
         debtor = in.readParcelable(User.class.getClassLoader());

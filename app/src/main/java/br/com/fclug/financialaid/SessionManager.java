@@ -6,12 +6,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import br.com.fclug.financialaid.server.ApiRequest;
+import br.com.fclug.financialaid.server.ServerUtils;
 
 /**
  * Created by Fabioclug on 2016-09-07.
  */
 
 public class SessionManager {
+
+    private static final String TAG = "SessionManager";
 
     private static final String PREF_NAME = "financial_aid";
 
@@ -22,6 +31,7 @@ public class SessionManager {
     public static final String KEY_NAME = "name";
     public static final String KEY_PASSWORD = "password";
     public static final String KEY_TOKEN = "token";
+    public static final String KEY_FB_TOKEN = "fb_token";
 
     public static SharedPreferences getSharedPreferences(Context context) {
         return context.getSharedPreferences(PREF_NAME, Context.MODE_PRIVATE);
@@ -88,6 +98,10 @@ public class SessionManager {
         return getSharedPreferences(context).getString(KEY_TOKEN, null);
     }
 
+    public static String getFbToken(Context context) {
+        return getSharedPreferences(context).getString(KEY_FB_TOKEN, null);
+    }
+
     /**
      * Clear session details
      * */
@@ -132,5 +146,38 @@ public class SessionManager {
      */
     public static boolean hasSkipped(Context context) {
         return getSharedPreferences(context).getBoolean(SKIPPED, false);
+    }
+
+    public static void updateFbToken(Context context, String fbToken) {
+        Editor editor = getSharedPreferences(context).edit();
+        editor.putString(KEY_FB_TOKEN, fbToken);
+        editor.commit();
+        sendFbTokenToServer(context);
+    }
+
+    public static void sendFbTokenToServer(Context context) {
+        if(isLoggedIn(context)) {
+            String token = getToken(context);
+            String fbToken = getFbToken(context);
+            JSONObject request = new JSONObject();
+            try {
+                request.put("token", token);
+                request.put("fb_token", fbToken);
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_SYNC_FB_TOKEN, request, new ApiRequest.RequestCallback() {
+                @Override
+                public void onSuccess(JSONObject response) throws JSONException {
+                    Log.d(TAG, response.toString());
+                    Log.d(TAG, "Token synced with server");
+                }
+
+                @Override
+                public void onFailure(int code) {
+                    Log.d(TAG, "Couldn't sync token");
+                }
+            }).execute();
+        }
     }
 }

@@ -185,8 +185,12 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             if (resultCode == Activity.RESULT_OK && data.hasExtra("operation")) {
                 int operation = data.getIntExtra("operation", 0);
                 if (operation == AppConstants.GROUP_OPERATION_UPDATE) {
-//                    mListAdapter.updateItemView(new GroupRecyclerViewListAdapter.Item(mLastClickedGroup));
-//                    Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
+                    boolean updated = data.getBooleanExtra("updated", false);
+                    if (updated) {
+                        Group updatedGroup = data.getParcelableExtra("group");
+                        mListAdapter.updateGroupItem(updatedGroup, mLastClickedPosition);
+                        Snackbar.make(mCreateGroupButton, "Group updated", Snackbar.LENGTH_LONG).show();
+                    }
                 } else if (operation == AppConstants.GROUP_OPERATION_DELETE) {
                     final GroupListItem pendingRemoval =
                             mListAdapter.setPendingRemoval(mLastClickedPosition, false);

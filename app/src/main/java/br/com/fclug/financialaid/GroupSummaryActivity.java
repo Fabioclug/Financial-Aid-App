@@ -77,6 +77,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
     private TextView mGroupOverview;
     private RecyclerView mGroupTransactionsRecyclerView;
     private GroupTransactionRecyclerViewListAdapter mListAdapter;
+    private boolean mGroupUpdated = false;
 
     public static int REQUEST_ADD_TRANSACTION = 1;
 
@@ -113,11 +114,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
 
         mGroupOverview = (TextView) findViewById(R.id.group_summary_overview);
 
-        if (mGroup.isOnline()) {
-            getOnlineGroupDebts();
-        } else {
-            getOfflineGroupDebts();
-        }
+        updateGroupDebts(false);
 
         FloatingActionButton addGroupTransactionButton =
                 (FloatingActionButton) findViewById(R.id.add_group_transaction);
@@ -134,15 +131,12 @@ public class GroupSummaryActivity extends AppCompatActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        final Intent returnIntent = new Intent();
         switch (item.getItemId()) {
             case android.R.id.home:
-                //TODO: verify if the group has really changed before sending this extra
-                returnIntent.putExtra("operation", AppConstants.GROUP_OPERATION_UPDATE);
-                setResult(RESULT_OK, returnIntent);
-                finish();
+                onBackPressed();
                 return true;
             case R.id.action_remove_group:
+                final Intent returnIntent = new Intent();
                 new AlertDialog.Builder(GroupSummaryActivity.this).setTitle(R.string.remove_group_title)
                         .setMessage(getString(R.string.remove_group_confirm))
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
@@ -175,7 +169,19 @@ public class GroupSummaryActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             GroupTransaction transaction = data.getParcelableExtra("transaction");
             mListAdapter.addTransaction(transaction);
+            updateGroupDebts(true);
+            mGroupUpdated = true;
         }
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent returnIntent = new Intent();
+        returnIntent.putExtra("operation", AppConstants.GROUP_OPERATION_UPDATE);
+        returnIntent.putExtra("updated", mGroupUpdated);
+        returnIntent.putExtra("group", mGroup);
+        setResult(RESULT_OK, returnIntent);
+        finish();
     }
 
     private TransactionSplit closest(double value, List<TransactionSplit> debits) {
@@ -184,7 +190,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
 
         for (TransactionSplit debit : debits) {
             double debitValue = debit.getValue();
-            final double diff = Math.abs(debitValue - value);
+            double diff = Math.abs(debitValue - value);
 
             if (diff < min) {
                 min = diff;
@@ -195,25 +201,39 @@ public class GroupSummaryActivity extends AppCompatActivity {
         return closest;
     }
 
+    private void updateGroupDebts(boolean reloadBalances) {
+        if (reloadBalances) {
+            if (mGroup.isOnline()) {
+                getOnlineGroupBalances();
+            } else {
+                GroupDao dao = new GroupDao(this);
+                mGroup.setGroupBalances(dao.getGroupCredits(mGroup, mGroupMembers));
+            }
+        }
+        if (!reloadBalances || !mGroup.isOnline()) {
+            classifyBalances();
+            calculateGroupDebts();
+        }
+    }
+
     private void calculateGroupDebts() {
-        if (mGroupDebts == null) {
-            // create debts between everyone in the group
-            mGroupDebts = new GroupDebtHashMap<>();
-            List<User> members = mGroup.getMembers();
-            for (int i = 0; i < members.size() - 1; i++) {
-                for (int j = i+1; j < members.size(); j++) {
-                    mGroupDebts.put(new GroupDebt(members.get(i), members.get(j), 0));
-                }
+        // create debts between everyone in the group
+        mGroupDebts = new GroupDebtHashMap<>();
+        List<User> members = mGroup.getMembers();
+        for (int i = 0; i < members.size() - 1; i++) {
+            for (int j = i+1; j < members.size(); j++) {
+                mGroupDebts.put(new GroupDebt(members.get(i), members.get(j), 0));
             }
         }
 
         for (TransactionSplit credit : mGroupCredits) {
-            while (credit.getValue() >= 0.01) {
-                Log.d("value", ": " + credit.getValue());
-                double creditValue = credit.getValue();
+            while (AppUtils.roundValue(credit.getValue()) > 0.03) {
+                double creditValue = AppUtils.roundValue(credit.getValue());
+                Log.d("GroupSummaryActivity", "credit value: " + creditValue);
                 // get the debt from the list that has the closest value to what we need
                 TransactionSplit debit = closest(creditValue, mGroupDebits);
-                double debitValue = debit.getValue();
+                double debitValue = AppUtils.roundValue(debit.getValue());
+                Log.d("GroupSummaryActivity", "debit value: " + debitValue);
 
                 String creditor = credit.getDebtor().getUsername();
                 String debtor = debit.getDebtor().getUsername();
@@ -252,30 +272,6 @@ public class GroupSummaryActivity extends AppCompatActivity {
         updateGroupOverview();
     }
 
-    private void undoGroupTransaction(GroupTransaction transaction) {
-        //TODO: wrong implementation
-        User creditor = transaction.getPayer();
-        for(TransactionSplit split : transaction.getSplits()) {
-            User debtor = split.getDebtor();
-            if(!debtor.equals(creditor)) {
-                double value = split.getValue();
-                GroupDebt groupDebt = mGroupDebts.get(creditor.getUsername(), debtor.getUsername());
-
-                if (creditor.equals(groupDebt.getCreditor())) {
-                    groupDebt.setValue(groupDebt.getValue() - value);
-                } else {
-                    groupDebt.setValue(groupDebt.getValue() + value);
-                }
-
-                if (groupDebt.getValue() < 0) {
-                    groupDebt.swapMembers();
-                }
-            }
-        }
-
-        updateGroupOverview();
-    }
-
     private void updateGroupOverview() {
         StringBuilder overview = new StringBuilder();
 
@@ -295,7 +291,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
         mGroupOverview.setText(overview.toString().trim());
     }
 
-    private void getOnlineGroupDebts() {
+    private void getOnlineGroupBalances() {
         JSONObject args = new JSONObject();
         try {
             args.put("token", SessionManager.getToken(this));
@@ -309,20 +305,16 @@ public class GroupSummaryActivity extends AppCompatActivity {
             public void onSuccess(JSONObject response) throws JSONException {
                 mGroupCredits = new ArrayList<>();
                 mGroupDebits = new ArrayList<>();
+                List<TransactionSplit> memberBalances = new ArrayList<>();
                 JSONArray result = response.getJSONArray("result");
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject creditJson = result.getJSONObject(i);
                     String member = creditJson.getString("user_id");
                     double value = creditJson.getDouble("value");
-                    TransactionSplit entry = new TransactionSplit(mGroupMembers.get(member), value);
-                    if (value < 0) {
-                        entry.setValue(entry.getValue() * -1);
-                        mGroupDebits.add(entry);
-                    }
-                    else {
-                        mGroupCredits.add(entry);
-                    }
+                    memberBalances.add(new TransactionSplit(mGroupMembers.get(member), value));
                 }
+                mGroup.setGroupBalances(memberBalances);
+                classifyBalances();
                 calculateGroupDebts();
             }
 
@@ -335,21 +327,20 @@ public class GroupSummaryActivity extends AppCompatActivity {
         new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_CREDITS, args, callback).execute();
     }
 
-    private void getOfflineGroupDebts() {
-        GroupDao dao = new GroupDao(this);
-        mGroupCredits = dao.getGroupCredits(mGroup, mGroupMembers);
+    private void classifyBalances() {
+        mGroupCredits = new ArrayList<>();
         mGroupDebits = new ArrayList<>();
-
-        for (Iterator<TransactionSplit> iterator = mGroupCredits.iterator(); iterator.hasNext(); ) {
-            TransactionSplit entry = iterator.next();
-            if (entry.getValue() < 0) {
-                entry.setValue(entry.getValue() * -1);
-                mGroupDebits.add(entry);
-                iterator.remove();
+        List<TransactionSplit> memberBalances = mGroup.getGroupBalances();
+        for (TransactionSplit balance : memberBalances) {
+            TransactionSplit newBalance = new TransactionSplit(balance);
+            if (balance.getValue() < 0) {
+                newBalance.setValue(newBalance.getValue() * -1);
+                mGroupDebits.add(newBalance);
+            }
+            else {
+                mGroupCredits.add(newBalance);
             }
         }
-        calculateGroupDebts();
-
     }
 
     private void setSwipeForRecyclerView() {
@@ -359,11 +350,12 @@ public class GroupSummaryActivity extends AppCompatActivity {
             public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
                 if (direction == ItemTouchHelper.LEFT) {
                     int index = viewHolder.getAdapterPosition();
-                    final GroupTransaction transaction = mListAdapter.getItem(index);
+                    //final GroupTransaction transaction = mListAdapter.getItem(index);
                     mListAdapter.setPendingRemoval(index, true, new Runnable() {
                         @Override
                         public void run() {
-                            undoGroupTransaction(transaction);
+                            updateGroupDebts(true);
+                            mGroupUpdated = true;
                         }
                     });
                 }

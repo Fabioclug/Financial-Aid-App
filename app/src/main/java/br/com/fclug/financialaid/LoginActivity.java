@@ -68,6 +68,7 @@ public class LoginActivity extends AppCompatActivity {
             mProgressDialog.dismiss();
             // Creating user login session
             SessionManager.createLoginSession(LoginActivity.this, usernameString, name, passwordString, token);
+            SessionManager.sendFbTokenToServer(LoginActivity.this);
 
             // Start MainActivity
             Intent i = new Intent(getApplicationContext(), MainActivity.class);
