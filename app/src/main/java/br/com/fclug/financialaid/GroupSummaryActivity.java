@@ -26,7 +26,6 @@ import org.json.JSONObject;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 
 import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter;
@@ -227,12 +226,12 @@ public class GroupSummaryActivity extends AppCompatActivity {
         }
 
         for (TransactionSplit credit : mGroupCredits) {
-            while (AppUtils.roundValue(credit.getValue()) > 0.03) {
-                double creditValue = AppUtils.roundValue(credit.getValue());
+            while (credit.getValue() > 3) {
+                long creditValue = credit.getValue();
                 Log.d("GroupSummaryActivity", "credit value: " + creditValue);
                 // get the debt from the list that has the closest value to what we need
                 TransactionSplit debit = closest(creditValue, mGroupDebits);
-                double debitValue = AppUtils.roundValue(debit.getValue());
+                long debitValue = debit.getValue();
                 Log.d("GroupSummaryActivity", "debit value: " + debitValue);
 
                 String creditor = credit.getDebtor().getUsername();
@@ -310,7 +309,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
                 for (int i = 0; i < result.length(); i++) {
                     JSONObject creditJson = result.getJSONObject(i);
                     String member = creditJson.getString("user_id");
-                    double value = creditJson.getDouble("value");
+                    long value = creditJson.getLong("value");
                     memberBalances.add(new TransactionSplit(mGroupMembers.get(member), value));
                 }
                 mGroup.setGroupBalances(memberBalances);

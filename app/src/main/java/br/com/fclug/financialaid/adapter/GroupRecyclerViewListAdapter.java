@@ -169,7 +169,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                 groupViewHolder.groupName.setText(groupItem.getName());
                 groupViewHolder.groupMembers.setText(members.toString());
 
-                double balance = getBalance(groupItem);
+                long balance = getBalance(groupItem);
                 groupViewHolder.groupBalance.setText(AppUtils.formatCurrencyValue(balance));
 
                 if (balance == 0) {
@@ -177,7 +177,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                 } else if (balance < 0) {
                     groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext,
                             R.color.transaction_type_debt));
-                } else if (balance > 0) {
+                } else {
                     groupViewHolder.groupBalance.setTextColor(ContextCompat.getColor(mContext,
                             R.color.transaction_type_credit));
                 }
@@ -268,8 +268,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         return mItems.get(position).type;
     }
 
-    private double getBalance(Group group) {
-        double value = 0;
+    private long getBalance(Group group) {
+        long value = 0;
         List<TransactionSplit> credits = group.getGroupBalances();
         User current;
         if (SessionManager.isLoggedIn(mContext) && group.isOnline()) {

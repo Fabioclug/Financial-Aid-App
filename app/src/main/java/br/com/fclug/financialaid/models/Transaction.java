@@ -10,7 +10,7 @@ import br.com.fclug.financialaid.utils.AppUtils;
 public class Transaction implements UniqueObject {
     private long id;
     private String description;
-    private double value;
+    private long value;
     private Category category;
     private Date date;
     private long accountId;
@@ -19,7 +19,7 @@ public class Transaction implements UniqueObject {
 
     }
 
-    public Transaction(long id, String description, double value, Category category, Date date, long accountId) {
+    public Transaction(long id, String description, long value, Category category, Date date, long accountId) {
         this.id = id;
         this.description = description;
         this.value = value;
@@ -28,7 +28,7 @@ public class Transaction implements UniqueObject {
         this.accountId = accountId;
     }
 
-    public Transaction(String description, double value, Category category, Date date, long accountId) {
+    public Transaction(String description, long value, Category category, Date date, long accountId) {
         this.description = description;
         this.value = value;
         this.category = category;
@@ -52,7 +52,7 @@ public class Transaction implements UniqueObject {
         this.description = description;
     }
 
-    public double getValue() {
+    public long getValue() {
         return value;
     }
 
@@ -60,7 +60,7 @@ public class Transaction implements UniqueObject {
         return AppUtils.formatCurrencyValue(value);
     }
 
-    public void setValue(double value) {
+    public void setValue(long value) {
         this.value = value;
     }
 

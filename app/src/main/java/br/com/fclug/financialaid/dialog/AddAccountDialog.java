@@ -101,7 +101,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
         String accountType = String.valueOf(mAccountType.getSelectedItem());
 
         if (mUpdateAccount == null) {
-            double accountBalance = Double.parseDouble(mAccountBalance.getText().toString());
+            long accountBalance = AppUtils.extractCurrencyValue(mAccountBalance.getText().toString());
             Account newAccount = new AccountBuilder().setName(accountName)
                                                      .setBalance(accountBalance)
                                                      .setType(accountType)
@@ -110,7 +110,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
             // save the new transaction
             accountDao.save(newAccount);
 
-            double balance = newAccount.getBalance();
+            long balance = newAccount.getBalance();
 
             List<Category> categories = new CategoryDao(getContext()).findIncoming();
 

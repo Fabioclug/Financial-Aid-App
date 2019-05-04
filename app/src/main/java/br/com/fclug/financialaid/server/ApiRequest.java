@@ -37,26 +37,14 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
 
     @Override
     protected JSONObject doInBackground(Void... params) {
-        JSONObject response = null;
-        try {
-            if(mHttpMethod.equals(ServerUtils.METHOD_POST)) {
-                response = ServerUtils.doPostRequest(mRoute, mArgs);
-            } else {
-                response = ServerUtils.doGetRequest(mRoute);
-            }
-
-        } catch (SocketTimeoutException e) {
-            response = new JSONObject();
-            Log.d(TAG, "Connection timed out");
-            try {
-                response.put("status_code", HttpURLConnection.HTTP_GATEWAY_TIMEOUT);
-            } catch (JSONException jsonException) {
-                Log.d(TAG, "JSON formatting exception on timeout");
-            }
-        } catch (IOException | JSONException e) {
-            Log.d(TAG, "Impossible to complete request: " + e.toString());
+        JSONObject response;
+        if(mHttpMethod.equals(ServerUtils.METHOD_POST)) {
+            response = ServerUtils.doPostRequest(mRoute, mArgs);
+        } else {
+            response = ServerUtils.doGetRequest(mRoute);
         }
         return response;
+        //return ServerUtils.makeRequest(mHttpMethod, mRoute, mArgs);
     }
 
     @Override
@@ -66,7 +54,7 @@ public class ApiRequest extends AsyncTask<Void, Void, JSONObject> {
         Log.d("ApiRequest", mArgs.toString());
         try {
             Log.d(TAG, response.toString());
-            statusCode = response.getInt("status_code");
+            statusCode = response.getInt("statusCode");
         } catch (Exception e) {
             e.printStackTrace();
         }

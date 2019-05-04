@@ -75,10 +75,16 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
                     text = AppUtils.handleValueInput(mValue);
                     mValue.setTextAlignment(View.TEXT_ALIGNMENT_VIEW_END);
                     if(!TextUtils.isEmpty(text)) {
-                        double totalValue = Double.parseDouble(text);
-                        double split = AppUtils.roundValue(totalValue / mSplits.length);
+                        long totalValue = AppUtils.extractCurrencyValue(text);
+                        long split = totalValue / mSplits.length;
+                        long sumOfSplits = split * mSplits.length;
                         for (EditText splitEditText : mSplits) {
-                            splitEditText.setText(String.valueOf(split));
+                            long currentSplit = split;
+                            if (sumOfSplits != totalValue) {
+                                currentSplit += 1;
+                                sumOfSplits += 1;
+                            }
+                            splitEditText.setText(AppUtils.formatEditableCurrencyValue(currentSplit));
                         }
                     }
                 } else {
@@ -107,15 +113,14 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
             if (mChangeValues) {
                 mChangeValues = false;
                 String text;
-                double totalValue = 0;
+                long totalValue = 0;
                 for (EditText splitEditText : mSplits) {
                     text = splitEditText.getText().toString();
                     if (!text.isEmpty()) {
-                        totalValue += Double.parseDouble(text);
+                        totalValue += AppUtils.extractCurrencyValue(text);
                     }
                 }
-                totalValue = AppUtils.roundValue(totalValue);
-                mValue.setText(String.valueOf(totalValue));
+                mValue.setText(AppUtils.formatEditableCurrencyValue(totalValue));
                 mChangeValues = true;
             }
         }
@@ -263,7 +268,7 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
         List<TransactionSplit> splits = new ArrayList<>();
         for (int i = 0; i < mMembers.size(); i++) {
             TransactionSplit split = new TransactionSplit(mMembers.get(i),
-                    Double.valueOf(mSplits[i].getText().toString()));
+                    AppUtils.extractCurrencyValue(mSplits[i].getText().toString()));
             splits.add(split);
         }
 
@@ -271,7 +276,7 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
                 new GroupTransactionBuilder()
                         .setDescription(mDescription.getText().toString())
                         .setPayer(mPayer)
-                        .setValue(Double.valueOf(mValue.getText().toString()))
+                        .setValue(AppUtils.extractCurrencyValue(mValue.getText().toString()))
                         .setSplits(splits);
 
         try {

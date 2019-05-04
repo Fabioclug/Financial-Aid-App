@@ -54,7 +54,7 @@ public class AccountDao {
     private Account build(Cursor cursor) {
         long aId = cursor.getLong(cursor.getColumnIndex(AccountTable._ID));
         String aName = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_NAME));
-        double aBalance = cursor.getDouble(cursor.getColumnIndex(AccountTable.COLUMN_BALANCE));
+        long aBalance = cursor.getLong(cursor.getColumnIndex(AccountTable.COLUMN_BALANCE));
         String aType = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_TYPE));
         return new AccountBuilder().setId(aId)
                                    .setName(aName)
@@ -87,7 +87,7 @@ public class AccountDao {
     }
 
     public boolean updateBalance(Account account, Transaction transaction) {
-        double balance = AppUtils.roundValue(account.getBalance() + transaction.getValue());
+        long balance = account.getBalance() + transaction.getValue();
         Log.d("dao", "balance: " + balance);
         account.setBalance(balance);
         ContentValues values = new ContentValues();
@@ -99,8 +99,8 @@ public class AccountDao {
         return result > 0;
     }
 
-    public boolean updateBalance(Account account, double difference) {
-        double balance = AppUtils.roundValue(account.getBalance() + difference);
+    public boolean updateBalance(Account account, long difference) {
+        long balance = account.getBalance() + difference;
         Log.d("dao", "balance: " + balance);
         account.setBalance(balance);
         ContentValues values = new ContentValues();

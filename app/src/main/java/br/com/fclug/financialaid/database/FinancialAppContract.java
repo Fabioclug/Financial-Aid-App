@@ -24,7 +24,7 @@ public final class FinancialAppContract {
                 TABLE_NAME + " (" +
                 _ID + " INTEGER " + PRIMARY_KEY + ", " +
                 COLUMN_NAME + " TEXT " + NOT_NULL + ", " +
-                COLUMN_BALANCE + " REAL " + NOT_NULL + ", " +
+                COLUMN_BALANCE + " INTEGER " + NOT_NULL + ", " +
                 COLUMN_TYPE + " TEXT " + NOT_NULL + ")";
 
         public static final String DROP_TABLE = "DROP TABLE IF EXISTS " + TABLE_NAME;
@@ -61,7 +61,7 @@ public final class FinancialAppContract {
                 COLUMN_ACCOUNT + " INTEGER, " +
                 COLUMN_DESCRIPTION + " TEXT " + NOT_NULL + ", " +
                 COLUMN_DATE + " INTEGER " + NOT_NULL + ", " +
-                COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                COLUMN_VALUE + " INTEGER " + NOT_NULL + ", " +
                 FOREIGN_KEY + "(" + COLUMN_ACCOUNT + ") REFERENCES " + AccountTable.TABLE_NAME + "(" + AccountTable._ID + ") " +
                     "ON DELETE CASCADE, " +
                 FOREIGN_KEY + "(" + COLUMN_CATEGORY + ") REFERENCES " +
@@ -92,7 +92,7 @@ public final class FinancialAppContract {
                 TABLE_NAME + " (" +
                 COLUMN_USER + " TEXT " + NOT_NULL + ", " +
                 COLUMN_GROUP + " INTEGER, " +
-                COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                COLUMN_VALUE + " INTEGER " + NOT_NULL + ", " +
                 PRIMARY_KEY + "(" + COLUMN_USER + ", " + COLUMN_GROUP + "), " +
                 FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
                 ") ON DELETE CASCADE)";
@@ -111,7 +111,7 @@ public final class FinancialAppContract {
                 _ID + " INTEGER " + PRIMARY_KEY + ", " +
                 COLUMN_GROUP + " INTEGER, " +
                 COLUMN_DESCRIPTION + " TEXT " + NOT_NULL + ", " +
-                COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                COLUMN_VALUE + " INTEGER " + NOT_NULL + ", " +
                 COLUMN_DATE + " TEXT " + NOT_NULL + ", " +
                 COLUMN_CREDITOR + " TEXT " + NOT_NULL + ", " +
                 FOREIGN_KEY + "(" + COLUMN_GROUP + ") REFERENCES " + GroupTable.TABLE_NAME + "(" + GroupTable._ID +
@@ -151,7 +151,7 @@ public final class FinancialAppContract {
                 TABLE_NAME + " (" +
                 COLUMN_TRANSACTION + " INTEGER, " +
                 COLUMN_DEBTOR + " TEXT, " +
-                COLUMN_VALUE + " REAL " + NOT_NULL + ", " +
+                COLUMN_VALUE + " INTEGER " + NOT_NULL + ", " +
                 COLUMN_GROUP + " INTEGER, " +
                 FOREIGN_KEY + "(" + COLUMN_TRANSACTION + ") REFERENCES " +
                     GroupTransactionTable.TABLE_NAME + "(" + GroupTransactionTable._ID + ") ON DELETE CASCADE, " +

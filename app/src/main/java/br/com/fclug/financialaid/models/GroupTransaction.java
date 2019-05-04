@@ -16,7 +16,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
     private long id;
     private String description;
     private User payer;
-    private double value;
+    private long value;
     private Date date;
     private List<TransactionSplit> splits;
 
@@ -29,7 +29,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         this.splits = builder.splits;
     }
 
-    public GroupTransaction(String description, User payer, double value, Date date, List<TransactionSplit> splits) {
+    public GroupTransaction(String description, User payer, long value, Date date, List<TransactionSplit> splits) {
         this.description = description;
         this.payer = payer;
         this.value = value;
@@ -37,7 +37,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         this.splits = splits;
     }
 
-    public GroupTransaction(long id, String description, User payer, double value, Date date) {
+    public GroupTransaction(long id, String description, User payer, long value, Date date) {
         this.id = id;
         this.description = description;
         this.payer = payer;
@@ -46,7 +46,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         splits = new ArrayList<>();
     }
 
-    public GroupTransaction(long id, String description, User payer, double value, List<TransactionSplit> splits) {
+    public GroupTransaction(long id, String description, User payer, long value, List<TransactionSplit> splits) {
         this.id = id;
         this.description = description;
         this.payer = payer;
@@ -58,7 +58,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         id = in.readLong();
         description = in.readString();
         payer = in.readParcelable(User.class.getClassLoader());
-        value = in.readDouble();
+        value = in.readLong();
         date = new Date(in.readLong());
 
         if (in.readByte() == 0x01) {
@@ -74,7 +74,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         dest.writeLong(id);
         dest.writeString(description);
         dest.writeParcelable(payer, flags);
-        dest.writeDouble(value);
+        dest.writeLong(value);
         dest.writeLong(date.getTime());
         if (splits == null) {
             dest.writeByte((byte) (0x00));
@@ -129,7 +129,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
         return payer;
     }
 
-    public double getValue() {
+    public long getValue() {
         return value;
     }
 
@@ -140,7 +140,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
     public static class GroupTransactionBuilder {
         private String description;
         private User payer;
-        private double value;
+        private long value;
         private Date date;
         private List<TransactionSplit> splits;
         private long id;
@@ -155,7 +155,7 @@ public class GroupTransaction implements UniqueObject, Parcelable {
             return this;
         }
 
-        public GroupTransactionBuilder setValue(double value) {
+        public GroupTransactionBuilder setValue(long value) {
             this.value = value;
             return this;
         }

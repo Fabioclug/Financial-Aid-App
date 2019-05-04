@@ -8,9 +8,9 @@ public class GroupDebt {
 
     private User creditor;
     private User debtor;
-    private double value;
+    private long value;
 
-    public GroupDebt(User creditor, User debtor, double value) {
+    public GroupDebt(User creditor, User debtor, long value) {
         this.creditor = creditor;
         this.debtor = debtor;
         this.value = value;
@@ -24,11 +24,11 @@ public class GroupDebt {
         return debtor;
     }
 
-    public double getValue() {
+    public long getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(long value) {
         this.value = value;
     }
 

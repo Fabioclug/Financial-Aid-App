@@ -181,13 +181,13 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
                         JSONObject transactionJson = result.getJSONObject(i);
                         User payer = members.get(transactionJson.getString("creditor"));
                         GroupTransaction transaction = new GroupTransaction(transactionJson.getLong("id"),
-                                transactionJson.getString("name"), payer, transactionJson.getDouble("value"),
+                                transactionJson.getString("name"), payer, transactionJson.getLong("value"),
                                 buildDateFormatter.parse(transactionJson.getString("moment")));
                         JSONArray transactionSplits = transactionJson.getJSONArray("splits");
                         for (int j = 0; j < transactionSplits.length(); j++) {
                             JSONObject splitJson = transactionSplits.getJSONObject(j);
                             User debtor = members.get(splitJson.getString("debtor_id"));
-                            TransactionSplit split = new TransactionSplit(debtor, splitJson.getDouble("value"));
+                            TransactionSplit split = new TransactionSplit(debtor, splitJson.getLong("value"));
                             transaction.addSplit(split);
                         }
                         mItems.add(transaction);

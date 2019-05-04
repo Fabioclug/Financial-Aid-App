@@ -153,12 +153,7 @@ public class RegisterActivity extends AppCompatActivity {
                                 @Override
                                 public void onSuccess(JSONObject response) throws JSONException {
                                     progressDialog.dismiss();
-                                    String token = response.getString("token");
-                                    SessionManager.createLoginSession(RegisterActivity.this, username,
-                                            mName.getText().toString(), password, token);
-                                    Intent i = new Intent(RegisterActivity.this, MainActivity.class);
-                                    startActivity(i);
-                                    finish();
+                                    SessionManager.checkLogin(RegisterActivity.this);
                                 }
 
                                 @Override

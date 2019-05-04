@@ -10,7 +10,7 @@ import br.com.fclug.financialaid.utils.AppUtils;
 public class Account implements UniqueObject {
     private long id;
     private String name;
-    private double balance;
+    private long balance;
     private String type;
 
     private Account(AccountBuilder builder) {
@@ -36,7 +36,7 @@ public class Account implements UniqueObject {
         this.name = name;
     }
 
-    public double getBalance() {
+    public long getBalance() {
         return balance;
     }
 
@@ -44,7 +44,7 @@ public class Account implements UniqueObject {
         return AppUtils.formatCurrencyValue(balance);
     }
 
-    public void setBalance(double balance) {
+    public void setBalance(long balance) {
         this.balance = balance;
     }
 
@@ -76,7 +76,7 @@ public class Account implements UniqueObject {
     public static class AccountBuilder {
         private long id;
         private String name;
-        private double balance;
+        private long balance;
         private String type;
 
         public AccountBuilder setId(long id) {
@@ -89,7 +89,7 @@ public class Account implements UniqueObject {
             return this;
         }
 
-        public AccountBuilder setBalance(double balance) {
+        public AccountBuilder setBalance(long balance) {
             this.balance = balance;
             return this;
         }

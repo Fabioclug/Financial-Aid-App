@@ -62,7 +62,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                             JSONObject args = new JSONObject();
                             args.put("pattern", constraint.toString());
                             args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
-                            JSONObject response = ServerUtils.doPostRequest(ServerUtils.ROUTE_GET_USERS, args);
+                            JSONObject response = ServerUtils.doPostRequest(ServerUtils.ROUTE_GET_SIMILAR_USERS, args);
                             JSONArray users = response.getJSONArray("result");
                             for (int i = 0; i < users.length(); i++) {
                                 JSONObject user = users.getJSONObject(i);

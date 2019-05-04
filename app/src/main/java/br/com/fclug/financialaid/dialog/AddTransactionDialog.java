@@ -174,8 +174,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
 
         long accountId = mSelectedAccount.getId();
         TransactionDao transactionDao = new TransactionDao(mContext);
-        double value = Double.parseDouble(mTransactionValue.getText().toString());
-        value = AppUtils.roundValue(value);
+        long value = AppUtils.extractCurrencyValue(mTransactionValue.getText().toString());
         if (!mTransactionCredit) {
             value *= -1;
         }
@@ -197,7 +196,7 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             updatedTransaction.setDate(date);
             updatedTransaction.setAccountId(accountId);
             transactionDao.update(updatedTransaction);
-            double valueDifference = updatedTransaction.getValue() - mUpdateTransaction.getValue();
+            long valueDifference = updatedTransaction.getValue() - mUpdateTransaction.getValue();
             mAccountDao.updateBalance(mSelectedAccount, valueDifference);
             mOperationListener.onUpdate(updatedTransaction);
         }

@@ -53,7 +53,7 @@ public class Group implements Parcelable {
             JSONObject member = membersObject.getJSONObject(j);
             OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
             memberList.add(user);
-            memberCredits.add(new TransactionSplit(user, member.getDouble("value")));
+            memberCredits.add(new TransactionSplit(user, member.getLong("value")));
         }
         if(setMembers) {
             this.members = memberList;

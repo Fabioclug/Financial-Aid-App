@@ -3,9 +3,9 @@ package br.com.fclug.financialaid.utils;
 import android.app.Application;
 import android.app.DatePickerDialog;
 import android.content.Context;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListView;
@@ -94,8 +94,24 @@ public final class AppUtils extends Application {
         return result;
     }
 
-    public static String formatCurrencyValue(double value) {
-        return NumberFormat.getCurrencyInstance().format(value); //String.format("%.2f", value).replace(".", ",");
+    public static long extractCurrencyValue(String moneyNotationValue) {
+        Log.d("extractCurrencyValue", moneyNotationValue);
+        String[] parts = moneyNotationValue.split("\\.");
+        long dollars = Long.parseLong(parts[0]) * 100;
+        int cents = Integer.parseInt(parts[1]);
+        if(parts[1].length() == 1) {
+            cents *= 10;
+        }
+        return dollars + cents;
+    }
+
+    public static String formatEditableCurrencyValue(long valueInCents) {
+        return String.valueOf(valueInCents / 100.0);
+    }
+
+    public static String formatCurrencyValue(long valueInCents) {
+        Log.d("formatCurrencyValue", "value: " + valueInCents);
+        return NumberFormat.getCurrencyInstance().format(valueInCents / 100.0); //String.format("%.2f", value).replace(".", ",");
     }
 
     public static void attachCalendarToEditText(final Context context, final EditText editText, final SimpleDateFormat formatter) {

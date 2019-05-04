@@ -84,7 +84,7 @@ public class GroupDao {
                         User member = buildMember(memberCursor);
                         members.add(member);
                         credits.add(new TransactionSplit(member,
-                                memberCursor.getDouble(memberCursor.getColumnIndex(GroupMemberTable.COLUMN_VALUE))));
+                                memberCursor.getLong(memberCursor.getColumnIndex(GroupMemberTable.COLUMN_VALUE))));
                     }
                 }
                 group.setMembers(members);
@@ -104,7 +104,7 @@ public class GroupDao {
             while (memberCursor.moveToNext()) {
                 User user = groupMembers.get(memberCursor.getString(memberCursor
                         .getColumnIndex(GroupMemberTable.COLUMN_USER)));
-                double value = memberCursor.getDouble(memberCursor.getColumnIndex(GroupMemberTable.COLUMN_VALUE));
+                long value = memberCursor.getLong(memberCursor.getColumnIndex(GroupMemberTable.COLUMN_VALUE));
                 credits.add(new TransactionSplit(user, value));
             }
         }
@@ -151,7 +151,7 @@ public class GroupDao {
                 String description = cursor.getString(cursor.getColumnIndex(GroupTransactionTable.COLUMN_DESCRIPTION));
                 User payer = groupMembers.get(cursor.getString(cursor.getColumnIndex(
                         GroupTransactionTable.COLUMN_CREDITOR)));
-                double value = cursor.getDouble(cursor.getColumnIndex(GroupTransactionTable.COLUMN_VALUE));
+                long value = cursor.getLong(cursor.getColumnIndex(GroupTransactionTable.COLUMN_VALUE));
                 String date = cursor.getString(cursor.getColumnIndex(GroupTransactionTable.COLUMN_DATE));
                 Date formattedDate = null;
                 try {
@@ -175,7 +175,7 @@ public class GroupDao {
                     while (splitCursor.moveToNext()) {
                         User debtor = groupMembers.get(splitCursor.getString(splitCursor.getColumnIndex(
                                 TransactionSplitTable.COLUMN_DEBTOR)));
-                        double split = splitCursor.getDouble(splitCursor.getColumnIndex(
+                        long split = splitCursor.getLong(splitCursor.getColumnIndex(
                                 TransactionSplitTable.COLUMN_VALUE));
                         splits.add(new TransactionSplit(debtor, split));
 

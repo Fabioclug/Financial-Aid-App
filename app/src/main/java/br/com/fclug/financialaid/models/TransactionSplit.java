@@ -3,8 +3,6 @@ package br.com.fclug.financialaid.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import java.io.Serializable;
-
 /**
  * Created by Fabioclug on 2016-10-17.
  */
@@ -12,9 +10,9 @@ import java.io.Serializable;
 public class TransactionSplit implements Parcelable {
 
     private User debtor;
-    private double value;
+    private long value;
 
-    public TransactionSplit(User debtor, double value) {
+    public TransactionSplit(User debtor, long value) {
         this.debtor = debtor;
         this.value = value;
     }
@@ -25,13 +23,13 @@ public class TransactionSplit implements Parcelable {
 
     protected TransactionSplit(Parcel in) {
         debtor = in.readParcelable(User.class.getClassLoader());
-        value = in.readDouble();
+        value = in.readLong();
     }
 
     @Override
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeParcelable(debtor, flags);
-        dest.writeDouble(value);
+        dest.writeLong(value);
     }
 
     @Override
@@ -59,11 +57,11 @@ public class TransactionSplit implements Parcelable {
         this.debtor = debtor;
     }
 
-    public double getValue() {
+    public long getValue() {
         return value;
     }
 
-    public void setValue(double value) {
+    public void setValue(long value) {
         this.value = value;
     }
 }

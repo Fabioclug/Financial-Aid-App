@@ -20,6 +20,7 @@ import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.TransactionDao;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
+import br.com.fclug.financialaid.utils.AppUtils;
 
 /**
  * Created by Fabioclug on 2016-06-11.
@@ -89,7 +90,7 @@ public class TransactionListAdapter extends BaseAdapter {
             viewHolderTransactionItem.transactionDate.setText(mDateFormatter.format(transactionItem.getDate()));
             viewHolderTransactionItem.transactionDescription.setText(transactionItem.getDescription());
             viewHolderTransactionItem.transactionDescription.setSelected(true);
-            viewHolderTransactionItem.transactionValue.setText(String.format(Locale.getDefault(), "%.2f", transactionItem.getValue()));
+            viewHolderTransactionItem.transactionValue.setText(AppUtils.formatCurrencyValue(transactionItem.getValue()));
             if(transactionItem.getValue() >= 0) {
                 viewHolderTransactionItem.transactionValue.setTextColor(ContextCompat.getColor(mContext, R.color.transaction_type_credit));
             } else {

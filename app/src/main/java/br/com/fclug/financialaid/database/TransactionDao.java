@@ -67,7 +67,7 @@ public class TransactionDao {
     private Transaction build(Cursor cursor) {
         long tId = cursor.getInt(cursor.getColumnIndex(TransactionTable._ID));
         String categoryName = cursor.getString(cursor.getColumnIndex(TransactionTable.COLUMN_CATEGORY));
-        float tValue = cursor.getFloat(cursor.getColumnIndex(TransactionTable.COLUMN_VALUE));
+        long tValue = cursor.getLong(cursor.getColumnIndex(TransactionTable.COLUMN_VALUE));
         String tDescription = cursor.getString(cursor.getColumnIndex(TransactionTable.COLUMN_DESCRIPTION));
         long aId = cursor.getInt(cursor.getColumnIndex(TransactionTable.COLUMN_ACCOUNT));
         Date tDate = new Date(cursor.getLong(cursor.getColumnIndex(TransactionTable.COLUMN_DATE)));

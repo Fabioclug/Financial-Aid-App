@@ -1,5 +1,7 @@
 package br.com.fclug.financialaid.models;
 
+import android.os.Parcel;
+
 /**
  * Created by Fabioclug on 2017-10-21.
  */
@@ -12,6 +14,28 @@ public class OnlineUser extends User {
         super(username);
         this.name = name;
     }
+
+    private OnlineUser(Parcel in) {
+        super(in);
+        name = in.readString();
+    }
+
+    public void writeToParcel(Parcel dest, int flags) {
+        super.writeToParcel(dest, flags);
+        dest.writeString(name);
+    }
+
+    public static final Creator<OnlineUser> CREATOR = new Creator<OnlineUser>() {
+        @Override
+        public OnlineUser createFromParcel(Parcel in) {
+            return new OnlineUser(in);
+        }
+
+        @Override
+        public OnlineUser[] newArray(int size) {
+            return new OnlineUser[size];
+        }
+    };
 
     public String getName() {
         return name;

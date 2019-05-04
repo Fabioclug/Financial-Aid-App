@@ -38,6 +38,16 @@ public class SessionManager {
     }
 
     public void requestLogin(String username, String password) {
+        JSONObject requestArgs;
+        requestArgs = new JSONObject();
+        try {
+            requestArgs.put("username", username);
+            requestArgs.put("password", password);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
+
+        //new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_LOGIN, requestArgs, mLoginCallback).execute();
         //TODO: the API request and call createLoginSession
     }
 
@@ -152,6 +162,7 @@ public class SessionManager {
         Editor editor = getSharedPreferences(context).edit();
         editor.putString(KEY_FB_TOKEN, fbToken);
         editor.commit();
+        Log.d(TAG, "updating fbToken: " + fbToken);
         sendFbTokenToServer(context);
     }
 
@@ -162,6 +173,7 @@ public class SessionManager {
             JSONObject request = new JSONObject();
             try {
                 request.put("token", token);
+                Log.d(TAG, "fbToken: " + fbToken);
                 request.put("fb_token", fbToken);
             } catch (JSONException e) {
                 e.printStackTrace();
