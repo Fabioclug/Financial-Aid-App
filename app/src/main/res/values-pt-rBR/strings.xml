@@ -81,9 +81,13 @@
     <string name="offline_group"> Grupo offline</string>
     <string name="offline_default_member">Você</string>
 
-    <!-- Remove group -->
-    <string name="remove_group_title">Remover grupo</string>
-    <string name="remove_group_confirm">Tem certeza que deseja remover esse grupo?</string>
+    <!-- Delete group -->
+    <string name="delete_group_title">Remover grupo</string>
+    <string name="delete_group_confirm">Tem certeza que deseja remover o grupo?</string>
+
+    <!-- Exit group -->
+    <string name="exit_group_title">Sair do grupo</string>
+    <string name="exit_group_confirm">Tem certeza que deseja sair do grupo?</string>
 
     <!-- Statistics strings -->
     <string name="last_seven_days_graph">Gastos nos últimos 7 dias</string>

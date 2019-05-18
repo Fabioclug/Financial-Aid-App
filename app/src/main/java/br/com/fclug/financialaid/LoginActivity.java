@@ -83,8 +83,12 @@ public class LoginActivity extends AppCompatActivity {
                 case HttpURLConnection.HTTP_GATEWAY_TIMEOUT:
                     Toast.makeText(LoginActivity.this, "Server is unavailable", Toast.LENGTH_SHORT).show();
                     break;
-                default:
-                    mAlertDialog.setMessage("Username/password doesn't match");
+                case HttpURLConnection.HTTP_UNAUTHORIZED:
+                    mAlertDialog.setMessage("Username and password do not match");
+                    mAlertDialog.show();
+                    break;
+                case HttpURLConnection.HTTP_INTERNAL_ERROR:
+                    mAlertDialog.setMessage("Unable to connect to server");
                     mAlertDialog.show();
                     break;
             }

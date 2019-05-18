@@ -16,7 +16,7 @@
     <dimen name="fab_special_margin">22dp</dimen>
 
     <!-- Dialogs -->
-    <dimen name="dialog_header_text_size">22sp</dimen>
+    <dimen name="dialog_header_text_size">20sp</dimen>
 
 
     <!-- List Swipe -->

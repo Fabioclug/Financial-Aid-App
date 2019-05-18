@@ -153,13 +153,15 @@ public class CreateGroupActivity extends AppCompatActivity {
             }
         });
 
+        final User creator = addCurrentUser();
+
         if (confirmButton != null) {
             confirmButton.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     String groupName = mGroupName.getText().toString();
                     List<User> members = mListAdapter.getMembersList();
-                    mGroup = new Group(groupName, members);
+                    mGroup = new Group(groupName, members, creator);
 
                     JSONObject args = new JSONObject();
                     JSONArray memberList = new JSONArray();
@@ -169,9 +171,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                             name.put("username", member.getUsername());
                             memberList.put(name);
                         }
-//                        JSONObject creator = new JSONObject();
-//                        creator.put("username", mUserData.get(SessionManager.KEY_USERNAME));
-//                        memberList.put(creator);
                         args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
                         args.put("name", mGroupName.getText().toString());
                         args.put("members", memberList);
@@ -184,14 +183,14 @@ public class CreateGroupActivity extends AppCompatActivity {
                 }
             });
         }
-        addCurrentUser();
     }
 
-    private void addCurrentUser() {
+    private User addCurrentUser() {
         HashMap<String, String> currentUser = SessionManager.getUserDetails(this);
         OnlineUser user = new OnlineUser(currentUser.get(SessionManager.KEY_USERNAME),
                 currentUser.get(SessionManager.KEY_NAME));
         mListAdapter.addMember(user);
+        return user;
     }
 
     @Override

@@ -190,7 +190,25 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         Group groupItem = item.group;
         if (groupItem != null) {
             if (groupItem.isOnline()) {
-                //TODO: implement removal from remote database
+                ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
+                    @Override
+                    public void onSuccess(JSONObject response) throws JSONException {
+                        Log.d("GroupListAdapter", "Group successfully removed");
+                    }
+
+                    @Override
+                    public void onFailure(int code) {
+                        Log.e("GroupListAdapter", "Unable to remove group");
+                    }
+                };
+                JSONObject args = new JSONObject();
+                try {
+                    args.put("token", SessionManager.getUserDetails(mContext).get(SessionManager.KEY_TOKEN));
+                    args.put("group_id", groupItem.getId());
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+                new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_REMOVE_GROUP, args, callback).execute();
             } else {
                 GroupDao dao = new GroupDao(mContext);
                 dao.delete(groupItem);

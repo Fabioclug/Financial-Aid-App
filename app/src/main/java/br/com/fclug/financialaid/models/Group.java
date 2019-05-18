@@ -18,6 +18,7 @@ public class Group implements Parcelable {
 
     private long id;
     private String name;
+    private User creator;
     private List<User> members;
     private List<TransactionSplit> groupBalances;
     private boolean online;
@@ -33,6 +34,12 @@ public class Group implements Parcelable {
         this.members = members;
     }
 
+    public Group(String name, List<User> members, User creator) {
+        this.name = name;
+        this.members = members;
+        this.creator = creator;
+    }
+
     public Group(long id, String name, List<User> members, List<TransactionSplit> groupBalances, boolean online) {
         this.id = id;
         this.name = name;
@@ -43,15 +50,19 @@ public class Group implements Parcelable {
 
     public Group(JSONObject groupJsonData) throws JSONException {
         this(groupJsonData.getLong("group_id"), groupJsonData.getString("name"), true);
-        setGroupBalances(groupJsonData.getJSONArray("members"), true);
+        String creator = groupJsonData.getString("creator");
+        setGroupBalances(groupJsonData.getJSONArray("members"), creator, true);
     }
 
-    public void setGroupBalances(JSONArray membersObject, boolean setMembers) throws JSONException {
+    private void setGroupBalances(JSONArray membersObject, String creator, boolean setMembers) throws JSONException {
         List<User> memberList = new ArrayList<>();
         List<TransactionSplit> memberCredits = new ArrayList<>();
         for (int j = 0; j < membersObject.length(); j++) {
             JSONObject member = membersObject.getJSONObject(j);
             OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
+            if(user.getUsername().equals(creator)) {
+                this.creator = user;
+            }
             memberList.add(user);
             memberCredits.add(new TransactionSplit(user, member.getLong("value")));
         }
@@ -64,6 +75,7 @@ public class Group implements Parcelable {
     protected Group(Parcel in) {
         id = in.readLong();
         name = in.readString();
+        creator = in.readParcelable(User.class.getClassLoader());
         online = in.readByte() != 0;
         if (in.readByte() == 0x01) {
             members = new ArrayList<>();
@@ -84,6 +96,7 @@ public class Group implements Parcelable {
     public void writeToParcel(Parcel dest, int flags) {
         dest.writeLong(id);
         dest.writeString(name);
+        dest.writeParcelable(creator, flags);
         dest.writeByte((byte) (online ? 1 : 0));
         if (members == null) {
             dest.writeByte((byte) (0x00));
@@ -131,6 +144,14 @@ public class Group implements Parcelable {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public User getCreator() {
+        return creator;
+    }
+
+    public void setCreator(User creator) {
+        this.creator = creator;
     }
 
     public boolean isOnline() {

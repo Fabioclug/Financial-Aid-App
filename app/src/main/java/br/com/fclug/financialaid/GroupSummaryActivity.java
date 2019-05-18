@@ -136,8 +136,12 @@ public class GroupSummaryActivity extends AppCompatActivity {
                 return true;
             case R.id.action_remove_group:
                 final Intent returnIntent = new Intent();
-                new AlertDialog.Builder(GroupSummaryActivity.this).setTitle(R.string.remove_group_title)
-                        .setMessage(getString(R.string.remove_group_confirm))
+                String currentUser = mGroup.getCreator().getUsername();
+                final boolean owner = SessionManager.getUserDetails(this)
+                        .get(SessionManager.KEY_USERNAME).equals(currentUser);
+                new AlertDialog.Builder(GroupSummaryActivity.this)
+                        .setTitle(owner? R.string.delete_group_title : R.string.exit_group_title)
+                        .setMessage(getString(owner? R.string.delete_group_confirm : R.string.exit_group_confirm))
                         .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialogInterface, int id) {
