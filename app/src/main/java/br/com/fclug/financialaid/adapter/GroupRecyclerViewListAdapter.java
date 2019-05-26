@@ -24,6 +24,7 @@ import br.com.fclug.financialaid.SessionManager;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -57,8 +58,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
 
         public HeaderViewHolder(View view) {
             super(view);
-            headerTitle = (TextView) view.findViewById(R.id.group_header_title);
-            expandButton = (ImageView) view.findViewById(R.id.group_list_expand);
+            headerTitle = view.findViewById(R.id.group_header_title);
+            expandButton = view.findViewById(R.id.group_list_expand);
             headerView = view;
         }
     }
@@ -72,9 +73,9 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
 
         public GroupViewHolder(View view) {
             super(view);
-            groupName = (TextView) view.findViewById(R.id.group_name);
-            groupMembers = (TextView) view.findViewById(R.id.group_members);
-            groupBalance = (TextView) view.findViewById(R.id.group_balance);
+            groupName = view.findViewById(R.id.group_name);
+            groupMembers = view.findViewById(R.id.group_members);
+            groupBalance = view.findViewById(R.id.group_balance);
             itemView.setOnClickListener(this);
         }
 
@@ -246,7 +247,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                     mItems.add(mOnlineHeader);
                     for (int i = 0; i < groups.length(); i++) {
                         JSONObject groupJsonData = groups.getJSONObject(i);
-                        GroupListItem onlineGroupItem = new GroupListItem(new Group(groupJsonData));
+                        GroupListItem onlineGroupItem = new GroupListItem(new GroupBuilder().buildFromJson(groupJsonData));
                         mItems.add(onlineGroupItem);
                     }
 

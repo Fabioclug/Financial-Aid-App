@@ -68,7 +68,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         if (container == null)
             return null;
         View view = inflater.inflate(R.layout.groups_fragment, container, false);
-        mGroupsListView = (EmptySupportRecyclerView) view.findViewById(R.id.groups_list);
+        mGroupsListView = view.findViewById(R.id.groups_list);
         mGroupsListView.setEmptyView(view.findViewById(R.id.groups_list_empty_view));
 
         LinearLayoutManager layoutManager = new LinearLayoutManager(getActivity());
@@ -80,19 +80,18 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
         mListAdapter.setListItemClickListener(mListClickListener);
         mListAdapter.setListItems();
 
-        mCreateGroupButton = (FloatingActionButton) view.findViewById(R.id.create_group_fab);
+        mCreateGroupButton = view.findViewById(R.id.create_group_fab);
 
-        mCreateOnlineGroupLayout = (LinearLayout) view.findViewById(R.id.create_online_group_layout);
-        mCreateOfflineGroupLayout = (LinearLayout) view.findViewById(R.id.create_offline_group_layout);
+        mCreateOnlineGroupLayout = view.findViewById(R.id.create_online_group_layout);
+        mCreateOfflineGroupLayout = view.findViewById(R.id.create_offline_group_layout);
 
-        FloatingActionButton createOnlineGroup = (FloatingActionButton) view.findViewById(R.id.create_online_group_fab);
-        FloatingActionButton createOfflineGroup =
-                (FloatingActionButton) view.findViewById(R.id.create_offline_group_fab);
+        FloatingActionButton createOnlineGroup = view.findViewById(R.id.create_online_group_fab);
+        FloatingActionButton createOfflineGroup = view.findViewById(R.id.create_offline_group_fab);
 
-        TextView createOnlineGroupLabel = (TextView) view.findViewById(R.id.create_online_group_label);
-        TextView createOfflineGroupLabel = (TextView) view.findViewById(R.id.create_offline_group_label);
+        TextView createOnlineGroupLabel = view.findViewById(R.id.create_online_group_label);
+        TextView createOfflineGroupLabel = view.findViewById(R.id.create_offline_group_label);
 
-        obstructor = (RelativeLayout) view.findViewById(R.id.obstructor);
+        obstructor = view.findViewById(R.id.obstructor);
 
         mCreateGroupButton.setOnClickListener(this);
         createOnlineGroup.setOnClickListener(this);
@@ -117,7 +116,7 @@ public class GroupsFragment extends Fragment implements View.OnClickListener {
             case R.id.create_online_group_fab:
             case R.id.create_online_group_label:
                 Intent intent = new Intent(getContext(), CreateGroupActivity.class);
-                startActivity(intent);
+                startActivityForResult(intent, REQUEST_ADD_GROUP);
                 closeFabMenu();
                 break;
             case R.id.create_offline_group_fab:

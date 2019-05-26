@@ -23,53 +23,13 @@ public class Group implements Parcelable {
     private List<TransactionSplit> groupBalances;
     private boolean online;
 
-    public Group(long id, String name, boolean online) {
-        this.id = id;
-        this.name = name;
-        this.online = online;
-    }
-
-    public Group(String name, List<User> members) {
-        this.name = name;
-        this.members = members;
-    }
-
-    public Group(String name, List<User> members, User creator) {
-        this.name = name;
-        this.members = members;
-        this.creator = creator;
-    }
-
-    public Group(long id, String name, List<User> members, List<TransactionSplit> groupBalances, boolean online) {
-        this.id = id;
-        this.name = name;
-        this.members = members;
-        this.groupBalances = groupBalances;
-        this.online = online;
-    }
-
-    public Group(JSONObject groupJsonData) throws JSONException {
-        this(groupJsonData.getLong("group_id"), groupJsonData.getString("name"), true);
-        String creator = groupJsonData.getString("creator");
-        setGroupBalances(groupJsonData.getJSONArray("members"), creator, true);
-    }
-
-    private void setGroupBalances(JSONArray membersObject, String creator, boolean setMembers) throws JSONException {
-        List<User> memberList = new ArrayList<>();
-        List<TransactionSplit> memberCredits = new ArrayList<>();
-        for (int j = 0; j < membersObject.length(); j++) {
-            JSONObject member = membersObject.getJSONObject(j);
-            OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
-            if(user.getUsername().equals(creator)) {
-                this.creator = user;
-            }
-            memberList.add(user);
-            memberCredits.add(new TransactionSplit(user, member.getLong("value")));
-        }
-        if(setMembers) {
-            this.members = memberList;
-        }
-        this.groupBalances = memberCredits;
+    private Group(GroupBuilder builder) {
+        this.id = builder.id;
+        this.name = builder.name;
+        this.creator = builder.creator;
+        this.members = builder.members;
+        this.groupBalances = builder.groupBalances;
+        this.online = builder.online;
     }
 
     protected Group(Parcel in) {
@@ -189,5 +149,79 @@ public class Group implements Parcelable {
             groupMembers.put(u.getUsername(), u);
         }
         return groupMembers;
+    }
+
+    public static class GroupBuilder {
+        private long id;
+        private String name;
+        private User creator;
+        private List<User> members;
+        private List<TransactionSplit> groupBalances;
+        private boolean online;
+
+        public GroupBuilder() {
+            this.groupBalances = new ArrayList<>();
+        }
+
+        public GroupBuilder setId(long id) {
+            this.id = id;
+            return this;
+        }
+
+        public GroupBuilder setName(String name) {
+            this.name = name;
+            return this;
+        }
+
+        public GroupBuilder setCreator(User creator) {
+            this.creator = creator;
+            return this;
+        }
+
+        public GroupBuilder setMembers(List<User> members) {
+            this.members = members;
+            return this;
+        }
+
+        public GroupBuilder setGroupBalances(List<TransactionSplit> groupBalances) {
+            this.groupBalances = groupBalances;
+            return this;
+        }
+
+        public GroupBuilder setOnline(boolean online) {
+            this.online = online;
+            return this;
+        }
+
+        public Group build() {
+            return new Group(this);
+        }
+
+        public Group buildFromJson(JSONObject groupJsonData) throws JSONException {
+            this.id = groupJsonData.getLong("group_id");
+            this.name = groupJsonData.getString("name");
+            this.online = true;
+            String creator = groupJsonData.getString("creator");
+            setGroupBalances(groupJsonData.getJSONArray("members"), creator, true);
+            return new Group(this);
+        }
+
+        private void setGroupBalances(JSONArray membersObject, String creator, boolean setMembers) throws JSONException {
+            List<User> memberList = new ArrayList<>();
+            List<TransactionSplit> memberCredits = new ArrayList<>();
+            for (int j = 0; j < membersObject.length(); j++) {
+                JSONObject member = membersObject.getJSONObject(j);
+                OnlineUser user = new OnlineUser(member.getString("username"), member.getString("name"));
+                if(user.getUsername().equals(creator)) {
+                    this.creator = user;
+                }
+                memberList.add(user);
+                memberCredits.add(new TransactionSplit(user, member.getLong("value")));
+            }
+            if(setMembers) {
+                this.members = memberList;
+            }
+            this.groupBalances = memberCredits;
+        }
     }
 }

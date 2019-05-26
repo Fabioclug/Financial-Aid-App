@@ -1,11 +1,13 @@
 package br.com.fclug.financialaid;
 
 import android.content.Context;
+import android.content.Intent;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -27,6 +29,7 @@ import java.util.List;
 
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.models.Group;
+import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -100,14 +103,22 @@ public class CreateGroupActivity extends AppCompatActivity {
     private ApiRequest.RequestCallback createGroupCallback = new ApiRequest.RequestCallback() {
         @Override
         public void onSuccess(JSONObject response) {
-            Toast.makeText(CreateGroupActivity.this, "Group created successfully!", Toast.LENGTH_LONG)
-                    .show();
+            Intent returnIntent = new Intent();
+            try {
+                long groupId = response.getLong("group_id");
+                mGroup.setId(groupId);
+                returnIntent.putExtra("group", mGroup);
+            } catch (JSONException e) {
+                Log.d("CreateGroupActivity", "Unable to get group id from response");
+                e.printStackTrace();
+            }
+            setResult(RESULT_OK, returnIntent);
             finish();
         }
 
         @Override
         public void onFailure(int code) {
-
+            Toast.makeText(CreateGroupActivity.this, "Unable to create group", Toast.LENGTH_SHORT).show();
         }
     };
 
@@ -120,7 +131,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_group_activity);
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
         ActionBar actionBar = getSupportActionBar();
@@ -132,10 +143,10 @@ public class CreateGroupActivity extends AppCompatActivity {
 
         mUserData = SessionManager.getUserDetails(this);
 
-        mGroupName = (EditText) findViewById(R.id.create_group_name);
-        member = (AutoCompleteTextView) findViewById(R.id.create_group_username);
-        ListView membersList = (ListView) findViewById(R.id.create_group_member_list);
-        FloatingActionButton confirmButton = (FloatingActionButton) findViewById(R.id.confirm_group_fab);
+        mGroupName = findViewById(R.id.create_group_name);
+        member = findViewById(R.id.create_group_username);
+        ListView membersList = findViewById(R.id.create_group_member_list);
+        FloatingActionButton confirmButton = findViewById(R.id.confirm_group_fab);
         mListAdapter = new MemberListAdapter(this);
         if (membersList != null) {
             membersList.setAdapter(mListAdapter);
@@ -161,7 +172,11 @@ public class CreateGroupActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     String groupName = mGroupName.getText().toString();
                     List<User> members = mListAdapter.getMembersList();
-                    mGroup = new Group(groupName, members, creator);
+                    mGroup = new GroupBuilder().setName(groupName)
+                                               .setMembers(members)
+                                               .setCreator(creator)
+                                               .setOnline(true)
+                                               .build();
 
                     JSONObject args = new JSONObject();
                     JSONArray memberList = new JSONArray();
@@ -179,7 +194,6 @@ public class CreateGroupActivity extends AppCompatActivity {
                     }
                     new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CREATE_GROUP, args, createGroupCallback)
                             .execute();
-                    finish();
                 }
             });
         }

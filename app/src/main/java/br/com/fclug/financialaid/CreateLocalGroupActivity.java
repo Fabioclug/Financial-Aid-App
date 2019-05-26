@@ -19,7 +19,7 @@ import java.util.List;
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.TransactionSplit;
+import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.utils.FabScrollBehavior;
 
@@ -55,11 +55,11 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
         }
 
 
-        mGroupName = (EditText) findViewById(R.id.create_group_name);
-        mGroupMember = (EditText) findViewById(R.id.create_group_username);
-        mGroupMembersList = (ListView) findViewById(R.id.create_group_member_list);
-        mAddMemberButton = (Button) findViewById(R.id.create_group_add_member);
-        mConfirmButton = (FloatingActionButton) findViewById(R.id.confirm_group_fab);
+        mGroupName = findViewById(R.id.create_group_name);
+        mGroupMember = findViewById(R.id.create_group_username);
+        mGroupMembersList = findViewById(R.id.create_group_member_list);
+        mAddMemberButton = findViewById(R.id.create_group_add_member);
+        mConfirmButton = findViewById(R.id.confirm_group_fab);
         mListAdapter = new MemberListAdapter(this);
 
         mGroupMembersList.setAdapter(mListAdapter);
@@ -100,9 +100,10 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
     private Group createGroup() {
         GroupDao groupDao = new GroupDao(this);
         List<User> members = mListAdapter.getMembersList();
-        Group group = new Group(mGroupName.getText().toString(), members);
+        Group group = new GroupBuilder().setName(mGroupName.getText().toString())
+                                        .setMembers(members)
+                                        .build();
         group.setOnline(false);
-        group.setGroupBalances(new ArrayList<TransactionSplit>());
         groupDao.save(group);
         return group;
     }

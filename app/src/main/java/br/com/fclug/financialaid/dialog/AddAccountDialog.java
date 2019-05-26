@@ -2,6 +2,8 @@ package br.com.fclug.financialaid.dialog;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
+import android.graphics.drawable.ColorDrawable;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -54,9 +56,9 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         setContentView(R.layout.add_account_layout);
 
-        mAccountName = (EditText) findViewById(R.id.add_account_name);
-        mAccountBalance = (EditText) findViewById(R.id.add_account_balance);
-        mAccountType = (Spinner) findViewById(R.id.add_account_category);
+        mAccountName = findViewById(R.id.add_account_name);
+        mAccountBalance = findViewById(R.id.add_account_balance);
+        mAccountType = findViewById(R.id.add_account_category);
         mAccountBalance.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -91,6 +93,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
         Button addAccountButton = (Button) findViewById(R.id.add_account_button);
         addAccountButton.setOnClickListener(this);
+        getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }
 
     @Override

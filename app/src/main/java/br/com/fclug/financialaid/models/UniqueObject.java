@@ -6,6 +6,6 @@ package br.com.fclug.financialaid.models;
 
 public interface UniqueObject {
 
-    public long getId();
-    public void setId(long id);
+    long getId();
+    void setId(long id);
 }
