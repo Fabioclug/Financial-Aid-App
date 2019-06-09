@@ -40,6 +40,7 @@ public class ServerUtils {
     public static final String ROUTE_GET_TRANSACTIONS = "/getGroupTransactions";
     public static final String ROUTE_GET_CREDITS = "/getGroupBalances";
     public static final String ROUTE_REMOVE_GROUP = "/removeGroup";
+    public static final String ROUTE_REMOVE_GROUP_TRANSACTION = "/removeGroupTransaction";
 
 
     public static final int CONNECT_TIMEOUT = 5000;

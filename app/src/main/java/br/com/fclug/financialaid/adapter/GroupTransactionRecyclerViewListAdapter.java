@@ -2,6 +2,7 @@ package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -141,7 +142,25 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     @Override
     public void removeFromDatabase(GroupTransaction item) {
         if(mGroup.isOnline()) {
-            //TODO: implementation on the server
+            ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
+                @Override
+                public void onSuccess(JSONObject response) throws JSONException {
+                    Log.d("GTransactionListAdapter", "Group transaction successfully removed");
+                }
+
+                @Override
+                public void onFailure(int code) {
+                    Log.e("GTransactionListAdapter", "Unable to remove group transaction");
+                }
+            };
+            JSONObject args = new JSONObject();
+            try {
+                args.put("token", SessionManager.getUserDetails(mContext).get(SessionManager.KEY_TOKEN));
+                args.put("transaction_id", item.getId());
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+            new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_REMOVE_GROUP_TRANSACTION, args, callback).execute();
         } else {
             new GroupDao(mContext).delete(item);
         }
