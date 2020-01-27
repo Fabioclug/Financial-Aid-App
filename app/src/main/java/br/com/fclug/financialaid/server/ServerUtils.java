@@ -38,7 +38,7 @@ public class ServerUtils {
     public static final String ROUTE_GET_GROUPS = "/getGroups";
     public static final String ROUTE_GET_SIMILAR_USERS = "/getSimilarUsers";
     public static final String ROUTE_GET_TRANSACTIONS = "/getGroupTransactions";
-    public static final String ROUTE_GET_CREDITS = "/getGroupBalances";
+    public static final String ROUTE_GET_BALANCES = "/getGroupBalances";
     public static final String ROUTE_REMOVE_GROUP = "/removeGroup";
     public static final String ROUTE_REMOVE_GROUP_TRANSACTION = "/removeGroupTransaction";
 

@@ -80,10 +80,10 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
         });
 
         if (mUpdateAccount != null) {
-            TextView title = (TextView) findViewById(R.id.account_dialog_title);
+            TextView title = findViewById(R.id.account_dialog_title);
             title.setText(R.string.edit_account);
             mAccountName.setText(mUpdateAccount.getName());
-            TextView balanceLabel = (TextView) findViewById(R.id.add_account_balance_label);
+            TextView balanceLabel = findViewById(R.id.add_account_balance_label);
             balanceLabel.setVisibility(View.GONE);
             mAccountBalance.setVisibility(View.GONE);
             mAccountBalance.setText(String.valueOf(mUpdateAccount.getBalance()));
@@ -91,7 +91,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
             mAccountType.setSelection(Arrays.asList(accountTypes).indexOf(mUpdateAccount.getType()));
         }
 
-        Button addAccountButton = (Button) findViewById(R.id.add_account_button);
+        Button addAccountButton = findViewById(R.id.add_account_button);
         addAccountButton.setOnClickListener(this);
         getWindow().setBackgroundDrawable(new ColorDrawable(Color.TRANSPARENT));
     }

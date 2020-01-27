@@ -327,7 +327,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             }
         };
 
-        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_CREDITS, args, callback).execute();
+        new ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_GET_BALANCES, args, callback).execute();
     }
 
     private void classifyBalances() {
