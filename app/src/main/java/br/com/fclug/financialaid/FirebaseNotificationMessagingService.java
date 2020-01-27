@@ -2,10 +2,13 @@ package br.com.fclug.financialaid;
 
 import android.util.Log;
 
+import com.google.firebase.iid.FirebaseInstanceId;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
-public class FirebaseNotificationMessagingService extends com.google.firebase.messaging.FirebaseMessagingService {
+import androidx.annotation.NonNull;
+
+public class FirebaseNotificationMessagingService extends FirebaseMessagingService {
 
     private static final String TAG = "MyFirebaseMsgService";
 
@@ -20,5 +23,15 @@ public class FirebaseNotificationMessagingService extends com.google.firebase.me
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
+    }
+
+    @Override
+    public void onNewToken(@NonNull String s) {
+        // Get updated InstanceID token.
+        String refreshedToken = FirebaseInstanceId.getInstance().getToken();
+        Log.d(TAG, "Refreshed token: " + refreshedToken);
+
+        // Send the token to server or/and save it in shared preferences
+        SessionManager.updateFbToken(getApplicationContext(), refreshedToken);
     }
 }

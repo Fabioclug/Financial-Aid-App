@@ -2,11 +2,11 @@ package br.com.fclug.financialaid;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
@@ -29,7 +29,6 @@ import java.util.List;
 
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -172,11 +171,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                 public void onClick(View v) {
                     String groupName = mGroupName.getText().toString();
                     List<User> members = mListAdapter.getMembersList();
-                    mGroup = new GroupBuilder().setName(groupName)
-                                               .setMembers(members)
-                                               .setCreator(creator)
-                                               .setOnline(true)
-                                               .build();
+                    mGroup = new Group(groupName, creator, members, true);
 
                     JSONObject args = new JSONObject();
                     JSONArray memberList = new JSONArray();

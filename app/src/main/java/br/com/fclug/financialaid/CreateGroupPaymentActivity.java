@@ -2,11 +2,11 @@ package br.com.fclug.financialaid;
 
 import android.content.Context;
 import android.content.Intent;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.Toolbar;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -35,7 +35,6 @@ import java.util.Locale;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
 import br.com.fclug.financialaid.models.GroupTransaction;
-import br.com.fclug.financialaid.models.GroupTransaction.GroupTransactionBuilder;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -272,16 +271,13 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
             splits.add(split);
         }
 
-        GroupTransactionBuilder groupTransactionBuilder =
-                new GroupTransactionBuilder()
-                        .setDescription(mDescription.getText().toString())
-                        .setPayer(mPayer)
-                        .setValue(AppUtils.extractCurrencyValue(mValue.getText().toString()))
-                        .setSplits(splits);
-
         try {
             Date date = mReadFormatter.parse(mDate.getText().toString());
-            return groupTransactionBuilder.setDate(date).build();
+            return new GroupTransaction(mDescription.getText().toString(),
+                    mPayer,
+                    AppUtils.extractCurrencyValue(mValue.getText().toString()),
+                    date,
+                    splits);
         } catch (ParseException e) {
             e.printStackTrace();
             return null;

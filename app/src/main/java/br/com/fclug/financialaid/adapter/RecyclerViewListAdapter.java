@@ -1,13 +1,13 @@
 package br.com.fclug.financialaid.adapter;
 
 import android.os.Handler;
-import android.support.v7.widget.RecyclerView;
+import androidx.recyclerview.widget.RecyclerView;
+import br.com.fclug.financialaid.models.UniqueObject;
+
 import android.util.SparseArray;
 
 import java.util.ArrayList;
 import java.util.List;
-
-import br.com.fclug.financialaid.models.UniqueObject;
 
 /**
  * Created by Fabioclug on 2017-10-08.

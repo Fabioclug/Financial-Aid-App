@@ -1,8 +1,8 @@
 package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.widget.RecyclerView;
+import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -24,7 +24,6 @@ import br.com.fclug.financialaid.SessionManager;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.interfaces.OnListClickListener;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.server.ApiRequest;
@@ -247,7 +246,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                     mItems.add(mOnlineHeader);
                     for (int i = 0; i < groups.length(); i++) {
                         JSONObject groupJsonData = groups.getJSONObject(i);
-                        GroupListItem onlineGroupItem = new GroupListItem(new GroupBuilder().buildFromJson(groupJsonData));
+                        GroupListItem onlineGroupItem = new GroupListItem(new Group(groupJsonData));
                         mItems.add(onlineGroupItem);
                     }
 

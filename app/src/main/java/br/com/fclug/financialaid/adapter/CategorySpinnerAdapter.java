@@ -1,8 +1,6 @@
 package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
-import android.support.v4.content.ContextCompat;
-import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +10,6 @@ import android.widget.TextView;
 import java.util.List;
 
 import br.com.fclug.financialaid.R;
-import br.com.fclug.financialaid.database.CategoryDao;
 import br.com.fclug.financialaid.models.Category;
 
 /**

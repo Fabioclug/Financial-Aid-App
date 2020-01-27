@@ -1,7 +1,7 @@
 package br.com.fclug.financialaid.utils;
 
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.view.MotionEventCompat;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.view.MotionEventCompat;
 import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ListView;

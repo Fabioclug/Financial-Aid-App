@@ -9,8 +9,6 @@ import android.util.Log;
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.fclug.financialaid.models.Account.AccountBuilder;
-import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Transaction;
 import br.com.fclug.financialaid.database.FinancialAppContract.AccountTable;
@@ -56,11 +54,7 @@ public class AccountDao {
         String aName = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_NAME));
         long aBalance = cursor.getLong(cursor.getColumnIndex(AccountTable.COLUMN_BALANCE));
         String aType = cursor.getString(cursor.getColumnIndex(AccountTable.COLUMN_TYPE));
-        return new AccountBuilder().setId(aId)
-                                   .setName(aName)
-                                   .setBalance(aBalance)
-                                   .setType(aType)
-                                   .build();
+        return new Account(aId, aName, aBalance, aType);
     }
 
     public List<Account> findAll() {

@@ -14,9 +14,7 @@ import java.util.List;
 import br.com.fclug.financialaid.CreateGroupPaymentActivity;
 import br.com.fclug.financialaid.adapter.GroupTransactionRecyclerViewListAdapter;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.GroupTransaction;
-import br.com.fclug.financialaid.models.GroupTransaction.GroupTransactionBuilder;
 import br.com.fclug.financialaid.models.TransactionSplit;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.database.FinancialAppContract.GroupTable;
@@ -58,7 +56,8 @@ public class GroupDao {
     private Group buildGroup(Cursor cursor) {
         long gId = cursor.getLong(cursor.getColumnIndex(GroupTable._ID));
         String gName = cursor.getString(cursor.getColumnIndex(GroupTable.COLUMN_NAME));
-        return new GroupBuilder().setId(gId).setName(gName).setOnline(false).build();
+        // TODO: find new mechanism to provide the group creator
+        return new Group(gId, gName, new User("You"), false);
     }
 
     private User buildMember(Cursor cursor) {
@@ -160,12 +159,8 @@ public class GroupDao {
                 } catch (ParseException e) {
                     e.printStackTrace();
                 }
-                GroupTransactionBuilder transactionBuilder = new GroupTransactionBuilder()
-                        .setId(id)
-                        .setDescription(description)
-                        .setPayer(payer)
-                        .setValue(value)
-                        .setDate(formattedDate);
+
+                GroupTransaction transaction = new GroupTransaction(id, description, payer, value, formattedDate);
 
                 whereClause = TransactionSplitTable.COLUMN_TRANSACTION + " = ?";
                 whereArgs = new String[] {String.valueOf(id)};
@@ -182,8 +177,8 @@ public class GroupDao {
 
                     }
                 }
-                transactionBuilder.setSplits(splits);
-                transactions.add(transactionBuilder.build());
+                transaction.setSplits(splits);
+                transactions.add(transaction);
             }
         }
         return transactions;

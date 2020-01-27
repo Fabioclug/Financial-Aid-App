@@ -19,13 +19,12 @@ import java.util.Date;
 import java.util.List;
 
 import br.com.fclug.financialaid.interfaces.OnObjectOperationListener;
-import br.com.fclug.financialaid.models.Account.AccountBuilder;
+import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.utils.AppUtils;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.database.AccountDao;
 import br.com.fclug.financialaid.database.CategoryDao;
 import br.com.fclug.financialaid.database.TransactionDao;
-import br.com.fclug.financialaid.models.Account;
 import br.com.fclug.financialaid.models.Category;
 import br.com.fclug.financialaid.models.Transaction;
 
@@ -105,10 +104,7 @@ public class AddAccountDialog extends Dialog implements View.OnClickListener {
 
         if (mUpdateAccount == null) {
             long accountBalance = AppUtils.extractCurrencyValue(mAccountBalance.getText().toString());
-            Account newAccount = new AccountBuilder().setName(accountName)
-                                                     .setBalance(accountBalance)
-                                                     .setType(accountType)
-                                                     .build();
+            Account newAccount = new Account(accountName, accountBalance, accountType);
 
             // save the new transaction
             accountDao.save(newAccount);

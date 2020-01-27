@@ -1,19 +1,17 @@
 package br.com.fclug.financialaid.adapter;
 
 import android.content.Context;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v4.content.ContextCompat;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.core.content.ContextCompat;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.ImageButton;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import br.com.fclug.financialaid.CreateGroupActivity;
 import br.com.fclug.financialaid.R;
 import br.com.fclug.financialaid.models.OnlineUser;
 import br.com.fclug.financialaid.models.User;

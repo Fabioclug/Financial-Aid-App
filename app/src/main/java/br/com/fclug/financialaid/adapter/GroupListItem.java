@@ -9,7 +9,7 @@ import br.com.fclug.financialaid.models.UniqueObject;
  * Created by Fabioclug on 2018-02-22.
  */
 
-public class GroupListItem implements UniqueObject {
+public class GroupListItem extends UniqueObject {
     public static final int HEADER = 0;
     public static final int CHILD = 1;
 

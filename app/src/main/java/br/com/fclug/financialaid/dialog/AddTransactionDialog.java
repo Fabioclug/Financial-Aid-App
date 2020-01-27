@@ -4,7 +4,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
-import android.support.v4.content.ContextCompat;
+import androidx.core.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -188,13 +188,9 @@ public class AddTransactionDialog extends Dialog implements AdapterView.OnItemSe
             mAccountDao.updateBalance(mSelectedAccount, newTransaction);
             mOperationListener.onAdd(newTransaction);
         } else {
-            Transaction updatedTransaction = new Transaction();
-            updatedTransaction.setId(mUpdateTransaction.getId());
-            updatedTransaction.setDescription(mTransactionDescription.getText().toString());
-            updatedTransaction.setValue(value);
-            updatedTransaction.setCategory(mSelectedCategory);
-            updatedTransaction.setDate(date);
-            updatedTransaction.setAccountId(accountId);
+            Transaction updatedTransaction = new Transaction(mUpdateTransaction.getId(),
+                    mTransactionDescription.getText().toString(), value, mSelectedCategory, date,
+                    accountId);
             transactionDao.update(updatedTransaction);
             long valueDifference = updatedTransaction.getValue() - mUpdateTransaction.getValue();
             mAccountDao.updateBalance(mSelectedAccount, valueDifference);

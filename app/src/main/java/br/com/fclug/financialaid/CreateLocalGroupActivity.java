@@ -2,10 +2,10 @@ package br.com.fclug.financialaid;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
@@ -19,7 +19,6 @@ import java.util.List;
 import br.com.fclug.financialaid.adapter.MemberListAdapter;
 import br.com.fclug.financialaid.database.GroupDao;
 import br.com.fclug.financialaid.models.Group;
-import br.com.fclug.financialaid.models.Group.GroupBuilder;
 import br.com.fclug.financialaid.models.User;
 import br.com.fclug.financialaid.utils.FabScrollBehavior;
 
@@ -100,10 +99,8 @@ public class CreateLocalGroupActivity extends AppCompatActivity implements View.
     private Group createGroup() {
         GroupDao groupDao = new GroupDao(this);
         List<User> members = mListAdapter.getMembersList();
-        Group group = new GroupBuilder().setName(mGroupName.getText().toString())
-                                        .setMembers(members)
-                                        .build();
-        group.setOnline(false);
+        Group group = new Group(mGroupName.getText().toString(), new User("You"), members,
+                false);
         groupDao.save(group);
         return group;
     }
