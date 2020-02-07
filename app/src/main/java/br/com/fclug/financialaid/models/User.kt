@@ -7,7 +7,7 @@ import kotlinx.android.parcel.Parcelize
  * Created by Fabioclug on 2016-09-06.
  */
 @Parcelize
-open class User(open var username: String) : Parcelable {
+open class User(@Transient open var username: String) : Parcelable {
 
     open fun getExhibitName(): String {
         return username

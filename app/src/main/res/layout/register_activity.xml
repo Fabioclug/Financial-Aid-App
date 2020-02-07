@@ -91,6 +91,7 @@
         android:layout_height="60dp"
         android:layout_marginBottom="15dp"
         android:text="@string/user_register"
-        android:layout_gravity="center"/>
+        android:layout_gravity="center"
+        android:enabled="false"/>
 
 </LinearLayout>
