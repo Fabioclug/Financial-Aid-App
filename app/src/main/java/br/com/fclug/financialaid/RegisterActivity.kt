@@ -12,37 +12,32 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
-import br.com.fclug.financialaid.server.ApiRequest
-import br.com.fclug.financialaid.server.ApiRequest.RequestCallback
-import br.com.fclug.financialaid.server.ServerApi
-import br.com.fclug.financialaid.server.ServerUtils
-import br.com.fclug.financialaid.server.UserCreation
+import br.com.fclug.financialaid.server.*
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.register_activity.*
-import org.json.JSONException
-import org.json.JSONObject
-import java.net.HttpURLConnection
+import retrofit2.HttpException
 
 class RegisterActivity : AppCompatActivity() {
 
     private val TAG = RegisterActivity::class.java.simpleName
 
     var disposable: Disposable? = null
+    val api: ServerApi = ServerApi()
 
-    private val textWatcher: TextWatcher = object : TextWatcher {
-        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+    private val usernameWatcher: TextWatcher = object : TextWatcher {
+        override fun afterTextChanged(s: Editable?) {}
 
-        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-            val username = register_username.text.toString().trim { it <= ' ' }
-            if (username.isNotEmpty()) {
-                try {
-                    val callback: RequestCallback = object : RequestCallback {
-                        @Throws(JSONException::class)
-                        override fun onSuccess(response: JSONObject) {
-                            val exists = response.getJSONArray("result").getJSONObject(0)
-                                    .getInt("existing") == 1
+        override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
+            if(s.toString().isNotEmpty()) {
+                disposable = api.checkUsername(s.toString())
+                        .subscribeOn(Schedulers.io())
+                        .observeOn(AndroidSchedulers.mainThread())
+                        .subscribe({ response ->
+                            val exists = response.result.existing == 1
                             if (exists) {
                                 register_feedback.setImageResource(android.R.drawable.ic_delete)
                             } else {
@@ -54,27 +49,37 @@ class RegisterActivity : AppCompatActivity() {
                                 }
                             }
                             register_feedback.visibility = View.VISIBLE
-                        }
-
-                        override fun onFailure(code: Int) {}
-                    }
-                    val args = JSONObject()
-                    args.put("username", username)
-                    Log.d(TAG, args.toString())
-                    ApiRequest(ServerUtils.METHOD_POST, ServerUtils.ROUTE_CHECK_USERNAME, args, callback).execute()
-                } catch (e: JSONException) {
-                    e.printStackTrace()
-                }
+                        }, { error ->
+                            Toast.makeText(this@RegisterActivity, R.string.api_request_failed,
+                                    Toast.LENGTH_SHORT).show()
+                            Log.d(TAG, error.message)
+                            error.printStackTrace()
+                        })
             } else {
                 register_feedback.visibility = View.GONE
             }
+        }
+    }
 
+    private val registerEnableWatcher: TextWatcher = object : TextWatcher {
+        override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+
+        override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+            val username = register_username.text.toString().trim { it <= ' ' }
             val name = register_name.text.toString().trim { it <= ' ' }
-            val password = register_password.text.toString().trim { it <= ' ' }
-            val passwordRepeat = register_password_repeat.text.toString().trim { it <= ' ' }
+            val password = register_password.text.toString()
+            val passwordRepeat = register_password_repeat.text.toString()
 
+            val passwordInputted = password.isNotEmpty() && passwordRepeat.isNotEmpty()
+            val passwordValid = password == passwordRepeat
+
+            register_password_alert.visibility = if(passwordInputted && !passwordValid)
+                View.VISIBLE else View.GONE
+
+
+            //TODO: add minimum size and complexity rules
             register_button.isEnabled = name.isNotEmpty() && username.isNotEmpty() &&
-                    password.isNotEmpty() && passwordRepeat.isNotEmpty()
+                    passwordInputted && passwordValid
         }
 
         override fun afterTextChanged(s: Editable) {}
@@ -84,10 +89,11 @@ class RegisterActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.register_activity)
 
-        register_name.addTextChangedListener(textWatcher)
-        register_username.addTextChangedListener(textWatcher)
-        register_password.addTextChangedListener(textWatcher)
-        register_password_repeat.addTextChangedListener(textWatcher)
+        register_name.addTextChangedListener(registerEnableWatcher)
+        register_username.addTextChangedListener(registerEnableWatcher)
+        register_username.addTextChangedListener(usernameWatcher)
+        register_password.addTextChangedListener(registerEnableWatcher)
+        register_password_repeat.addTextChangedListener(registerEnableWatcher)
 
         val progressDialog = ProgressDialog(this)
         progressDialog.setTitle("Registering")
@@ -101,40 +107,37 @@ class RegisterActivity : AppCompatActivity() {
             register_password_repeat.text.clear()
         }
         register_button.setOnClickListener {
-            val username = register_username.text.toString()
+            val username = register_username.text.toString().trim { it <= ' ' }
+            val name = register_name.text.toString().trim { it <= ' ' }
             val password = register_password.text.toString()
-            val passwordRepeat = register_password_repeat.text.toString()
+            val userCreation = UserCreation(username, name, password)
 
-            // TODO: validate it on watcher
-            if (password == passwordRepeat) {
-                progressDialog.show()
-                val userCreation = UserCreation(username, register_name.text.toString(), password)
-                val api = ServerApi()
-                disposable = api.register(userCreation)
-                        .subscribeOn(Schedulers.io())
-                        .observeOn(AndroidSchedulers.mainThread())
-                        .subscribe({response ->
-                            progressDialog.dismiss()
-                            val errorList = response.errors
+            progressDialog.show()
+            disposable = api.register(userCreation)
+                    .subscribeOn(Schedulers.io())
+                    .observeOn(AndroidSchedulers.mainThread())
+                    .subscribe({response ->
+                        progressDialog.dismiss()
+                        Log.d(TAG, response.result.toString())
+                        SessionManager.checkLogin(this@RegisterActivity)
+                    }, {error ->
+                        progressDialog.dismiss()
 
-                            if(errorList.isNotEmpty()) {
-                                alertDialog.setMessage(errorList.get(0).description)
-                                alertDialog.show()
-                            } else {
-                                Log.d(TAG, response.result.toString())
-                                SessionManager.checkLogin(this@RegisterActivity)
+                        if(error is HttpException) {
+                            error.response()?.errorBody()?.let {
+                                val errorResponse = api.convertErrorResponseBody<ApiResponseError>(it)
+                                errorResponse?.let { response ->
+                                    alertDialog.setMessage(response.errors[0].description)
+                                    alertDialog.show()
+                                }
                             }
-                        }, {error ->
-                            progressDialog.dismiss()
+                        } else {
                             Toast.makeText(this@RegisterActivity, R.string.api_request_failed,
                                     Toast.LENGTH_SHORT).show()
                             Log.d(TAG, error.message)
                             error.printStackTrace()
-                        })
-            } else {
-                alertDialog.setMessage(resources.getString(R.string.password_not_match))
-                alertDialog.show()
-            }
+                        }
+                    })
         }
     }
 
