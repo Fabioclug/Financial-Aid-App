@@ -4,6 +4,7 @@
     <!--Login-->
     <string name="login_username">Usuário</string>
     <string name="login_password">Senha</string>
+    <string name="login_signin">Login</string>
     <string name="login_signup">Registrar-se</string>
 
     <!--Register-->
@@ -12,6 +13,9 @@
     <string name="register_password">Senha</string>
     <string name="register_password_repeat">Repetir Senha</string>
     <string name="user_register">Registrar</string>
+    <string name="register_dialog_title">Registrando usuário</string>
+    <string name="registration_failed">Cadastro falhou!</string>
+    <string name="password_not_match">"As senhas digitadas não conferem!"</string>
 
     <string name="action_settings">Configurações</string>
 
@@ -93,4 +97,7 @@
     <string name="last_seven_days_graph">Gastos nos últimos 7 dias</string>
     <string name="transactions_per_account_chart">Transações por Conta</string>
     <string name="account_balances_graph">Saldo por Conta</string>
+
+    <!-- API messages -->
+    <string name="api_request_failed"> Comunicação com o servidor falhou.</string>
 </resources>

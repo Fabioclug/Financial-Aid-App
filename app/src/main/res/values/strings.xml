@@ -13,6 +13,7 @@
     <string name="register_password">Password</string>
     <string name="register_password_repeat">Repeat Password</string>
     <string name="user_register">Register</string>
+    <string name="register_dialog_title">Registering user</string>
     <string name="registration_failed">Registration failed!</string>
     <string name="password_not_match">"Passwords do not match!"</string>
 

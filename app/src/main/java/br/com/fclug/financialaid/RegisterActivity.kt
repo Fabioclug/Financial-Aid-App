@@ -95,9 +95,11 @@ class RegisterActivity : AppCompatActivity() {
         register_password.addTextChangedListener(registerEnableWatcher)
         register_password_repeat.addTextChangedListener(registerEnableWatcher)
 
-        val progressDialog = ProgressDialog(this)
-        progressDialog.setTitle("Registering")
-        progressDialog.setMessage("Communicating with server...")
+        val progressDialog = AlertDialog.Builder(this)
+                .setView(R.layout.progress_dialog)
+                .setTitle(resources.getString(R.string.register_dialog_title))
+                .setCancelable(false)
+                .create()
 
         val alertDialog = AlertDialog.Builder(this).create()
         alertDialog.setTitle(resources.getString(R.string.registration_failed))
