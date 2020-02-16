@@ -14,4 +14,7 @@ interface ServerApiDef {
 
     @POST(ServerUtils.ROUTE_REGISTER_USER)
     fun register(@Body user: UserCreation): Observable<ApiResponse<OnlineUser>>
+
+    @POST(ServerUtils.ROUTE_LOGIN)
+    fun login(@Body userLogin: UserLogin): Observable<ApiResponse<LoginSession>>
 }

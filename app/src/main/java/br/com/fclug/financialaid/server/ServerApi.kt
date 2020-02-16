@@ -49,4 +49,8 @@ class ServerApi {
     fun register(user: UserCreation) : Observable<ApiResponse<OnlineUser>> {
         return api.register(user)
     }
+
+    fun login(userLogin: UserLogin) : Observable<ApiResponse<LoginSession>> {
+        return api.login(userLogin)
+    }
 }

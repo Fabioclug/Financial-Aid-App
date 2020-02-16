@@ -101,8 +101,9 @@ class RegisterActivity : AppCompatActivity() {
                 .setCancelable(false)
                 .create()
 
-        val alertDialog = AlertDialog.Builder(this).create()
-        alertDialog.setTitle(resources.getString(R.string.registration_failed))
+        val alertDialog = AlertDialog.Builder(this)
+                .setTitle(resources.getString(R.string.registration_failed))
+                .create()
         alertDialog.setButton(DialogInterface.BUTTON_POSITIVE, "OK") { _, _ ->
             register_username.text.clear()
             register_password.text.clear()

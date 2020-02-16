@@ -6,6 +6,8 @@
     <string name="login_password">Password</string>
     <string name="login_signin">Login</string>
     <string name="login_signup">Sign Up</string>
+    <string name="login_dialog_title">Authenticating…</string>
+    <string name="login_failed">Login failed!</string>
 
     <!--Register-->
     <string name="register_name">Name</string>

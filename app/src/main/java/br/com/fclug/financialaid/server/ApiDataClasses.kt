@@ -11,3 +11,7 @@ data class UserCreation(val username: String, val name: String, val password: St
 data class UsernameCheck(val username: String)
 
 data class ExistingUser(val existing: Int)
+
+data class UserLogin(val username: String, val password: String)
+
+data class LoginSession(val name: String, val token: String)
