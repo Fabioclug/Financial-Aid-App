@@ -14,14 +14,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.activity_login.*
+import org.koin.android.ext.android.inject
 import retrofit2.HttpException
 
 class LoginActivity : AppCompatActivity() {
 
     private val TAG = LoginActivity::class.java.simpleName
 
-    var disposable: Disposable? = null
-    val api: ServerApi = ServerApi()
+    private var disposable: Disposable? = null
+    private val api: ServerApi by inject()
 
     private val loginWatcher: TextWatcher = object : TextWatcher {
         override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}

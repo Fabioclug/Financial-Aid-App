@@ -1,6 +1,5 @@
 package br.com.fclug.financialaid
 
-import android.app.ProgressDialog
 import android.content.DialogInterface
 import android.graphics.PorterDuff
 import android.os.Bundle
@@ -17,14 +16,15 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
 import kotlinx.android.synthetic.main.register_activity.*
+import org.koin.android.ext.android.inject
 import retrofit2.HttpException
 
 class RegisterActivity : AppCompatActivity() {
 
     private val TAG = RegisterActivity::class.java.simpleName
 
-    var disposable: Disposable? = null
-    val api: ServerApi = ServerApi()
+    private var disposable: Disposable? = null
+    private val api: ServerApi by inject()
 
     private val usernameWatcher: TextWatcher = object : TextWatcher {
         override fun afterTextChanged(s: Editable?) {}
