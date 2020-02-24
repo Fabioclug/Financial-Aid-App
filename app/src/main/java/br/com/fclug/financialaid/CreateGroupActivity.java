@@ -48,7 +48,7 @@ public class CreateGroupActivity extends AppCompatActivity {
         @Override
         public View getView(int position, View convertView, ViewGroup parent) {
             View view = super.getView(position, convertView, parent);
-            mDeleteButton.setVisibility(View.GONE);
+            mDeleteButton.hide();
             return view;
         }
 
@@ -63,13 +63,13 @@ public class CreateGroupActivity extends AppCompatActivity {
                             mUsers = new ArrayList<User>();
                             JSONObject args = new JSONObject();
                             args.put("pattern", constraint.toString());
-                            args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
+                            args.put("token", mSessionManager.getToken());
                             JSONObject response = ServerUtils.doPostRequest(ServerUtils.ROUTE_GET_SIMILAR_USERS, args);
                             JSONArray users = response.getJSONArray("result");
                             for (int i = 0; i < users.length(); i++) {
                                 JSONObject user = users.getJSONObject(i);
                                 String username = user.getString("username");
-                                if(!username.equals(mUserData.get(SessionManager.KEY_USERNAME))) {
+                                if(!username.equals(mSessionManager.getUsername())) {
                                     User suggestion = new OnlineUser(username, user.getString("name"));
                                     if (!mListAdapter.getMembersList().contains(suggestion)) {
                                         mUsers.add(suggestion);
@@ -121,10 +121,10 @@ public class CreateGroupActivity extends AppCompatActivity {
         }
     };
 
-    private HashMap<String, String> mUserData;
     private EditText mGroupName;
     private AutoCompleteTextView member;
     private MemberListAdapter mListAdapter;
+    private SessionManager mSessionManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -140,7 +140,7 @@ public class CreateGroupActivity extends AppCompatActivity {
             setTitle("Create Group");
         }
 
-        mUserData = SessionManager.getUserDetails(this);
+        mSessionManager = new SessionManager(this);
 
         mGroupName = findViewById(R.id.create_group_name);
         member = findViewById(R.id.create_group_username);
@@ -181,7 +181,7 @@ public class CreateGroupActivity extends AppCompatActivity {
                             name.put("username", member.getUsername());
                             memberList.put(name);
                         }
-                        args.put("token", mUserData.get(SessionManager.KEY_TOKEN));
+                        args.put("token", mSessionManager.getToken());
                         args.put("name", mGroupName.getText().toString());
                         args.put("members", memberList);
                     } catch (JSONException e) {
@@ -195,9 +195,7 @@ public class CreateGroupActivity extends AppCompatActivity {
     }
 
     private User addCurrentUser() {
-        HashMap<String, String> currentUser = SessionManager.getUserDetails(this);
-        OnlineUser user = new OnlineUser(currentUser.get(SessionManager.KEY_USERNAME),
-                currentUser.get(SessionManager.KEY_NAME));
+        OnlineUser user = new OnlineUser(mSessionManager.getUsername(), mSessionManager.getName());
         mListAdapter.addMember(user);
         return user;
     }

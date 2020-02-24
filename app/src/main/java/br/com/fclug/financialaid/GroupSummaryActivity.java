@@ -137,8 +137,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
             case R.id.action_remove_group:
                 final Intent returnIntent = new Intent();
                 String currentUser = mGroup.getCreator().getUsername();
-                final boolean owner = SessionManager.getUserDetails(this)
-                        .get(SessionManager.KEY_USERNAME).equals(currentUser);
+                final boolean owner = new SessionManager(this).getUsername().equals(currentUser);
                 new AlertDialog.Builder(GroupSummaryActivity.this)
                         .setTitle(owner? R.string.delete_group_title : R.string.exit_group_title)
                         .setMessage(getString(owner? R.string.delete_group_confirm : R.string.exit_group_confirm))
@@ -297,7 +296,7 @@ public class GroupSummaryActivity extends AppCompatActivity {
     private void getOnlineGroupBalances() {
         JSONObject args = new JSONObject();
         try {
-            args.put("token", SessionManager.getToken(this));
+            args.put("token", new SessionManager(this).getToken());
             args.put("group_id", mGroup.getId());
         } catch (JSONException e) {
             e.printStackTrace();

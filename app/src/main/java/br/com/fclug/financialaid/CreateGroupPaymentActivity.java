@@ -215,7 +215,8 @@ public class CreateGroupPaymentActivity extends AppCompatActivity implements Vie
         if (groupTransaction != null) {
             JSONObject args = new JSONObject();
             try {
-                args.put("token", SessionManager.getToken(this));
+                SessionManager manager = new SessionManager(this);
+                args.put("token", manager.getToken());
                 args.put("group", mGroup.getId());
                 args.put("description", groupTransaction.getDescription());
                 args.put("value", groupTransaction.getValue());

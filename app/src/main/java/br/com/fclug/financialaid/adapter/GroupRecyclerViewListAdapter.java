@@ -42,6 +42,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
     private Context mContext;
     private OnListClickListener mListItemClickListener;
     private RecyclerView mRecyclerView;
+    private SessionManager mSessionManager;
 
     // used for rendering animations
     private int mLastPositionLoaded = -1;
@@ -89,6 +90,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         mItems = new ArrayList<>();
         mOfflineHeader = new GroupListItem(mContext.getResources().getString(R.string.groups_header_offline));
         mOnlineHeader = new GroupListItem(mContext.getResources().getString(R.string.groups_header_online));
+        mSessionManager = new SessionManager(mContext);
     }
 
     @Override
@@ -203,7 +205,7 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
                 };
                 JSONObject args = new JSONObject();
                 try {
-                    args.put("token", SessionManager.getUserDetails(mContext).get(SessionManager.KEY_TOKEN));
+                    args.put("token", mSessionManager.getToken());
                     args.put("group_id", groupItem.getId());
                 } catch (JSONException e) {
                     e.printStackTrace();
@@ -237,7 +239,6 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         }
 
         // get online groups
-        HashMap<String, String> user = SessionManager.getUserDetails(mContext);
         ApiRequest.RequestCallback callback = new ApiRequest.RequestCallback() {
             @Override
             public void onSuccess(JSONObject response) throws JSONException {
@@ -268,8 +269,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         };
         JSONObject args = new JSONObject();
         try {
-            args.put("username", user.get(SessionManager.KEY_USERNAME));
-            args.put("token", user.get(SessionManager.KEY_TOKEN));
+            args.put("username", mSessionManager.getUsername());
+            args.put("token", mSessionManager.getToken());
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -290,9 +291,8 @@ public class GroupRecyclerViewListAdapter extends RecyclerViewListAdapter<GroupL
         long value = 0;
         List<TransactionSplit> credits = group.getGroupBalances();
         User current;
-        if (SessionManager.isLoggedIn(mContext) && group.isOnline()) {
-            HashMap<String, String> userDetails = SessionManager.getUserDetails(mContext);
-            current = new User(userDetails.get(SessionManager.KEY_USERNAME));
+        if (mSessionManager.isLoggedIn() && group.isOnline()) {
+            current = new User(mSessionManager.getUsername());
         } else {
             current = new User(mContext.getResources().getString(R.string.offline_default_member));
         }

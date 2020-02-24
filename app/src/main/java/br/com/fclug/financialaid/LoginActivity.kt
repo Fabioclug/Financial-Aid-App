@@ -10,6 +10,7 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import br.com.fclug.financialaid.server.*
+import br.com.fclug.financialaid.utils.TAG
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -18,8 +19,6 @@ import org.koin.android.ext.android.inject
 import retrofit2.HttpException
 
 class LoginActivity : AppCompatActivity() {
-
-    private val TAG = LoginActivity::class.java.simpleName
 
     private var disposable: Disposable? = null
     private val api: ServerApi by inject()
@@ -56,6 +55,8 @@ class LoginActivity : AppCompatActivity() {
             login_password.text.clear()
         }
 
+        val sessionManager: SessionManager by inject()
+
         login_signin.setOnClickListener {
 
             val username = login_username.text.toString()
@@ -73,9 +74,8 @@ class LoginActivity : AppCompatActivity() {
                         val token = response.result.token
 
                         // Creating user login session
-                        SessionManager.createLoginSession(this@LoginActivity, username,
-                                name, password, token)
-                        SessionManager.sendFbTokenToServer(this@LoginActivity)
+                        sessionManager.createLoginSession(username, name, password, token)
+                        sessionManager.sendFbTokenToServer()
                         // Start MainActivity
                         val i = Intent(applicationContext, MainActivity::class.java)
                         startActivity(i)
@@ -107,6 +107,6 @@ class LoginActivity : AppCompatActivity() {
             startActivity(intent)
         }
 
-        login_skip.setOnClickListener { SessionManager.skipLogin(this@LoginActivity) }
+        login_skip.setOnClickListener { sessionManager.skipLogin() }
     }
 }

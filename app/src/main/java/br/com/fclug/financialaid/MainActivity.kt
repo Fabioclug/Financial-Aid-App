@@ -16,13 +16,16 @@ import br.com.fclug.financialaid.fragments.GroupsFragment
 import br.com.fclug.financialaid.fragments.StatisticsFragment
 import com.google.android.material.navigation.NavigationView
 import kotlinx.android.synthetic.main.main_activity.*
+import org.koin.android.ext.android.inject
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+
+    private val sessionManager: SessionManager by inject()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.main_activity)
-        SessionManager.checkLogin(this)
+        sessionManager.checkLogin()
 
         setSupportActionBar(toolbar)
 
@@ -68,7 +71,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             R.id.drawer_item_accounts -> fragment = AccountsFragment()
             R.id.drawer_item_groups -> fragment = GroupsFragment()
             R.id.drawer_item_statistics -> fragment = StatisticsFragment()
-            R.id.nav_send -> SessionManager.logoutUser(this)
+            R.id.nav_send -> sessionManager.logoutUser()
             else -> fragment = AccountsFragment()
         }
         

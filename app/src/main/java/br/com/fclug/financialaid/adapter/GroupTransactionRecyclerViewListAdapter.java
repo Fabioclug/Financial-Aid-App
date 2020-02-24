@@ -43,6 +43,7 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     private SimpleDateFormat mDateFormatter = new SimpleDateFormat("MM/dd", Locale.US);
     public static SimpleDateFormat buildDateFormatter = new SimpleDateFormat("yyyy-MM-dd", Locale.US);
     private SparseArray<Runnable> mPendingCallbacks = new SparseArray<>();
+    private SessionManager mSessionManager;
 
     public static class GroupTransactionViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         LinearLayout regularLayout;
@@ -89,6 +90,7 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
         mContext = context;
         mGroup = group;
         mItems = new ArrayList<>();
+        mSessionManager = new SessionManager(mContext);
     }
 
     @Override
@@ -155,7 +157,7 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
             };
             JSONObject args = new JSONObject();
             try {
-                args.put("token", SessionManager.getUserDetails(mContext).get(SessionManager.KEY_TOKEN));
+                args.put("token", mSessionManager.getToken());
                 args.put("transaction_id", item.getId());
             } catch (JSONException e) {
                 e.printStackTrace();
@@ -184,7 +186,7 @@ public class GroupTransactionRecyclerViewListAdapter extends RecyclerViewListAda
     private void getOnlineTransactions(final HashMap<String, User> members) {
         JSONObject args = new JSONObject();
         try {
-            args.put("token", SessionManager.getToken(mContext));
+            args.put("token", mSessionManager.getToken());
             args.put("group_id", mGroup.getId());
         } catch (JSONException e) {
             e.printStackTrace();

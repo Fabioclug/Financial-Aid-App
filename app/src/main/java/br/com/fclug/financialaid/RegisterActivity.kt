@@ -12,6 +12,7 @@ import androidx.appcompat.app.AlertDialog
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import br.com.fclug.financialaid.server.*
+import br.com.fclug.financialaid.utils.TAG
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 import io.reactivex.schedulers.Schedulers
@@ -20,8 +21,6 @@ import org.koin.android.ext.android.inject
 import retrofit2.HttpException
 
 class RegisterActivity : AppCompatActivity() {
-
-    private val TAG = RegisterActivity::class.java.simpleName
 
     private var disposable: Disposable? = null
     private val api: ServerApi by inject()
@@ -122,7 +121,8 @@ class RegisterActivity : AppCompatActivity() {
                     .subscribe({response ->
                         progressDialog.dismiss()
                         Log.d(TAG, response.result.toString())
-                        SessionManager.checkLogin(this@RegisterActivity)
+                        val sessionManager : SessionManager by inject()
+                        sessionManager.checkLogin()
                     }, {error ->
                         progressDialog.dismiss()
 

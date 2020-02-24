@@ -32,6 +32,7 @@ public class FirebaseNotificationMessagingService extends FirebaseMessagingServi
         Log.d(TAG, "Refreshed token: " + refreshedToken);
 
         // Send the token to server or/and save it in shared preferences
-        SessionManager.updateFbToken(getApplicationContext(), refreshedToken);
+        SessionManager manager = new SessionManager(getApplicationContext());
+        manager.updateFbToken(refreshedToken);
     }
 }
